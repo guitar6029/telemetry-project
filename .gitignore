@@ -1,6 +1,12 @@
 # Maven
 target/
 
+# Maven Wrapper (keep these!)
+# DO NOT ignore:
+# .mvn/
+# mvnw
+# mvnw.cmd
+
 # IntelliJ
 .idea/
 *.iml
@@ -15,6 +21,7 @@ target/
 
 # Logs
 *.log
+logs/
 
 # OS
 .DS_Store
@@ -32,3 +39,4 @@ terraform.tfvars
 
 # Java
 *.class
+hs_err_pid*
