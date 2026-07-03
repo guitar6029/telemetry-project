@@ -20,6 +20,9 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       # - name: Verify Java installation
       #   run: java -version
 
