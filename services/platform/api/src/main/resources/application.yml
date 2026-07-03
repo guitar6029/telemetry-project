@@ -1,0 +1,4 @@
+#spring.application.name=platform-api
+spring:
+  application:
+    name: platform-api
