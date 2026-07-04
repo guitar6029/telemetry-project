@@ -19,9 +19,13 @@ public class OrganizationService {
 
     public Organization createOrganization(CreateOrganizationRequest request) {
 
-        Organization organization = new Organization("Company Test", "company-test", Instant.now(), Instant.now());
+        Organization organization = new Organization(
+                request.getName(),
+                request.getSlug(),
+                Instant.now(),
+                Instant.now());
 
-        // later call organizationRepository.save(organization);
-        return organization;
+        return organizationRepository.save(organization);
+
     }
 }
