@@ -3,14 +3,17 @@ package com.joshsoll.telemetry.platform.organization.entity;
 import java.time.Instant;
 import java.util.UUID;
 
-// import jakarta.persistence.GeneratedValue;
-// import jakarta.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-//later add Entity
+@Entity
+@Table(name = "organizations")
 public class Organization {
 
-    // @Id
-    // @GeneratedValue
+    @Id
+    @GeneratedValue
     private UUID id;
 
     private String name;
