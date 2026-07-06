@@ -19,7 +19,7 @@ public class OrganizationService {
         this.organizationRepository = organizationRepository;
     }
 
-    public Organization createOrganization(CreateOrganizationRequest request) {
+    public OrganizationResponse createOrganization(CreateOrganizationRequest request) {
 
         Organization organization = new Organization(
                 request.getName(),
@@ -27,7 +27,14 @@ public class OrganizationService {
                 Instant.now(),
                 Instant.now());
 
-        return organizationRepository.save(organization);
+        Organization saved = organizationRepository.save(organization);
+
+        return new OrganizationResponse(
+                saved.getId(),
+                saved.getName(),
+                saved.getSlug(),
+                saved.getCreatedAt(),
+                saved.getUpdatedAt());
 
     }
 

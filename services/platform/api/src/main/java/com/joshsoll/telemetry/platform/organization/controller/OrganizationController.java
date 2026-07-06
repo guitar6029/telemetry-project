@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
-import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.service.OrganizationService;
 
 import jakarta.validation.Valid;
@@ -37,11 +36,12 @@ public class OrganizationController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Organization>> createOrganization(
+    public ResponseEntity<ApiResponse<OrganizationResponse>> createOrganization(
             @Valid @RequestBody CreateOrganizationRequest request) {
-        Organization organization = organizationService.createOrganization(request);
+        OrganizationResponse organization = organizationService.createOrganization(request);
 
-        ApiResponse<Organization> response = new ApiResponse<>(organization, "Organization created successfully");
+        ApiResponse<OrganizationResponse> response = new ApiResponse<>(organization,
+                "Organization created successfully");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
