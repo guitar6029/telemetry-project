@@ -1,6 +1,7 @@
 package com.joshsoll.telemetry.platform.organization.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -27,5 +28,9 @@ public class OrganizationService {
 
         return organizationRepository.save(organization);
 
+    }
+
+    public Organization getOrganization(UUID id) {
+        return organizationRepository.findById(id).orElseThrow();
     }
 }
