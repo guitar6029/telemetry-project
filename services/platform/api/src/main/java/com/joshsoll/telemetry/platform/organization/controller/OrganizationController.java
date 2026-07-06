@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
+import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.service.OrganizationService;
 
@@ -29,9 +30,9 @@ public class OrganizationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Organization>> getOrganization(@PathVariable UUID id) {
-        Organization organization = organizationService.getOrganization(id);
-        ApiResponse<Organization> response = new ApiResponse<>(organization, "");
+    public ResponseEntity<ApiResponse<OrganizationResponse>> getOrganization(@PathVariable UUID id) {
+        OrganizationResponse organization = organizationService.getOrganization(id);
+        ApiResponse<OrganizationResponse> response = new ApiResponse<>(organization, "");
         return ResponseEntity.ok(response);
     }
 

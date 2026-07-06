@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
+import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 
@@ -30,7 +31,13 @@ public class OrganizationService {
 
     }
 
-    public Organization getOrganization(UUID id) {
-        return organizationRepository.findById(id).orElseThrow();
+    public OrganizationResponse getOrganization(UUID id) {
+        Organization organization = organizationRepository.findById(id).orElseThrow();
+        return new OrganizationResponse(
+                organization.getId(),
+                organization.getName(),
+                organization.getSlug(),
+                organization.getCreatedAt(),
+                organization.getUpdatedAt());
     }
 }
