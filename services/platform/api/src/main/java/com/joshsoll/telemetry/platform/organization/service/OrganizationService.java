@@ -1,10 +1,16 @@
 package com.joshsoll.telemetry.platform.organization.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -46,5 +52,34 @@ public class OrganizationService {
                 organization.getSlug(),
                 organization.getCreatedAt(),
                 organization.getUpdatedAt());
+    }
+
+    public PagedApiResponse<OrganizationResponse> getOrganizations(
+            int page,
+            int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Organization> organizations = organizationRepository.findAll(pageable);
+
+        List<OrganizationResponse> responses = new ArrayList<>();
+
+        for (Organization organization : organizations) {
+            responses.add(
+                    new OrganizationResponse(
+                            organization.getId(),
+                            organization.getName(),
+                            organization.getSlug(),
+                            organization.getCreatedAt(),
+                            organization.getUpdatedAt()));
+        }
+
+        return new PagedApiResponse<>(
+                responses,
+                "",
+                page,
+                size,
+                responses.size(),
+                1);
     }
 }
