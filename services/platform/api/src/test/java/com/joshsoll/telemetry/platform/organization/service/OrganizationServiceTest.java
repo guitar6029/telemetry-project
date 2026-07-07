@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,16 +30,22 @@ public class OrganizationServiceTest {
     @Test
     void shouldReturnOrganizationWhenIdExists() {
 
+        // Arrange
         Organization organization = new Organization("OpenAi", "openai", Instant.now(), Instant.now());
 
+        // Act
         when(organizationRepository.findById(organization.getId()))
                 .thenReturn(Optional.of(organization));
 
         OrganizationResponse response = organizationService.getOrganization(organization.getId());
 
+        // Assert
         assertEquals(organization.getId(), response.id());
         assertEquals(organization.getName(), response.name());
         assertEquals(organization.getSlug(), response.slug());
+
+        // Verify
+        verify(organizationRepository).findById(organization.getId());
 
     }
 
