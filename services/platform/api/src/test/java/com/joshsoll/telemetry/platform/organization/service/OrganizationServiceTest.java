@@ -1,6 +1,7 @@
 package com.joshsoll.telemetry.platform.organization.service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +18,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
+import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -92,5 +97,42 @@ public class OrganizationServiceTest {
         verify(organizationRepository)
                 .save(any(Organization.class));
 
+    }
+
+    @Test
+    void shouldReturnPagedOrganizations() {
+        Organization org1 = new Organization(
+                "OpenAI",
+                "openai",
+                Instant.now(),
+                Instant.now());
+
+        Organization org2 = new Organization(
+                "Google",
+                "google",
+                Instant.now(),
+                Instant.now());
+
+        List<Organization> orgs = List.of(org1, org2);
+
+        // fake page
+        Page<Organization> page = new PageImpl<>(orgs);
+
+        // call org repo to fetch list of orgs
+        when(organizationRepository.findAll(any(Pageable.class))).thenReturn(page);
+
+        PagedApiResponse<OrganizationResponse> response = organizationService.getOrganizations(0, 10);
+
+        assertEquals(2, response.getData().size());
+
+        assertEquals("OpenAI", response.getData().get(0).name());
+
+        assertEquals("Google", response.getData().get(1).name());
+
+        assertEquals(0, response.getPage());
+
+        assertEquals(10, response.getSize());
+
+        verify(organizationRepository).findAll(any(Pageable.class));
     }
 }
