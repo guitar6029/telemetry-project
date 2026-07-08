@@ -79,7 +79,7 @@ public class OrganizationService {
                 "",
                 page,
                 size,
-                responses.size(),
-                1);
+                organizations.getTotalElements(),
+                organizations.getTotalPages());
     }
 }
