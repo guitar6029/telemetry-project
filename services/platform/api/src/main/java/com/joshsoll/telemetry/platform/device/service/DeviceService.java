@@ -1,6 +1,7 @@
 package com.joshsoll.telemetry.platform.device.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,17 @@ public class DeviceService {
     }
 
     // get device by id
+    public DeviceResponse getDeviceById(UUID id){
+        Device device = deviceRepository.findById(id).orElseThrow();
+        return new DeviceResponse(
+            device.getId(),
+            device.getName(),
+            device.getModel(),
+            device.getSerialNumber(),
+            device.getCreatedAt(),
+            device.getUpdatedAt()
+        );
+    }
 
     // list devices
 }
