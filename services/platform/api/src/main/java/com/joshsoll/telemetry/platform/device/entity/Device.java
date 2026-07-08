@@ -8,6 +8,7 @@ import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -22,6 +23,7 @@ public class Device {
     private String model;
     private String serialNumber;
 
+    @ManyToOne
     private Organization organization;
 
     private Instant createdAt;
