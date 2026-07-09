@@ -65,4 +65,8 @@ public class HierarchyNode {
         return updatedAt;
     }
 
+    public Organization getOrganization() {
+        return organization;
+    }
+
 }
