@@ -1,0 +1,77 @@
+package com.joshsoll.telemetry.platform.hierarchy.service;
+
+import java.time.Instant;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+import com.joshsoll.telemetry.platform.hierarchy.dto.CreateHierarchyNodeRequest;
+import com.joshsoll.telemetry.platform.hierarchy.dto.HierarchyNodeResponse;
+import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
+import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
+import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
+
+@Service
+public class HierarchyNodeService {
+    private final HierarchyNodeRepository hierarchyNodeRepository;
+    private final OrganizationRepository organizationRepository;
+
+    public HierarchyNodeService(HierarchyNodeRepository hierarchyNodeRepository,
+            OrganizationRepository organizationRepository) {
+        this.hierarchyNodeRepository = hierarchyNodeRepository;
+        this.organizationRepository = organizationRepository;
+    }
+
+    public HierarchyNodeResponse createHierarchyNode(CreateHierarchyNodeRequest request) {
+        Organization organization = organizationRepository.findById(request.getOrganizationId()).orElseThrow();
+        UUID parentId = request.getParentNodeId();
+        HierarchyNode parentNode = null;
+        if (parentId != null) {
+            parentNode = hierarchyNodeRepository.findById(parentId).orElseThrow();
+        }
+
+        if (parentNode != null && !parentNode.getOrganization().equals(organization)) {
+            throw new IllegalArgumentException(
+                    "Parent node does not belong to this organization");
+        }
+
+        // if we have parentId, parentNode , and name
+        // then we check the next step
+        // duplicate check - org + parentNode + req.name
+
+        // throw illegal argument exception for now
+        // if exists
+        if (hierarchyNodeRepository.existsByOrganizationAndParentNodeAndName(organization, parentNode,
+                request.getName())) {
+            throw new IllegalArgumentException("Node already exists");
+        }
+
+        Instant now = Instant.now();
+
+        HierarchyNode node = new HierarchyNode(request.getName(), organization, parentNode, now, now);
+
+        // save the request
+        HierarchyNode savedNode = hierarchyNodeRepository.save(node);
+
+        return toResponse(savedNode);
+
+    }
+
+    // public HierarchyNodeResponse getHierarchyNodeById() {
+
+    // }
+
+    // public HierarchyNodeResponse getHierarchyNodes() {
+
+    // }
+
+    private HierarchyNodeResponse toResponse(HierarchyNode node) {
+        return new HierarchyNodeResponse(
+                node.getName(),
+                node.getId(),
+                node.getParentNodeId(),
+                node.getOrganization().getId());
+    }
+
+}
