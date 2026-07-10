@@ -58,9 +58,10 @@ public class HierarchyNodeService {
 
     }
 
-    // public HierarchyNodeResponse getHierarchyNodeById() {
-
-    // }
+    public HierarchyNodeResponse getHierarchyNodeById(UUID id) {
+        HierarchyNode node = hierarchyNodeRepository.findById(id).orElseThrow();
+        return toResponse(node);
+    }
 
     // public HierarchyNodeResponse getHierarchyNodes() {
 
