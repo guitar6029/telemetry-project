@@ -57,4 +57,14 @@ public class HierarchyNodeController {
         return ResponseEntity.ok(response);
 
     }
+
+    @GetMapping("/{nodeId}/children")
+    public ResponseEntity<ApiResponse<List<HierarchyNodeResponse>>> getHierarchyChildNodesByparent(
+            @PathVariable UUID nodeId) {
+        List<HierarchyNodeResponse> nodes = hierarchyNodeService.getChildNodesByParentNodeId(nodeId);
+
+        ApiResponse<List<HierarchyNodeResponse>> response = new ApiResponse<>(nodes, "");
+
+        return ResponseEntity.ok(response);
+    }
 }
