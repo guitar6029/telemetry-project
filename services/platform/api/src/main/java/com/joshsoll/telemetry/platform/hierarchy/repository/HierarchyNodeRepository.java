@@ -14,4 +14,6 @@ public interface HierarchyNodeRepository extends JpaRepository<HierarchyNode, UU
             String nodeName);
 
     List<HierarchyNode> findAllByOrganization(Organization organization);
+
+    List<HierarchyNode> findAllByParentNode(HierarchyNode parentNode);
 }

@@ -100,4 +100,15 @@ public class HierarchyNodeService {
         return toResponseList(nodes);
     }
 
+    public List<HierarchyNodeResponse> getChildNodesByParentNodeId(UUID nodeId) {
+
+        // check if node exists
+        HierarchyNode parentNode = hierarchyNodeRepository.findById(nodeId).orElseThrow();
+
+        // retrive the list of child nodes from the parentNode
+        List<HierarchyNode> nodes = hierarchyNodeRepository.findAllByParentNode(parentNode);
+
+        return toResponseList(nodes);
+    }
+
 }
