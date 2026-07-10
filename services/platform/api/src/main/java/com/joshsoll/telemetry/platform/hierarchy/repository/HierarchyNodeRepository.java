@@ -1,5 +1,6 @@
 package com.joshsoll.telemetry.platform.hierarchy.repository;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ public interface HierarchyNodeRepository extends JpaRepository<HierarchyNode, UU
 
     boolean existsByOrganizationAndParentNodeAndName(Organization organization, HierarchyNode parentNode,
             String nodeName);
+
+    List<HierarchyNode> findAllByOrganization(Organization organization);
 }
