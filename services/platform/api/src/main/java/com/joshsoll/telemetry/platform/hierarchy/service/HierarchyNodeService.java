@@ -1,6 +1,8 @@
 package com.joshsoll.telemetry.platform.hierarchy.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -73,6 +75,29 @@ public class HierarchyNodeService {
                 node.getId(),
                 node.getParentNodeId(),
                 node.getOrganization().getId());
+    }
+
+    private List<HierarchyNodeResponse> toResponseList(List<HierarchyNode> nodes) {
+        // convert the list of hierarchy nodes to list of hierarchy node response
+        List<HierarchyNodeResponse> nodesResponses = new ArrayList<>();
+
+        // iterate over the nodes and use the helper to convert to the new NodeResponse
+        for (HierarchyNode node : nodes) {
+            nodesResponses.add(toResponse(node));
+        }
+
+        return nodesResponses;
+    }
+
+    public List<HierarchyNodeResponse> getHierarchyByOrganization(UUID organizationId) {
+
+        // check if organization exists
+        Organization organization = organizationRepository.findById(organizationId).orElseThrow();
+
+        // retrive the list of nodes
+        List<HierarchyNode> nodes = hierarchyNodeRepository.findAllByOrganization(organization);
+
+        return toResponseList(nodes);
     }
 
 }
