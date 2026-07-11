@@ -69,12 +69,17 @@ public class HierarchyNodeService {
 
     // }
 
+    private boolean hasChildren(HierarchyNode node) {
+        return hierarchyNodeRepository.existsByParentNode(node);
+    }
+
     private HierarchyNodeResponse toResponse(HierarchyNode node) {
         return new HierarchyNodeResponse(
                 node.getName(),
                 node.getId(),
                 node.getParentNodeId(),
-                node.getOrganization().getId());
+                node.getOrganization().getId(),
+                hasChildren(node));
     }
 
     private List<HierarchyNodeResponse> toResponseList(List<HierarchyNode> nodes) {
