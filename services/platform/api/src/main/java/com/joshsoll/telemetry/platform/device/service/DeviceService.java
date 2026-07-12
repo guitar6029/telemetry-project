@@ -15,6 +15,8 @@ import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
+import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.deviceTemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -25,12 +27,17 @@ public class DeviceService {
     private final DeviceRepository deviceRepository;
     private final OrganizationRepository organizationRepository;
     private final HierarchyNodeRepository hierarchyNodeRepository;
+    private final DeviceTemplateRepository deviceTemplateRepository;
 
-    public DeviceService(DeviceRepository deviceRepository,
-            OrganizationRepository organizationRepository, HierarchyNodeRepository hierarchyNodeRepository) {
+    public DeviceService(
+            DeviceRepository deviceRepository,
+            OrganizationRepository organizationRepository,
+            HierarchyNodeRepository hierarchyNodeRepository,
+            DeviceTemplateRepository deviceTemplateRepository) {
         this.deviceRepository = deviceRepository;
         this.organizationRepository = organizationRepository;
         this.hierarchyNodeRepository = hierarchyNodeRepository;
+        this.deviceTemplateRepository = deviceTemplateRepository;
     }
 
     // create
@@ -44,9 +51,17 @@ public class DeviceService {
         // find hierarchy node
         HierarchyNode hierarchyNode = hierarchyNodeRepository.findById(request.getHierarchyNodeId()).orElseThrow();
 
+        // Find device template
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(request.getDeviceTemplateId()).orElseThrow();
+
         // Validate hierarchy belongs to organization
         if (!hierarchyNode.getOrganization().getId().equals(organization.getId())) {
             throw new IllegalArgumentException("Org id is incorrect, try again");
+        }
+
+        // Validate device template
+        if (!deviceTemplate.getOrganizationId().equals(organization.getId())) {
+            throw new IllegalArgumentException("Device template does not belong to the organization");
         }
 
         // Validate serial number uniqueness
@@ -65,6 +80,7 @@ public class DeviceService {
                 request.getStatus(),
                 organization,
                 hierarchyNode,
+                deviceTemplate,
                 now,
                 now);
 
@@ -111,6 +127,7 @@ public class DeviceService {
                 device.getStatus(),
                 device.getOrganizationId(),
                 device.getHierarchyNodeId(),
+                device.getDeviceTemplateId(),
                 device.getCreatedAt(),
                 device.getUpdatedAt());
     }
