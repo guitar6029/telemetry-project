@@ -2,6 +2,7 @@ package com.joshsoll.telemetry.platform.device.dto;
 
 import java.util.UUID;
 
+import com.joshsoll.telemetry.platform.device.DeviceStatus;
 import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 
 import jakarta.validation.constraints.NotBlank;
@@ -19,18 +20,38 @@ public class CreateDeviceRequest {
     // DeviceConstants.MODEL_MAX_LENGTH)
     private String model;
     private String serialNumber;
+    private String manufacturer;
+    private String firmwareVersion;
+
+    private DeviceStatus status;
 
     @NotNull
     private UUID organizationId;
 
+    @NotNull
+    private UUID hierarchyNodeId;
+
     public CreateDeviceRequest() {
     }
 
-    public CreateDeviceRequest(String name, String model, String serialNumber, UUID organizationId) {
+    public CreateDeviceRequest(
+            String name,
+            String manufacturer,
+            String model,
+            String serialNumber,
+            String firmwareVersion,
+            DeviceStatus status,
+            UUID organizationId,
+            UUID hierarchyNodeId) {
+
         this.name = name;
+        this.manufacturer = manufacturer;
         this.model = model;
         this.serialNumber = serialNumber;
+        this.firmwareVersion = firmwareVersion;
+        this.status = status;
         this.organizationId = organizationId;
+        this.hierarchyNodeId = hierarchyNodeId;
     }
 
     public String getName() {
@@ -47,5 +68,21 @@ public class CreateDeviceRequest {
 
     public UUID getOrganizationId() {
         return organizationId;
+    }
+
+    public UUID getHierarchyNodeId() {
+        return hierarchyNodeId;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public String getFirmwareVersion() {
+        return firmwareVersion;
+    }
+
+    public DeviceStatus getStatus() {
+        return status;
     }
 }
