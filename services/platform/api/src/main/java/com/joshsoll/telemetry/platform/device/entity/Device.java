@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
+import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
@@ -29,6 +30,9 @@ public class Device {
     private String serialNumber;
     private String firmwareVersion;
 
+    @ManyToOne
+    private DeviceTemplate deviceTemplate;
+
     @Enumerated(EnumType.STRING)
     private DeviceStatus status;
 
@@ -53,6 +57,7 @@ public class Device {
             DeviceStatus status,
             Organization organization,
             HierarchyNode hierarchyNode,
+            DeviceTemplate deviceTemplate,
             Instant createdAt,
             Instant updatedAt) {
 
@@ -64,6 +69,7 @@ public class Device {
         this.status = status;
         this.organization = organization;
         this.hierarchyNode = hierarchyNode;
+        this.deviceTemplate = deviceTemplate;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -110,6 +116,10 @@ public class Device {
 
     public UUID getHierarchyNodeId() {
         return hierarchyNode.getId();
+    }
+
+    public UUID getDeviceTemplateId() {
+        return deviceTemplate.getId();
     }
 
 }
