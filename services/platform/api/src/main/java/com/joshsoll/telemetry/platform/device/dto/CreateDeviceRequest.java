@@ -31,6 +31,9 @@ public class CreateDeviceRequest {
     @NotNull
     private UUID hierarchyNodeId;
 
+    @NotNull
+    private UUID deviceTemplateId;
+
     public CreateDeviceRequest() {
     }
 
@@ -42,7 +45,8 @@ public class CreateDeviceRequest {
             String firmwareVersion,
             DeviceStatus status,
             UUID organizationId,
-            UUID hierarchyNodeId) {
+            UUID hierarchyNodeId,
+            UUID deviceTemplateId) {
 
         this.name = name;
         this.manufacturer = manufacturer;
@@ -52,6 +56,7 @@ public class CreateDeviceRequest {
         this.status = status;
         this.organizationId = organizationId;
         this.hierarchyNodeId = hierarchyNodeId;
+        this.deviceTemplateId = deviceTemplateId;
     }
 
     public String getName() {
@@ -72,6 +77,10 @@ public class CreateDeviceRequest {
 
     public UUID getHierarchyNodeId() {
         return hierarchyNodeId;
+    }
+
+    public UUID getDeviceTemplateId() {
+        return deviceTemplateId;
     }
 
     public String getManufacturer() {

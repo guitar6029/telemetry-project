@@ -6,16 +6,17 @@ import java.util.UUID;
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
 
 public record DeviceResponse(
-                UUID id,
-                String name,
-                String manufacturer,
-                String model,
-                String serialNumber,
-                String firmwareVersion,
-                DeviceStatus status,
-                UUID organizationId,
-                UUID hierarchyNodeId,
-                Instant createdAt,
-                Instant updatedAt) {
+        UUID id,
+        String name,
+        String manufacturer,
+        String model,
+        String serialNumber,
+        String firmwareVersion,
+        DeviceStatus status,
+        UUID organizationId,
+        UUID hierarchyNodeId,
+        UUID deviceTemplateId,
+        Instant createdAt,
+        Instant updatedAt) {
 
 }
