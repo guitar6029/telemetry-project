@@ -35,23 +35,13 @@ public class OrganizationService {
 
         Organization saved = organizationRepository.save(organization);
 
-        return new OrganizationResponse(
-                saved.getId(),
-                saved.getName(),
-                saved.getSlug(),
-                saved.getCreatedAt(),
-                saved.getUpdatedAt());
+        return toResponse(saved);
 
     }
 
-    public OrganizationResponse getOrganization(UUID id) {
+    public OrganizationResponse getOrganizationById(UUID id) {
         Organization organization = organizationRepository.findById(id).orElseThrow();
-        return new OrganizationResponse(
-                organization.getId(),
-                organization.getName(),
-                organization.getSlug(),
-                organization.getCreatedAt(),
-                organization.getUpdatedAt());
+        return toResponse(organization);
     }
 
     public PagedApiResponse<OrganizationResponse> getOrganizations(
@@ -65,13 +55,7 @@ public class OrganizationService {
         List<OrganizationResponse> responses = new ArrayList<>();
 
         for (Organization organization : organizations) {
-            responses.add(
-                    new OrganizationResponse(
-                            organization.getId(),
-                            organization.getName(),
-                            organization.getSlug(),
-                            organization.getCreatedAt(),
-                            organization.getUpdatedAt()));
+            responses.add(toResponse(organization));
         }
 
         return new PagedApiResponse<>(
@@ -81,5 +65,14 @@ public class OrganizationService {
                 size,
                 organizations.getTotalElements(),
                 organizations.getTotalPages());
+    }
+
+    private OrganizationResponse toResponse(Organization organization) {
+        return new OrganizationResponse(
+                organization.getId(),
+                organization.getName(),
+                organization.getSlug(),
+                organization.getCreatedAt(),
+                organization.getUpdatedAt());
     }
 }

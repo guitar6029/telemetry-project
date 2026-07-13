@@ -42,7 +42,7 @@ public class OrganizationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrganizationResponse>> getOrganization(@PathVariable UUID id) {
-        OrganizationResponse organization = organizationService.getOrganization(id);
+        OrganizationResponse organization = organizationService.getOrganizationById(id);
         ApiResponse<OrganizationResponse> response = new ApiResponse<>(organization, "");
         return ResponseEntity.ok(response);
     }
