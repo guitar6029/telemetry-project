@@ -11,10 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,109 +29,110 @@ import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepos
 
 @ExtendWith(MockitoExtension.class)
 public class OrganizationServiceTest {
-    @Mock
-    private OrganizationRepository organizationRepository;
+        @Mock
+        private OrganizationRepository organizationRepository;
 
-    @InjectMocks
-    private OrganizationService organizationService;
+        @InjectMocks
+        private OrganizationService organizationService;
 
-    @Test
-    void shouldReturnOrganizationWhenIdExists() {
+        @Test
+        void shouldReturnOrganizationWhenIdExists() {
 
-        // Arrange
-        Organization organization = new Organization("OpenAi", "openai", Instant.now(), Instant.now());
+                // Arrange
+                Organization organization = new Organization("OpenAi", "openai", Instant.now(), Instant.now());
 
-        // Act
-        when(organizationRepository.findById(organization.getId()))
-                .thenReturn(Optional.of(organization));
+                // Act
+                when(organizationRepository.findById(organization.getId()))
+                                .thenReturn(Optional.of(organization));
 
-        OrganizationResponse response = organizationService.getOrganization(organization.getId());
+                OrganizationResponse response = organizationService.getOrganizationById(organization.getId());
 
-        // Assert
-        assertEquals(organization.getId(), response.id());
-        assertEquals(organization.getName(), response.name());
-        assertEquals(organization.getSlug(), response.slug());
+                // Assert
+                assertEquals(organization.getId(), response.id());
+                assertEquals(organization.getName(), response.name());
+                assertEquals(organization.getSlug(), response.slug());
 
-        // Verify
-        verify(organizationRepository).findById(organization.getId());
+                // Verify
+                verify(organizationRepository).findById(organization.getId());
 
-    }
+        }
 
-    @Test
-    void shouldThrowWhenOrganizationDoesNotExist() {
+        @Test
+        void shouldThrowWhenOrganizationDoesNotExist() {
 
-        // Arrange
-        UUID id = UUID.randomUUID();
+                // Arrange
+                UUID id = UUID.randomUUID();
 
-        when(organizationRepository.findById(id))
-                .thenReturn(Optional.empty());
+                when(organizationRepository.findById(id))
+                                .thenReturn(Optional.empty());
 
-        // Act + Assert
-        assertThrows(
-                NoSuchElementException.class,
-                () -> organizationService.getOrganization(id));
-    }
+                // Act + Assert
+                assertThrows(
+                                NoSuchElementException.class,
+                                () -> organizationService.getOrganizationById(id));
+        }
 
-    @Test
-    void shouldCreateANewOrganization() {
+        @Test
+        void shouldCreateANewOrganization() {
 
-        // create dummy organization
-        Organization organization = new Organization("MyOrganization", "my-organization", Instant.now(), Instant.now());
+                // create dummy organization
+                Organization organization = new Organization("MyOrganization", "my-organization", Instant.now(),
+                                Instant.now());
 
-        // call org repo to save this organization
-        when(organizationRepository.save(any(Organization.class)))
-                .thenReturn(organization);
+                // call org repo to save this organization
+                when(organizationRepository.save(any(Organization.class)))
+                                .thenReturn(organization);
 
-        CreateOrganizationRequest request = new CreateOrganizationRequest(
-                "MyOrganization",
-                "my-organization");
+                CreateOrganizationRequest request = new CreateOrganizationRequest(
+                                "MyOrganization",
+                                "my-organization");
 
-        OrganizationResponse response = organizationService.createOrganization(request);
+                OrganizationResponse response = organizationService.createOrganization(request);
 
-        assertEquals(request.getName(), response.name());
-        assertEquals(request.getSlug(), response.slug());
-        assertNotNull(response.createdAt());
-        assertNotNull(response.updatedAt());
+                assertEquals(request.getName(), response.name());
+                assertEquals(request.getSlug(), response.slug());
+                assertNotNull(response.createdAt());
+                assertNotNull(response.updatedAt());
 
-        verify(organizationRepository)
-                .save(any(Organization.class));
+                verify(organizationRepository)
+                                .save(any(Organization.class));
 
-    }
+        }
 
-    @Test
-    void shouldReturnPagedOrganizations() {
-        Organization org1 = new Organization(
-                "OpenAI",
-                "openai",
-                Instant.now(),
-                Instant.now());
+        @Test
+        void shouldReturnPagedOrganizations() {
+                Organization org1 = new Organization(
+                                "OpenAI",
+                                "openai",
+                                Instant.now(),
+                                Instant.now());
 
-        Organization org2 = new Organization(
-                "Google",
-                "google",
-                Instant.now(),
-                Instant.now());
+                Organization org2 = new Organization(
+                                "Google",
+                                "google",
+                                Instant.now(),
+                                Instant.now());
 
-        List<Organization> orgs = List.of(org1, org2);
+                List<Organization> orgs = List.of(org1, org2);
 
-        // fake page
-        Page<Organization> page = new PageImpl<>(orgs);
+                // fake page
+                Page<Organization> page = new PageImpl<>(orgs);
 
-        // call org repo to fetch list of orgs
-        when(organizationRepository.findAll(any(Pageable.class))).thenReturn(page);
+                // call org repo to fetch list of orgs
+                when(organizationRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        PagedApiResponse<OrganizationResponse> response = organizationService.getOrganizations(0, 10);
+                PagedApiResponse<OrganizationResponse> response = organizationService.getOrganizations(0, 10);
 
-        assertEquals(2, response.getData().size());
+                assertEquals(2, response.getData().size());
 
-        assertEquals("OpenAI", response.getData().get(0).name());
+                assertEquals("OpenAI", response.getData().get(0).name());
 
-        assertEquals("Google", response.getData().get(1).name());
+                assertEquals("Google", response.getData().get(1).name());
 
-        assertEquals(0, response.getPage());
+                assertEquals(0, response.getPage());
 
-        assertEquals(10, response.getSize());
+                assertEquals(10, response.getSize());
 
-        verify(organizationRepository).findAll(any(Pageable.class));
-    }
+                verify(organizationRepository).findAll(any(Pageable.class));
+        }
 }
