@@ -38,7 +38,7 @@ public class DeviceController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ApiResponse<DeviceResponse>> getDevice(@PathVariable UUID id) {
+    public ResponseEntity<ApiResponse<DeviceResponse>> getDeviceById(@PathVariable UUID id) {
         DeviceResponse device = deviceService.getDeviceById(id);
         ApiResponse<DeviceResponse> response = new ApiResponse<>(device, "");
 
