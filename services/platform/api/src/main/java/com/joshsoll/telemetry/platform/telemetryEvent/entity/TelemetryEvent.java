@@ -1,4 +1,4 @@
-package com.joshsoll.telemetry.platform.telemetry.entity;
+package com.joshsoll.telemetry.platform.telemetryEvent.entity;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
-import com.joshsoll.telemetry.platform.telemetry.entity.TelemetryEvent;
+import com.joshsoll.telemetry.platform.telemetryEvent.entity.TelemetryEvent;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
