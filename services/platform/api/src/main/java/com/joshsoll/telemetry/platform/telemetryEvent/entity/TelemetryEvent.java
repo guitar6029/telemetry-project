@@ -68,4 +68,8 @@ public class TelemetryEvent {
     public Instant getReceivedAt() {
         return receivedAt;
     }
+
+    public Device getDevice() {
+        return device;
+    }
 }
