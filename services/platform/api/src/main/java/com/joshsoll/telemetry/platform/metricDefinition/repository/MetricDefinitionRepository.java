@@ -15,5 +15,5 @@ public interface MetricDefinitionRepository
                         DeviceTemplate deviceTemplate,
                         String incomingFieldName);
 
-        List<MetricDefinition> findAllByDeviceTemplateId(UUID deviceTemplateId);
+        List<MetricDefinition> findAllByDeviceTemplate(DeviceTemplate deviceTemplate);
 }
