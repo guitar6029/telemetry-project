@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
 import com.joshsoll.telemetry.platform.telemetryEvent.entity.TelemetryEvent;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -27,6 +28,7 @@ public class MetricValue {
     @ManyToOne
     private MetricDefinition metricDefinition;
 
+    @Column(precision = 19, scale = 6)
     private BigDecimal numberValue;
 
     private Boolean booleanValue;
