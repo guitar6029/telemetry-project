@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.joshsoll.telemetry.platform.device.entity.Device;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -22,6 +23,7 @@ public class TelemetryEvent {
     @ManyToOne
     private Device device;
 
+    @Column(columnDefinition = "TEXT")
     private String rawPayload;
 
     private Instant createdAt;
