@@ -15,13 +15,19 @@ import com.joshsoll.telemetry.platform.telemetryEvent.repository.TelemetryEventR
 public class TelemetryEventService {
 
     private final TelemetryEventRepository telemetryEventRepository;
+    private final TelemetryProcessingService telemetryProcessingService;
     private final DeviceRepository deviceRepository;
 
     public TelemetryEventService(
+
             TelemetryEventRepository telemetryEventRepository,
+
+            TelemetryProcessingService telemetryProcessingService,
+
             DeviceRepository deviceRepository) {
         this.telemetryEventRepository = telemetryEventRepository;
         this.deviceRepository = deviceRepository;
+        this.telemetryProcessingService = telemetryProcessingService;
     }
 
     public TelemetryEventResponse createTelemetryEvent(CreateTelemetryEventRequest request) {
@@ -35,6 +41,8 @@ public class TelemetryEventService {
                 request.getRawPayload(),
                 now,
                 now);
+
+        telemetryProcessingService.processTelemetryEvent(telemetryEvent);
 
         TelemetryEvent savedTelemetryEvent = telemetryEventRepository.save(telemetryEvent);
 
