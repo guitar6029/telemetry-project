@@ -41,10 +41,11 @@ public class TelemetryEventService {
                 request.getRawPayload(),
                 now,
                 now);
-
-        telemetryProcessingService.processTelemetryEvent(telemetryEvent);
-
+        // Persist the parent first
         TelemetryEvent savedTelemetryEvent = telemetryEventRepository.save(telemetryEvent);
+
+        // Now process using the persisted entity
+        telemetryProcessingService.processTelemetryEvent(savedTelemetryEvent);
 
         return toResponse(savedTelemetryEvent);
     }
