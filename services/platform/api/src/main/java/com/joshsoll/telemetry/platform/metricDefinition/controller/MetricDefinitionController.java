@@ -21,7 +21,7 @@ import com.joshsoll.telemetry.platform.metricDefinition.service.MetricDefinition
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/metrics")
+@RequestMapping("/api/v1/metric-definitions")
 public class MetricDefinitionController {
         private final MetricDefinitionService metricDefinitionService;
 
