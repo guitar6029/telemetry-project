@@ -50,7 +50,7 @@ public class TelemetryProcessingService {
 
         // Load MetricDefinitions
         List<MetricDefinition> metricDefinitions = metricDefinitionRepository
-                .findAllByDeviceTemplateId(telemetryEvent.getDevice().getDeviceTemplateId());
+                .findAllByDeviceTemplate(telemetryEvent.getDevice().getDeviceTemplate());
 
         Map<String, MetricDefinition> definitionLookup = metricDefinitions.stream()
                 .collect(Collectors.toMap(
