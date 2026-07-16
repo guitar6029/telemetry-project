@@ -1,10 +1,10 @@
-package com.joshsoll.telemetry.platform.metric.entity;
+package com.joshsoll.telemetry.platform.metricDefinition.entity;
 
 import java.time.Instant;
 import java.util.UUID;
 
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
-import com.joshsoll.telemetry.platform.metric.MetricDataType;
+import com.joshsoll.telemetry.platform.metricDefinition.MetricDataType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

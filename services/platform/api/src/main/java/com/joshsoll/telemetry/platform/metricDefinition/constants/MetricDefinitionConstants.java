@@ -1,4 +1,4 @@
-package com.joshsoll.telemetry.platform.metric.constants;
+package com.joshsoll.telemetry.platform.metricDefinition.constants;
 
 public class MetricDefinitionConstants {
     public static final int NAME_MIN_LENGTH = 2;

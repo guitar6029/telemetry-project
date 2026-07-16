@@ -122,4 +122,8 @@ public class Device {
         return deviceTemplate.getId();
     }
 
+    public DeviceTemplate getDeviceTemplate() {
+        return deviceTemplate;
+    }
+
 }

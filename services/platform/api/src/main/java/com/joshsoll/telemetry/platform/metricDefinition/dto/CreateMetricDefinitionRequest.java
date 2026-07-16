@@ -1,9 +1,9 @@
-package com.joshsoll.telemetry.platform.metric.dto;
+package com.joshsoll.telemetry.platform.metricDefinition.dto;
 
 import java.util.UUID;
 
-import com.joshsoll.telemetry.platform.metric.MetricDataType;
-import com.joshsoll.telemetry.platform.metric.constants.MetricDefinitionConstants;
+import com.joshsoll.telemetry.platform.metricDefinition.MetricDataType;
+import com.joshsoll.telemetry.platform.metricDefinition.constants.MetricDefinitionConstants;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

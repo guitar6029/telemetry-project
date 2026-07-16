@@ -1,4 +1,4 @@
-package com.joshsoll.telemetry.platform.metric.service;
+package com.joshsoll.telemetry.platform.metricDefinition.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.deviceTemplate.repository.DeviceTemplateRepository;
-import com.joshsoll.telemetry.platform.metric.dto.CreateMetricDefinitionRequest;
-import com.joshsoll.telemetry.platform.metric.dto.MetricDefinitionResponse;
-import com.joshsoll.telemetry.platform.metric.entity.MetricDefinition;
-import com.joshsoll.telemetry.platform.metric.repository.MetricDefinitionRepository;
+import com.joshsoll.telemetry.platform.metricDefinition.dto.CreateMetricDefinitionRequest;
+import com.joshsoll.telemetry.platform.metricDefinition.dto.MetricDefinitionResponse;
+import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricDefinition.repository.MetricDefinitionRepository;
 
 @Service
 public class MetricDefinitionService {

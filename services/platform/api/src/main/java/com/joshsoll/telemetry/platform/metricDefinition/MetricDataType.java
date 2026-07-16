@@ -1,4 +1,4 @@
-package com.joshsoll.telemetry.platform.metric;
+package com.joshsoll.telemetry.platform.metricDefinition;
 
 public enum MetricDataType {
     NUMBER,
