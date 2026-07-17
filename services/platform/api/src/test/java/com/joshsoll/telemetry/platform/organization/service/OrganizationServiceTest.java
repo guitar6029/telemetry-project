@@ -25,6 +25,7 @@ import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,9 +68,9 @@ public class OrganizationServiceTest {
                                 .thenReturn(Optional.empty());
 
                 // Act + Assert
-                assertThrows(
-                                NoSuchElementException.class,
-                                () -> organizationService.getOrganizationById(id));
+                assertThrows(OrganizationNotFoundException.class, () -> {
+                        organizationService.getOrganizationById(id);
+                });
         }
 
         @Test
