@@ -12,10 +12,12 @@ import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.deviceTemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.deviceTemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.metricDefinition.dto.CreateMetricDefinitionRequest;
 import com.joshsoll.telemetry.platform.metricDefinition.dto.MetricDefinitionResponse;
 import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricDefinition.exception.MetricDefinitionNotFoundException;
 import com.joshsoll.telemetry.platform.metricDefinition.repository.MetricDefinitionRepository;
 
 @Service
@@ -34,7 +36,8 @@ public class MetricDefinitionService {
         Instant now = Instant.now();
 
         // find device template
-        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(request.getDeviceTemplateId()).orElseThrow();
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(request.getDeviceTemplateId())
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(request.getDeviceTemplateId()));
 
         // validate given device template does not already have the metric
         if (metricDefinitionRepository.existsByDeviceTemplateAndIncomingFieldName(deviceTemplate,
@@ -60,7 +63,8 @@ public class MetricDefinitionService {
 
     public MetricDefinitionResponse getMetricDefinitionById(UUID metricDefinitionId) {
         // check if metric exists with the given id
-        MetricDefinition metricDefinition = metricDefinitionRepository.findById(metricDefinitionId).orElseThrow();
+        MetricDefinition metricDefinition = metricDefinitionRepository.findById(metricDefinitionId)
+                .orElseThrow(() -> new MetricDefinitionNotFoundException(metricDefinitionId));
 
         return toResponse(metricDefinition);
     }
