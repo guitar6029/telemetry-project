@@ -14,6 +14,8 @@ import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.exception.DuplicateOrganizationSlugException;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 
 @Service
@@ -26,6 +28,11 @@ public class OrganizationService {
     }
 
     public OrganizationResponse createOrganization(CreateOrganizationRequest request) {
+
+        // check if the slug already exists
+        if (organizationRepository.existsBySlug(request.getSlug())) {
+            throw new DuplicateOrganizationSlugException(request.getSlug());
+        }
 
         Organization organization = new Organization(
                 request.getName(),
@@ -40,7 +47,8 @@ public class OrganizationService {
     }
 
     public OrganizationResponse getOrganizationById(UUID id) {
-        Organization organization = organizationRepository.findById(id).orElseThrow();
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new OrganizationNotFoundException(id));
         return toResponse(organization);
     }
 
