@@ -14,12 +14,16 @@ import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
 import com.joshsoll.telemetry.platform.device.entity.Device;
+import com.joshsoll.telemetry.platform.device.exception.DeviceNotFoundException;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.deviceTemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.deviceTemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
+import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
 import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 
 @Service
@@ -46,13 +50,16 @@ public class DeviceService {
         Instant now = Instant.now();
 
         // find organization
-        Organization organization = organizationRepository.findById(request.getOrganizationId()).orElseThrow();
+        Organization organization = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
 
         // find hierarchy node
-        HierarchyNode hierarchyNode = hierarchyNodeRepository.findById(request.getHierarchyNodeId()).orElseThrow();
+        HierarchyNode hierarchyNode = hierarchyNodeRepository.findById(request.getHierarchyNodeId())
+                .orElseThrow(() -> new HierarchyNodeNotFoundException(request.getHierarchyNodeId()));
 
         // Find device template
-        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(request.getDeviceTemplateId()).orElseThrow();
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(request.getDeviceTemplateId())
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(request.getDeviceTemplateId()));
 
         // Validate hierarchy belongs to organization
         if (!hierarchyNode.getOrganization().getId().equals(organization.getId())) {
@@ -91,7 +98,7 @@ public class DeviceService {
 
     // get device by id
     public DeviceResponse getDeviceById(UUID id) {
-        Device device = deviceRepository.findById(id).orElseThrow();
+        Device device = deviceRepository.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
         return toResponse(device);
     }
 

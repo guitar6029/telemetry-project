@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.hierarchy.dto.CreateHierarchyNodeRequest;
 import com.joshsoll.telemetry.platform.hierarchy.dto.HierarchyNodeResponse;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
+import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
 import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 
 @Service
@@ -26,11 +28,13 @@ public class HierarchyNodeService {
     }
 
     public HierarchyNodeResponse createHierarchyNode(CreateHierarchyNodeRequest request) {
-        Organization organization = organizationRepository.findById(request.getOrganizationId()).orElseThrow();
+        Organization organization = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
         UUID parentId = request.getParentNodeId();
         HierarchyNode parentNode = null;
         if (parentId != null) {
-            parentNode = hierarchyNodeRepository.findById(parentId).orElseThrow();
+            parentNode = hierarchyNodeRepository.findById(parentId)
+                    .orElseThrow(() -> new HierarchyNodeNotFoundException(parentId));
         }
 
         if (parentNode != null && !parentNode.getOrganization().equals(organization)) {
@@ -61,7 +65,8 @@ public class HierarchyNodeService {
     }
 
     public HierarchyNodeResponse getHierarchyNodeById(UUID id) {
-        HierarchyNode node = hierarchyNodeRepository.findById(id).orElseThrow();
+        HierarchyNode node = hierarchyNodeRepository.findById(id)
+                .orElseThrow(() -> new HierarchyNodeNotFoundException(id));
         return toResponse(node);
     }
 
@@ -97,7 +102,8 @@ public class HierarchyNodeService {
     public List<HierarchyNodeResponse> getHierarchyByOrganization(UUID organizationId) {
 
         // check if organization exists
-        Organization organization = organizationRepository.findById(organizationId).orElseThrow();
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
 
         // retrive the list of nodes
         List<HierarchyNode> nodes = hierarchyNodeRepository.findAllByOrganization(organization);
@@ -108,7 +114,8 @@ public class HierarchyNodeService {
     public List<HierarchyNodeResponse> getChildNodesByParentNodeId(UUID nodeId) {
 
         // check if node exists
-        HierarchyNode parentNode = hierarchyNodeRepository.findById(nodeId).orElseThrow();
+        HierarchyNode parentNode = hierarchyNodeRepository.findById(nodeId)
+                .orElseThrow(() -> new HierarchyNodeNotFoundException(nodeId));
 
         // retrive the list of child nodes from the parentNode
         List<HierarchyNode> nodes = hierarchyNodeRepository.findAllByParentNode(parentNode);

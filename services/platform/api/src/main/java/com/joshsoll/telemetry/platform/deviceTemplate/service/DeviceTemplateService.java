@@ -14,8 +14,10 @@ import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.deviceTemplate.dto.CreateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.deviceTemplate.dto.DeviceTemplateResponse;
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.deviceTemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.deviceTemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 
 @Service
@@ -34,7 +36,8 @@ public class DeviceTemplateService {
         Instant now = Instant.now();
 
         // Find organization
-        Organization organization = organizationRepository.findById(request.getOrganizationId()).orElseThrow();
+        Organization organization = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
 
         // Validate template name uniqueness
         if (deviceTemplateRepository.existsByOrganizationAndName(organization, request.getName())) {
@@ -55,7 +58,8 @@ public class DeviceTemplateService {
     }
 
     public DeviceTemplateResponse getDeviceTemplateById(UUID deviceTemplateId) {
-        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId).orElseThrow();
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
         return toResponse(deviceTemplate);
     }
 

@@ -3,6 +3,9 @@ package com.joshsoll.telemetry.platform.organization.entity;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.ColumnDefault;
+
+import org.hibernate.annotations.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,6 +16,8 @@ import jakarta.persistence.Table;
 public class Organization {
 
     @Id
+    @Generated // <--- Tells Hibernate: "DB generates this, omit from INSERT"
+    @ColumnDefault("gen_random_uuid()") // <--- Maps to your SQL DEFAULT
     private UUID id;
 
     @Column(nullable = false, length = 50)

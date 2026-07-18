@@ -5,6 +5,7 @@ import java.time.Instant;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.device.entity.Device;
+import com.joshsoll.telemetry.platform.device.exception.DeviceNotFoundException;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.telemetryEvent.dto.CreateTelemetryEventRequest;
 import com.joshsoll.telemetry.platform.telemetryEvent.dto.TelemetryEventResponse;
@@ -34,7 +35,8 @@ public class TelemetryEventService {
 
         Instant now = Instant.now();
 
-        Device device = deviceRepository.findById(request.getDeviceId()).orElseThrow();
+        Device device = deviceRepository.findById(request.getDeviceId())
+                .orElseThrow(() -> new DeviceNotFoundException(request.getDeviceId()));
 
         TelemetryEvent telemetryEvent = new TelemetryEvent(
                 device,
