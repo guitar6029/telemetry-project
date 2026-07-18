@@ -3,14 +3,20 @@ package com.joshsoll.telemetry.platform.metricDefinition.entity;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.metricDefinition.MetricDataType;
+import com.joshsoll.telemetry.platform.metricDefinition.constants.MetricDefinitionConstants;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -18,21 +24,28 @@ import jakarta.persistence.Table;
 @Table(name = "metric_definitions")
 public class MetricDefinition {
     @Id
-    @GeneratedValue
+    @Generated
+    @ColumnDefault("gen_random_uuid()")
     private UUID id;
 
+    @Column(nullable = false, length = MetricDefinitionConstants.NAME_MAX_LENGTH)
     private String name;
 
+    @Column(nullable = false, length = MetricDefinitionConstants.DESCRIPTION_MAX_LENGTH)
     private String description;
 
+    @Column(nullable = false, length = MetricDefinitionConstants.INCOMING_FIELD_NAME_MAX_LENGTH)
     private String incomingFieldName;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = MetricDefinitionConstants.DATA_TYPE_MAX_LENGTH)
     private MetricDataType dataType;
 
+    @Column(length = MetricDefinitionConstants.UNIT_MAX_LENGTH)
     private String unit;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "device_template_id")
     private DeviceTemplate deviceTemplate;
 
     private Instant createdAt;

@@ -6,6 +6,9 @@ import java.util.UUID;
 import org.hibernate.annotations.ColumnDefault;
 
 import org.hibernate.annotations.Generated;
+
+import com.joshsoll.telemetry.platform.organization.constants.OrganizationConstants;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -20,10 +23,10 @@ public class Organization {
     @ColumnDefault("gen_random_uuid()") // <--- Maps to your SQL DEFAULT
     private UUID id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = OrganizationConstants.NAME_MAX_LENGTH)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = OrganizationConstants.SLUG_MAX_LENGTH)
     private String slug;
 
     private Instant createdAt;

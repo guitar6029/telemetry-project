@@ -3,16 +3,22 @@ package com.joshsoll.telemetry.platform.device.entity;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
+import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -21,25 +27,39 @@ import jakarta.persistence.Table;
 public class Device {
 
     @Id
-    @GeneratedValue
+    @Generated
+    @ColumnDefault("gen_random_uuid()")
     private UUID id;
 
+    @Column(nullable = false, length = DeviceConstants.NAME_MAX_LENGTH)
     private String name;
+
+    @Column(nullable = false, length = DeviceConstants.MANUFACTURER_MAX_LENGTH)
     private String manufacturer;
+
+    @Column(nullable = false, length = DeviceConstants.MODEL_MAX_LENGTH)
     private String model;
+
+    @Column(nullable = false, length = DeviceConstants.SERIAL_MAX_LENGTH)
     private String serialNumber;
+
+    @Column(nullable = false, length = DeviceConstants.FIRMWARE_VERSION_MAX_LENGTH)
     private String firmwareVersion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_template_id", nullable = false)
     private DeviceTemplate deviceTemplate;
 
     @Enumerated(EnumType.STRING)
-    private DeviceStatus status;
+    @Column(nullable = false, length = DeviceConstants.DEVICE_STATUS_MAX_LENGTH)
+    private DeviceStatus status = DeviceStatus.OFFLINE;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hierarchy_node_id", nullable = false)
     private HierarchyNode hierarchyNode;
 
     private Instant createdAt;
