@@ -10,6 +10,10 @@ public class MetricDefinitionConstants {
     public static final int INCOMING_FIELD_NAME_MIN_LENGTH = 2;
     public static final int INCOMING_FIELD_NAME_MAX_LENGTH = 100;
 
+    public static final int UNIT_MAX_LENGTH = 25;
+
+    public static final int DATA_TYPE_MAX_LENGTH = 20;
+
     private MetricDefinitionConstants() {
     }
 }
