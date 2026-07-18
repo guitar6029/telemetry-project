@@ -38,14 +38,14 @@ public class MetricDefinition {
     private String incomingFieldName;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = MetricDefinitionConstants.DATA_TYPE_MAX_LENGTH)
+    @Column(nullable = false, length = MetricDefinitionConstants.DATA_TYPE_MAX_LENGTH)
     private MetricDataType dataType;
 
     @Column(length = MetricDefinitionConstants.UNIT_MAX_LENGTH)
     private String unit;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "device_template_id", nullable = false)
+    @JoinColumn(nullable = false, name = "device_template_id")
     private DeviceTemplate deviceTemplate;
 
     private Instant createdAt;
