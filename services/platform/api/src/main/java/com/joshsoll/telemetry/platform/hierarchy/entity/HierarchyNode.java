@@ -3,11 +3,17 @@ package com.joshsoll.telemetry.platform.hierarchy.entity;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+
+import com.joshsoll.telemetry.platform.hierarchy.constants.HierarchyNodeConstants;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -16,15 +22,19 @@ import jakarta.persistence.Table;
 public class HierarchyNode {
 
     @Id
-    @GeneratedValue
+    @Generated
+    @ColumnDefault("gen_random_uuid()")
     private UUID id;
 
+    @Column(nullable = false, length = HierarchyNodeConstants.NAME_MAX_LENGTH)
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_node_id")
     private HierarchyNode parentNode;
 
     private Instant createdAt;
