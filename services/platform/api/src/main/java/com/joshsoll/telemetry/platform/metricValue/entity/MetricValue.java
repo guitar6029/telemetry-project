@@ -4,13 +4,18 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+
 import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricValue.constants.MetricValueConstants;
 import com.joshsoll.telemetry.platform.telemetryEvent.entity.TelemetryEvent;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
@@ -19,20 +24,25 @@ import jakarta.persistence.Table;
 public class MetricValue {
 
     @Id
-    @GeneratedValue
+    @Generated
+    @ColumnDefault("gen_random_uuid()")
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "telemetry_id", nullable = false)
     private TelemetryEvent telemetryEvent;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "metric_definition_id", nullable = false)
     private MetricDefinition metricDefinition;
 
-    @Column(precision = 19, scale = 6)
+    @Column(precision = MetricValueConstants.NUMBER_VALUE_PRECISION, scale = MetricValueConstants.NUMBER_VALUE_SCALE)
     private BigDecimal numberValue;
 
+    @Column
     private Boolean booleanValue;
 
+    @Column(length = MetricValueConstants.STRING_VALUE_MAX_LENGTH)
     private String stringValue;
 
     private Instant createdAt;
