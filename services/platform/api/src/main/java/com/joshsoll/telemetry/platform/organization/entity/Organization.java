@@ -61,4 +61,17 @@ public class Organization {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
 }
