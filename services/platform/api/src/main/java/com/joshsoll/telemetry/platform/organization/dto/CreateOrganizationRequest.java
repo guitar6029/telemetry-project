@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Size;
 public class CreateOrganizationRequest {
 
     @NotBlank
-    // fix the magic numbers
     @Size(min = OrganizationConstants.NAME_MIN_LENGTH, max = OrganizationConstants.NAME_MAX_LENGTH)
     private String name;
 
