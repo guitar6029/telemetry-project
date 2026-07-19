@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +17,7 @@ import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
+import com.joshsoll.telemetry.platform.organization.dto.UpdateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.service.OrganizationService;
 
 import jakarta.validation.Valid;
@@ -57,4 +59,17 @@ public class OrganizationController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<OrganizationResponse>> updateOrganization(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateOrganizationRequest request) {
+        OrganizationResponse organization = organizationService.updateOrganization(request, id);
+
+        ApiResponse<OrganizationResponse> response = new ApiResponse<OrganizationResponse>(organization,
+                "Organization updated successfully");
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }
