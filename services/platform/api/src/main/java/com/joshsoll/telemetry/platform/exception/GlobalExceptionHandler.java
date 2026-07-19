@@ -1,5 +1,9 @@
 package com.joshsoll.telemetry.platform.exception;
 
+import java.time.Instant;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,28 +16,45 @@ import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFou
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(OrganizationNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleOrganizationNotFound(OrganizationNotFoundException ex) {
+        @ExceptionHandler(OrganizationNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleOrganizationNotFound(
+                        OrganizationNotFoundException ex,
+                        HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(
-                        HttpStatus.NOT_FOUND.value(),
-                        "Organization not found"));
-    }
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.NOT_FOUND.value(),
+                                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleOrganizationInvalidId() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
-                        "Invalid organization ID format."));
-    }
+        @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+        public ResponseEntity<ErrorResponse> handleOrganizationInvalidId(
+                        MethodArgumentTypeMismatchException ex,
+                        HttpServletRequest request) {
 
-    @ExceptionHandler(DuplicateOrganizationSlugException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateOrganizationSlug() {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse(
-                        HttpStatus.CONFLICT.value(),
-                        "Organization slug already exists"));
-    }
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.BAD_REQUEST.value(),
+                                                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                                                "Invalid organization ID format.",
+                                                request.getRequestURI()));
+        }
+
+        @ExceptionHandler(DuplicateOrganizationSlugException.class)
+        public ResponseEntity<ErrorResponse> handleDuplicateOrganizationSlug(
+                        DuplicateOrganizationSlugException ex,
+                        HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.CONFLICT.value(),
+                                                HttpStatus.CONFLICT.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
 }

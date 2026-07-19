@@ -1,6 +1,11 @@
 package com.joshsoll.telemetry.platform.exception;
 
+import java.time.Instant;
+
 public record ErrorResponse(
-                int status,
-                String message) {
+        Instant timestamp,
+        int status,
+        String error,
+        String message,
+        String path) {
 }
