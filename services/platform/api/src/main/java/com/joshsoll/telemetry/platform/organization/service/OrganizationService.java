@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
+import com.joshsoll.telemetry.platform.organization.dto.UpdateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.exception.DuplicateOrganizationSlugException;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
@@ -43,6 +44,34 @@ public class OrganizationService {
         Organization saved = organizationRepository.save(organization);
 
         return toResponse(saved);
+
+    }
+
+    public OrganizationResponse updateOrganization(UpdateOrganizationRequest request, UUID id) {
+
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new OrganizationNotFoundException(id));
+
+        if (!organization.getSlug().equals(request.getSlug())
+                && organizationRepository.existsBySlug(request.getSlug())) {
+
+            throw new DuplicateOrganizationSlugException(request.getSlug());
+        }
+
+        // if the content is the same
+        if (organization.getName().equals(request.getName())
+                && organization.getSlug().equals(request.getSlug())) {
+
+            return toResponse(organization);
+        }
+
+        organization.setName(request.getName());
+        organization.setSlug(request.getSlug());
+        organization.setUpdatedAt(Instant.now());
+
+        Organization savedOrganization = organizationRepository.save(organization);
+
+        return toResponse(savedOrganization);
 
     }
 
