@@ -2,7 +2,6 @@ package com.joshsoll.telemetry.platform.organization.controller;
 
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
+import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.dto.UpdateOrganizationRequest;
@@ -28,6 +28,7 @@ import jakarta.validation.Valid;
 public class OrganizationController {
 
     private final OrganizationService organizationService;
+    private final String DOMAIN_NAME = "Organization";
 
     public OrganizationController(OrganizationService organizationService) {
         this.organizationService = organizationService;
@@ -38,27 +39,23 @@ public class OrganizationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        PagedApiResponse<OrganizationResponse> organizationResponses = organizationService.getOrganizations(page, size);
+        PagedApiResponse<OrganizationResponse> organizations = organizationService.getOrganizations(page, size);
 
-        return ResponseEntity.ok(organizationResponses);
+        return ResponseFactory.ok(organizations);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrganizationResponse>> getOrganization(@PathVariable UUID id) {
         OrganizationResponse organization = organizationService.getOrganizationById(id);
-        ApiResponse<OrganizationResponse> response = new ApiResponse<>(organization, "");
-        return ResponseEntity.ok(response);
+        return ResponseFactory.ok(organization, null);
+
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrganizationResponse>> createOrganization(
             @Valid @RequestBody CreateOrganizationRequest request) {
         OrganizationResponse organization = organizationService.createOrganization(request);
-
-        ApiResponse<OrganizationResponse> response = new ApiResponse<>(organization,
-                "Organization created successfully");
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseFactory.created(organization, DOMAIN_NAME);
     }
 
     @PutMapping("/{id}")
@@ -66,11 +63,8 @@ public class OrganizationController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateOrganizationRequest request) {
         OrganizationResponse organization = organizationService.updateOrganization(request, id);
+        return ResponseFactory.updated(organization, DOMAIN_NAME);
 
-        ApiResponse<OrganizationResponse> response = new ApiResponse<OrganizationResponse>(organization,
-                "Organization updated successfully");
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{id}")
@@ -78,7 +72,6 @@ public class OrganizationController {
             @PathVariable UUID id) {
 
         organizationService.deleteOrganization(id);
-
         return ResponseEntity.noContent().build();
     }
 
