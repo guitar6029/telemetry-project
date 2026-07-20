@@ -123,6 +123,11 @@ public class DeviceService {
                 devices.getTotalPages());
     }
 
+    public void deleteDevice(UUID id) {
+        Device device = deviceRepository.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
+        deviceRepository.delete(device);
+    }
+
     private DeviceResponse toResponse(Device device) {
         return new DeviceResponse(
                 device.getId(),
