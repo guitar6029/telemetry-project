@@ -41,9 +41,9 @@ public class OrganizationService {
                 Instant.now(),
                 Instant.now());
 
-        Organization saved = organizationRepository.save(organization);
+        Organization savedOrganization = organizationRepository.save(organization);
 
-        return toResponse(saved);
+        return toResponse(savedOrganization);
 
     }
 
@@ -102,6 +102,13 @@ public class OrganizationService {
                 size,
                 organizations.getTotalElements(),
                 organizations.getTotalPages());
+    }
+
+    public void deleteOrganization(UUID organizationId) {
+        Organization organization = organizationRepository.findById(organizationId)
+                .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
+
+        organizationRepository.delete(organization);
     }
 
     private OrganizationResponse toResponse(Organization organization) {
