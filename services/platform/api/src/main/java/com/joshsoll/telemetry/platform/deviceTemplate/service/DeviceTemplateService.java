@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.deviceTemplate.dto.CreateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.deviceTemplate.dto.DeviceTemplateResponse;
+import com.joshsoll.telemetry.platform.deviceTemplate.dto.UpdateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.deviceTemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.deviceTemplate.repository.DeviceTemplateRepository;
@@ -82,6 +83,32 @@ public class DeviceTemplateService {
                 deviceTemplates.getTotalElements(),
                 deviceTemplates.getTotalPages());
 
+    }
+
+    public DeviceTemplateResponse updateDeviceTemplate(
+            UpdateDeviceTemplateRequest request,
+            UUID deviceTemplateId) {
+
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+
+        Organization organization = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
+
+        deviceTemplate.setName(request.getName());
+        deviceTemplate.setDescription(request.getDescription());
+        deviceTemplate.setOrganization(organization);
+
+        DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
+
+        return toResponse(savedDeviceTemplate);
+    }
+
+    public void deleteDeviceTemplate(UUID deviceTemplateId) {
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+
+        deviceTemplateRepository.delete(deviceTemplate);
     }
 
     private DeviceTemplateResponse toResponse(DeviceTemplate deviceTemplate) {
