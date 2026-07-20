@@ -5,8 +5,7 @@ import com.joshsoll.telemetry.platform.organization.constants.OrganizationConsta
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class CreateOrganizationRequest {
-
+public class UpdateOrganizationRequest {
     @NotBlank
     @Size(min = OrganizationConstants.NAME_MIN_LENGTH, max = OrganizationConstants.NAME_MAX_LENGTH)
     private String name;
@@ -15,10 +14,11 @@ public class CreateOrganizationRequest {
     @Size(min = OrganizationConstants.SLUG_MIN_LENGTH, max = OrganizationConstants.SLUG_MAX_LENGTH)
     private String slug;
 
-    public CreateOrganizationRequest() {
+    public UpdateOrganizationRequest() {
+
     }
 
-    public CreateOrganizationRequest(String name, String slug) {
+    public UpdateOrganizationRequest(String name, String slug) {
         this.name = name;
         this.slug = slug;
     }
@@ -30,4 +30,5 @@ public class CreateOrganizationRequest {
     public String getSlug() {
         return slug;
     }
+
 }
