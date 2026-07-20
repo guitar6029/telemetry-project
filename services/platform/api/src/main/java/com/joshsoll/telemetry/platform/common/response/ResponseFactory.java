@@ -1,11 +1,22 @@
 package com.joshsoll.telemetry.platform.common.response;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public final class ResponseFactory {
 
     private ResponseFactory() {
+    }
+
+    public static <T> ResponseEntity<ApiResponse<List<T>>> ok(
+            List<T> data,
+            String message) {
+        ApiResponse<List<T>> response = new ApiResponse<>(data, message);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     public static <T> ResponseEntity<PagedApiResponse<T>> ok(
