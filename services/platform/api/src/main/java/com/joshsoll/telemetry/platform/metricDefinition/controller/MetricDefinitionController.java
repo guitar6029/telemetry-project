@@ -2,7 +2,6 @@ package com.joshsoll.telemetry.platform.metricDefinition.controller;
 
 import java.util.UUID;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
+import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.metricDefinition.dto.CreateMetricDefinitionRequest;
 import com.joshsoll.telemetry.platform.metricDefinition.dto.MetricDefinitionResponse;
 import com.joshsoll.telemetry.platform.metricDefinition.service.MetricDefinitionService;
@@ -24,6 +24,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/metric-definitions")
 public class MetricDefinitionController {
         private final MetricDefinitionService metricDefinitionService;
+        private final String DOMAIN_NAME = "Metric Definition";
 
         public MetricDefinitionController(MetricDefinitionService metricDefinitionService) {
                 this.metricDefinitionService = metricDefinitionService;
@@ -36,7 +37,7 @@ public class MetricDefinitionController {
                 PagedApiResponse<MetricDefinitionResponse> metricDefinitionResponses = metricDefinitionService
                                 .getMetricDefinitions(page, size);
 
-                return ResponseEntity.ok(metricDefinitionResponses);
+                return ResponseFactory.ok(metricDefinitionResponses);
 
         }
 
@@ -46,10 +47,7 @@ public class MetricDefinitionController {
                 MetricDefinitionResponse metricDefinitionResponse = metricDefinitionService
                                 .getMetricDefinitionById(metricDefinitionId);
 
-                ApiResponse<MetricDefinitionResponse> response = new ApiResponse<>(metricDefinitionResponse,
-                                "");
-
-                return ResponseEntity.ok(response);
+                return ResponseFactory.ok(metricDefinitionResponse, null);
         }
 
         @PostMapping
@@ -57,13 +55,7 @@ public class MetricDefinitionController {
                         @Valid @RequestBody CreateMetricDefinitionRequest request) {
                 MetricDefinitionResponse metricDefinitionResponse = metricDefinitionService
                                 .createMetricDefinition(request);
-
-                ApiResponse<MetricDefinitionResponse> response = new ApiResponse<>(metricDefinitionResponse,
-                                "Metric definition created successfully");
-
-                return ResponseEntity
-                                .status(HttpStatus.CREATED)
-                                .body(response);
+                return ResponseFactory.created(metricDefinitionResponse, DOMAIN_NAME);
         }
 
 }
