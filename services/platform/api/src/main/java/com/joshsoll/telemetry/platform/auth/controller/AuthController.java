@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
+
 import com.joshsoll.telemetry.platform.auth.dto.RegisterRequest;
 import com.joshsoll.telemetry.platform.auth.service.AuthService;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;

@@ -96,4 +96,8 @@ public class User {
         return updatedAt;
     }
 
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
 }
