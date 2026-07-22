@@ -44,13 +44,23 @@ public final class ResponseFactory {
                 .body(response);
     }
 
+    public static ResponseEntity<ApiResponse<Void>> created(
+            String resource) {
+
+        ApiResponse<Void> response = new ApiResponse<>(null, resource + " created successfully");
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
+
     public static <T> ResponseEntity<ApiResponse<T>> updated(
             T data,
             String resource) {
 
         ApiResponse<T> response = new ApiResponse<T>(data, resource + " updated successfully");
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(response);
     }
 
