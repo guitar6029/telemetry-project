@@ -40,3 +40,6 @@ terraform.tfvars
 # Java
 *.class
 hs_err_pid*
+
+# JWT Keys
+keys/*.pem
