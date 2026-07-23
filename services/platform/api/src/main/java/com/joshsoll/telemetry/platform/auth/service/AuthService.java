@@ -1,12 +1,11 @@
 package com.joshsoll.telemetry.platform.auth.service;
 
-import java.util.Optional;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.dto.LoginRequest;
+import com.joshsoll.telemetry.platform.auth.dto.LoginResponse;
 import com.joshsoll.telemetry.platform.auth.dto.RegisterRequest;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.exception.DuplicateEmailException;
@@ -18,12 +17,17 @@ import com.joshsoll.telemetry.platform.common.util.StringNormalizer;
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthService(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService
+
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public void register(RegisterRequest request) {
@@ -50,7 +54,7 @@ public class AuthService {
 
     }
 
-    public void login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         String email = StringNormalizer.normalizeEmail(request.getEmail());
 
         User user = userRepository.findByEmail(email)
@@ -60,6 +64,9 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        // generate jwt
+        String token = jwtService.generateAccessToken(user);
+
+        return new LoginResponse(token);
+
     }
 }
