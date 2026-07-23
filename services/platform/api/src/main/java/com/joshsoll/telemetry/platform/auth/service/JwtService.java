@@ -13,6 +13,7 @@ import com.joshsoll.telemetry.platform.auth.constants.JwtConstants;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 
 @Service
@@ -58,9 +59,12 @@ public class JwtService {
     }
 
     public boolean validateToken(String token) {
-        Claims claims = extractClaims(token);
-
-        return !claims.getExpiration().before(new Date());
+        try {
+            Claims claims = extractClaims(token);
+            return !claims.getExpiration().before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
 }
