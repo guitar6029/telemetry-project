@@ -9,6 +9,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
@@ -17,14 +18,18 @@ import jakarta.annotation.PostConstruct;
 public class JwtKeyProvider {
     private PrivateKey privateKey;
     private PublicKey publicKey;
-    private static final String PRIVATE_KEY_PATH = "keys/private.pem";
-    private static final String PUBLIC_KEY_PATH = "keys/public.pem";
+
+    @Value("${jwt.private-key-path}")
+    private String privateKeyPath;
+
+    @Value("${jwt.public-key-path}")
+    private String publicKeyPath;
 
     @PostConstruct
     public void init() {
         // load the PEM files here
-        privateKey = loadPrivateKey(PRIVATE_KEY_PATH);
-        publicKey = loadPublicKey(PUBLIC_KEY_PATH);
+        privateKey = loadPrivateKey(privateKeyPath);
+        publicKey = loadPublicKey(publicKeyPath);
     }
 
     public PrivateKey getPrivateKey() {
