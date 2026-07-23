@@ -15,7 +15,8 @@ RUN chmod +x mvnw
 # Download dependencies
 RUN ./mvnw dependency:go-offline
 
-# copy src 
+# copy src
 COPY src src
+
 
 CMD ["./mvnw", "spring-boot:run"]

@@ -3,10 +3,14 @@ services:
     build:
       context: services/platform/api
       dockerfile: Dockerfile
+    volumes:
+    - ./keys:/app/keys:ro
     env_file:
       - ./.env
     environment:
       SPRING_PROFILES_ACTIVE: dev
+      JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
+      JWT_PUBLIC_KEY_PATH: /app/keys/public.pem
     ports:
       - "8080:8080"
 
