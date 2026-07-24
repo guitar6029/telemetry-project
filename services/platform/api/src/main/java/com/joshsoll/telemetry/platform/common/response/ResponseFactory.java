@@ -2,6 +2,7 @@ package com.joshsoll.telemetry.platform.common.response;
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -31,6 +32,19 @@ public final class ResponseFactory {
         ApiResponse<T> response = new ApiResponse<T>(data, normalizeMessage(message));
         return ResponseEntity
                 .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> ok(
+            T data,
+            String message,
+            HttpHeaders headers) {
+
+        ApiResponse<T> response = new ApiResponse<>(data, normalizeMessage(message));
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .headers(headers)
                 .body(response);
     }
 
