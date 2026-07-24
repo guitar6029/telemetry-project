@@ -2,16 +2,21 @@ import { Component } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { AuthService } from "../../services/auth.service";
 import { UserConstants } from "../../constants/user.constants";
-import { MatAnchor } from "@angular/material/button";
 import { LoginRequest } from "../../dto/login-request";
 import { LoginResponse } from "../../dto/login-response";
+import { MatAnchor, MatButtonModule, MatFormFieldModule, MatInputModule } from "../../../../shared/material/material.imports";
+import { RouterLink } from "@angular/router";
 
 
 @Component({
     selector: 'app-login',
     imports: [
         ReactiveFormsModule,
-        MatAnchor
+        MatAnchor,
+        RouterLink,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule
     ],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
