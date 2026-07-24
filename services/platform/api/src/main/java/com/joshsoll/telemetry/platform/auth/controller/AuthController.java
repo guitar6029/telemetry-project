@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.dto.LoginRequest;
-import com.joshsoll.telemetry.platform.auth.dto.LoginResponse;
 import com.joshsoll.telemetry.platform.auth.dto.RegisterRequest;
 import com.joshsoll.telemetry.platform.auth.service.AuthService;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
@@ -13,6 +12,8 @@ import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,11 +38,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
+    public ResponseEntity<ApiResponse<Void>> login(
             @Valid @RequestBody LoginRequest request) {
-        LoginResponse response = authService.login(request);
+        String token = authService.login(request);
 
-        return ResponseFactory.ok(response, "Login Successful");
+        ResponseCookie cookie = ResponseCookie.from("access_token", token)
+                .httpOnly(true)
+                .path("/")
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseFactory.ok(null, token, headers);
     }
 
 }
