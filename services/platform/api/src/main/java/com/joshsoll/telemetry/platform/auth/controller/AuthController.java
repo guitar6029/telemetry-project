@@ -48,9 +48,14 @@ public class AuthController {
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        headers.add(
+                HttpHeaders.SET_COOKIE,
+                cookie.toString());
 
-        return ResponseFactory.ok(null, token, headers);
+        return ResponseFactory.<Void>ok(
+                null,
+                "Login Successfull",
+                headers);
     }
 
 }
