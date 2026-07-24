@@ -1,5 +1,5 @@
 services:
-  app:
+  api:
     build:
       context: services/platform/api
       dockerfile: Dockerfile
@@ -19,6 +19,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  web:
+    build:
+      context: services/platform/web
+      dockerfile: Dockerfile
+
+    ports:
+      - "4200:4200"
+
+    restart: unless-stopped
 
   postgres:
     image: postgres:15
