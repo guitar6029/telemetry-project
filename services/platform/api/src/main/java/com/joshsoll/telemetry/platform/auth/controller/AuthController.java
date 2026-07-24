@@ -54,7 +54,7 @@ public class AuthController {
 
         return ResponseFactory.<Void>ok(
                 null,
-                "Login Successfull",
+                "Login Successful",
                 headers);
     }
 
