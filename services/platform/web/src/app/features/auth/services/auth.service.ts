@@ -9,13 +9,15 @@ import { LoginResponse } from "../dto/login-response";
 })
 export class AuthService {
 
+    private readonly AUTH_API = "/api/v1/auth";
+
     constructor(private http: HttpClient) {
 
     }
 
     login(request: LoginRequest): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(
-            '/api/v1/auth/login',
+            `${this.AUTH_API}/login`,
             request
         )
     }
