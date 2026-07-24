@@ -15,7 +15,7 @@ export class AuthService {
 
     login(request: LoginRequest): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(
-            'api/v1/auth/login',
+            '/api/v1/auth/login',
             request
         )
     }
