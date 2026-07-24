@@ -4,8 +4,10 @@ import { AuthService } from "../../services/auth.service";
 import { UserConstants } from "../../constants/user.constants";
 import { LoginRequest } from "../../dto/login-request";
 import { LoginResponse } from "../../dto/login-response";
-import { MatAnchor, MatButtonModule, MatFormFieldModule, MatInputModule } from "../../../../shared/material/material.imports";
 import { Router, RouterLink } from "@angular/router";
+import { MatAnchor, MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
 
 
 @Component({
