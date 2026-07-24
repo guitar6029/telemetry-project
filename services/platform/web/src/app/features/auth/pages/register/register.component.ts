@@ -19,7 +19,7 @@ import { RouterLink } from "@angular/router";
     styleUrl: './register.component.scss'
 })
 
-export class Register {
+export class RegisterComponent {
     readonly UserConstants = UserConstants;
     constructor(private authService: AuthService) { }
 
