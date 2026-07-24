@@ -1,4 +1,6 @@
-<form [formGroup]="loginForm">
+<form [formGroup]="loginForm" (ngSubmit)="login()">
     <input type="email" formControlName="email">
     <input type="password" formControlName="password">
+
+    <button matButton="filled" type="submit" [disabled]="loginForm.invalid">Login</button>
 </form>
