@@ -4,13 +4,14 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { LoginResponse } from "../dto/login-response";
 import { RegisterRequest } from "../dto/register-request";
+import { ApiConstants } from "../../../constants/api.constants";
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
 
-    private readonly AUTH_API = "/api/v1/auth";
+    private readonly authUrl = `${ApiConstants.API_V1}/auth`;
 
     constructor(private http: HttpClient) {
 
@@ -18,14 +19,14 @@ export class AuthService {
 
     login(request: LoginRequest): Observable<LoginResponse> {
         return this.http.post<LoginResponse>(
-            `${this.AUTH_API}/login`,
+            `${this.authUrl}/login`,
             request
         )
     }
 
     register(request: RegisterRequest): Observable<void> {
         return this.http.post<void>(
-            `${this.AUTH_API}/register`,
+            `${this.authUrl}/register`,
             request
         )
     }
