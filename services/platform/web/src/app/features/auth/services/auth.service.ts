@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { LoginRequest } from "../dto/login-request";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { LoginResponse } from "../dto/login-response";
 import { RegisterRequest } from "../dto/register-request";
 import { ApiConstants } from "../../../constants/api.constants";
 
@@ -17,8 +16,8 @@ export class AuthService {
 
     }
 
-    login(request: LoginRequest): Observable<LoginResponse> {
-        return this.http.post<LoginResponse>(
+    login(request: LoginRequest): Observable<void> {
+        return this.http.post<void>(
             `${this.authUrl}/login`,
             request
         )

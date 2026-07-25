@@ -3,7 +3,6 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { AuthService } from "../../services/auth.service";
 import { UserConstants } from "../../constants/user.constants";
 import { LoginRequest } from "../../dto/login-request";
-import { LoginResponse } from "../../dto/login-response";
 import { Router, RouterLink } from "@angular/router";
 import { MatAnchor, MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
@@ -60,8 +59,7 @@ export class LoginComponent {
 
         const request: LoginRequest = this.loginForm.getRawValue();
         this.authService.login(request).subscribe({
-            next: (response: LoginResponse) => {
-                console.log(response);
+            next: () => {
                 this.router.navigate(['/dashboard']);
             },
             error: () => {
