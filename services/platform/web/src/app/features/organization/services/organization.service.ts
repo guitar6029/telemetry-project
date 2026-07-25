@@ -6,6 +6,7 @@ import { PagedApiResponse } from "../../../common/dto/paged-api-response";
 import { OrganizationResponse } from "../dto/organization-response";
 import { ApiResponse } from "../../../common/dto/api-response";
 import { OrganizationCreateRequest } from "../dto/organization-create.request";
+import { OrganizationUpdateRequest } from "../dto/organization-update.request";
 
 
 @Injectable({
@@ -52,6 +53,19 @@ export class OrganizationService {
     createOrganization(request: OrganizationCreateRequest): Observable<ApiResponse<OrganizationResponse>> {
         return this.http.post<ApiResponse<OrganizationResponse>>(
             this.organizationUrl,
+            request,
+            {
+                withCredentials: true
+            }
+        )
+    }
+
+    updateOrganization(
+        id: string,
+        request: OrganizationUpdateRequest
+    ): Observable<ApiResponse<OrganizationResponse>> {
+        return this.http.put<ApiResponse<OrganizationResponse>>(
+            `${this.organizationUrl}/${id}`,
             request,
             {
                 withCredentials: true

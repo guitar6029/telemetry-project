@@ -2,6 +2,7 @@ import { Routes } from "@angular/router";
 import { OrganizationListComponent } from "./pages/organization-list/organization-list.component";
 import { OrganizationDetailsComponent } from "./pages/organization-details/organization-details.component";
 import { OrganizationCreateComponent } from "./pages/organization-create/organization-create.component";
+import { OrganizationUpdateComponent } from "./pages/organization-update/organization-update.component";
 
 export const ORGANIZATION_ROUTES: Routes = [
     {
@@ -11,6 +12,10 @@ export const ORGANIZATION_ROUTES: Routes = [
     {
         path: 'create',
         component: OrganizationCreateComponent
+    },
+    {
+        path: 'update/:organizationId',
+        component: OrganizationUpdateComponent
     },
     {
         path: ':organizationId',
