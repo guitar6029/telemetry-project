@@ -1,0 +1,59 @@
+<h1>Create organization</h1>
+
+<form [formGroup]="organizationForm" (ngSubmit)="create()">
+
+    <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput type="text" formControlName="name">
+
+        @if (organizationForm.controls.name.hasError('required')) {
+        <mat-error>
+            Organization name is required
+        </mat-error>
+        }
+
+        @if (organizationForm.controls.name.hasError('minlength')) {
+        <mat-error>
+            Organization name must be at least
+            {{ OrganizationConstants.NAME_MIN_LENGTH }} characters
+        </mat-error>
+        }
+
+        @if (organizationForm.controls.name.hasError('maxlength')) {
+        <mat-error>
+            Organization name cannot exceed
+            {{ OrganizationConstants.NAME_MAX_LENGTH }} characters
+        </mat-error>
+        }
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Slug</mat-label>
+        <input matInput type="text" formControlName="slug">
+
+        @if (organizationForm.controls.slug.hasError('required')) {
+        <mat-error>
+            Organization slug is required
+        </mat-error>
+        }
+
+        @if (organizationForm.controls.slug.hasError('minlength')) {
+        <mat-error>
+            Organization slug must be at least
+            {{ OrganizationConstants.SLUG_MIN_LENGTH }} characters
+        </mat-error>
+        }
+
+        @if (organizationForm.controls.slug.hasError('maxlength')) {
+        <mat-error>
+            Organization slug cannot exceed
+            {{ OrganizationConstants.SLUG_MAX_LENGTH }} characters
+        </mat-error>
+        }
+    </mat-form-field>
+
+    <button matButton="filled" type="submit" [disabled]="organizationForm.invalid">
+        Create organization
+    </button>
+
+</form>
