@@ -40,7 +40,10 @@ export class OrganizationService {
         id: string
     ): Observable<ApiResponse<OrganizationResponse>> {
         return this.http.get<ApiResponse<OrganizationResponse>>(
-            `${this.organizationUrl}/${id}`
+            `${this.organizationUrl}/${id}`,
+            {
+                withCredentials: true
+            }
         )
     }
 }
