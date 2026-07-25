@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.dto.LoginRequest;
-import com.joshsoll.telemetry.platform.auth.dto.LoginResponse;
 import com.joshsoll.telemetry.platform.auth.dto.RegisterRequest;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.exception.DuplicateEmailException;
@@ -54,7 +53,7 @@ public class AuthService {
 
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public String login(LoginRequest request) {
         String email = StringNormalizer.normalizeEmail(request.getEmail());
 
         User user = userRepository.findByEmail(email)
@@ -64,9 +63,7 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        String token = jwtService.generateAccessToken(user);
-
-        return new LoginResponse(token);
+        return jwtService.generateAccessToken(user);
 
     }
 }

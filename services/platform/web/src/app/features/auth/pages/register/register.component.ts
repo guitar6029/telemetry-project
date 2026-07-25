@@ -3,8 +3,10 @@ import { AuthService } from "../../services/auth.service";
 import { AbstractControl, ValidationErrors, ValidatorFn, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserConstants } from "../../constants/user.constants";
 import { RegisterRequest } from "../../dto/register-request";
-import { MatButtonModule, MatFormFieldModule, MatInputModule } from "../../../../shared/material/material.imports";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
+import { MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
 
 @Component({
     selector: 'app-register',
@@ -19,9 +21,12 @@ import { RouterLink } from "@angular/router";
     styleUrl: './register.component.scss'
 })
 
-export class Register {
+export class RegisterComponent {
     readonly UserConstants = UserConstants;
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private router: Router
+    ) { }
 
     registerForm = new FormGroup(
         {
@@ -86,7 +91,14 @@ export class Register {
             password
         }
 
-        this.authService.register(request);
+        this.authService.register(request).subscribe({
+            next: () => {
+                this.router.navigate(['/auth/login'])
+            },
+            error: (error) => {
+                console.error(error);
+            }
+        });
     }
 
 

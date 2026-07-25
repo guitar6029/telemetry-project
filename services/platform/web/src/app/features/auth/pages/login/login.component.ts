@@ -3,9 +3,10 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { AuthService } from "../../services/auth.service";
 import { UserConstants } from "../../constants/user.constants";
 import { LoginRequest } from "../../dto/login-request";
-import { LoginResponse } from "../../dto/login-response";
-import { MatAnchor, MatButtonModule, MatFormFieldModule, MatInputModule } from "../../../../shared/material/material.imports";
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
+import { MatAnchor, MatButtonModule } from "@angular/material/button";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
 
 
 @Component({
@@ -24,8 +25,11 @@ import { RouterLink } from "@angular/router";
 
 export class LoginComponent {
 
+    loginError = false;
+
     constructor(
-        private authService: AuthService
+        private authService: AuthService,
+        private router: Router
     ) { }
 
     loginForm = new FormGroup({
@@ -45,18 +49,21 @@ export class LoginComponent {
         })
     })
 
-    //also observable since we are waiting for the token and then redirect to home
-    // we could creat a dummy page for now , just says hello
     login(): void {
 
         if (this.loginForm.invalid) {
             return;
         }
 
+        this.loginError = false;
+
         const request: LoginRequest = this.loginForm.getRawValue();
         this.authService.login(request).subscribe({
-            next: (response: LoginResponse) => {
-                console.log(response);
+            next: () => {
+                this.router.navigate(['/dashboard']);
+            },
+            error: () => {
+                this.loginError = true;
             }
         })
     }

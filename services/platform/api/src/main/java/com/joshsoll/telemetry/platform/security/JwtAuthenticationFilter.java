@@ -18,11 +18,12 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String COOKIE_NAME = "access_token";
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
@@ -37,22 +38,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        String authorizationHeader = request.getHeader("Authorization");
+        Cookie[] cookies = request.getCookies();
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
+        if (cookies == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authorizationHeader.substring(BEARER_PREFIX.length());
+        String accessToken = null;
+        for (Cookie cookie : cookies) {
+            if (COOKIE_NAME.equals(cookie.getName())) {
+                accessToken = cookie.getValue();
+                break;
+            }
+        }
 
-        if (!jwtService.validateToken(token)) {
+        if (accessToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // extrac sub and look up the user
-        UUID sub = jwtService.extractSubject(token);
+        if (!jwtService.validateToken(accessToken)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // extract sub and look up the user
+        UUID sub = jwtService.extractSubject(accessToken);
 
         User user = userRepository.findById(sub).orElse(null);
 
