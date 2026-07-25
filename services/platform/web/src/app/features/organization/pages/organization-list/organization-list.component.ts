@@ -3,12 +3,14 @@ import { OrganizationResponse } from "../../dto/organization-response";
 import { OrganizationService } from "../../services/organization.service";
 import { MatTableModule } from "@angular/material/table";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
+import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
 
 @Component({
     selector: 'app-organization-list',
     imports: [
         MatTableModule,
-        MatPaginatorModule
+        MatPaginatorModule,
+        EmptyStateComponent
     ],
     templateUrl: './organization-list.component.html',
     styleUrl: './organization-list.component.scss'
@@ -20,6 +22,8 @@ export class OrganizationListComponent implements OnInit {
     page = signal(0);
     pageSize = signal(10);
     total = signal(0);
+
+    error = signal<string | null>(null);
 
     displayedColumns: string[] = [
         'name',
@@ -40,6 +44,7 @@ export class OrganizationListComponent implements OnInit {
         page = this.page(),
         size = this.pageSize()
     ): void {
+        this.error.set(null);
         this.organizationService.getOrganizations(page, size).subscribe({
             next: (response) => {
                 this.organizations.set(response.data);
@@ -49,6 +54,7 @@ export class OrganizationListComponent implements OnInit {
 
             },
             error: (error) => {
+                this.error.set("Unable to load organizations.")
                 console.error('Failed to load organizations', error);
             }
         })

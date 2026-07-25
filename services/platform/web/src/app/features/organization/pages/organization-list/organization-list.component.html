@@ -1,3 +1,9 @@
+@if (error()){
+<p>{{ error()}}</p>
+} @else if (organizations().length === 0){
+<app-empty-state message="No organizations found"></app-empty-state>
+}
+
 <table mat-table [dataSource]="organizations()">
 
     <ng-container matColumnDef="name">
