@@ -19,7 +19,10 @@ export class AuthService {
     login(request: LoginRequest): Observable<void> {
         return this.http.post<void>(
             `${this.authUrl}/login`,
-            request
+            request,
+            {
+                withCredentials: true
+            }
         )
     }
 
