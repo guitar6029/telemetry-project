@@ -30,7 +30,8 @@ export class OrganizationService {
                 params: {
                     page,
                     size
-                }
+                },
+                withCredentials: true
             }
         )
     }
