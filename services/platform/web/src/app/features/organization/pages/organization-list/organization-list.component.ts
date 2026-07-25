@@ -4,13 +4,15 @@ import { OrganizationService } from "../../services/organization.service";
 import { MatTableModule } from "@angular/material/table";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
+import { RouterLink } from "@angular/router";
 
 @Component({
     selector: 'app-organization-list',
     imports: [
         MatTableModule,
         MatPaginatorModule,
-        EmptyStateComponent
+        EmptyStateComponent,
+        RouterLink
     ],
     templateUrl: './organization-list.component.html',
     styleUrl: './organization-list.component.scss'
