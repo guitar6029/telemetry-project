@@ -89,8 +89,6 @@ public class TelemetryProcessingService {
 
             MetricValue metricValue = createMetricValue(telemetryEvent, definition, value);
 
-            // TODO add a logging service
-            // log (print it out for now
             System.out
                     .println("\nDefinition : " + definition + "\nValue: " + value + "\n has been logged to the system");
 
