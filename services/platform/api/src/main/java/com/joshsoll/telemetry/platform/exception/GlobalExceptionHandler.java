@@ -14,6 +14,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.joshsoll.telemetry.platform.organization.exception.DuplicateOrganizationSlugException;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
+import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipAlreadyExistsException;
+import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -82,4 +84,33 @@ public class GlobalExceptionHandler {
                                                 request.getRequestURI(),
                                                 errors));
         }
+
+        @ExceptionHandler(OrganizationMembershipAlreadyExistsException.class)
+        public ResponseEntity<ErrorResponse> handleOrganizationMembershipAlreadyExists(
+                        OrganizationMembershipAlreadyExistsException ex,
+                        HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.CONFLICT.value(),
+                                                HttpStatus.CONFLICT.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
+
+        @ExceptionHandler(OrganizationMembershipNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleOrganizationMembershipNotFound(
+                        OrganizationMembershipNotFoundException ex,
+                        HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.NOT_FOUND.value(),
+                                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
+
 }
