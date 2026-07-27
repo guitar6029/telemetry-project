@@ -17,6 +17,7 @@ import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateR
 import com.joshsoll.telemetry.platform.metricdefinition.dto.CreateMetricDefinitionRequest;
 import com.joshsoll.telemetry.platform.metricdefinition.dto.MetricDefinitionResponse;
 import com.joshsoll.telemetry.platform.metricdefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricdefinition.exception.DuplicateMetricDefinitionFieldException;
 import com.joshsoll.telemetry.platform.metricdefinition.exception.MetricDefinitionNotFoundException;
 import com.joshsoll.telemetry.platform.metricdefinition.repository.MetricDefinitionRepository;
 
@@ -42,8 +43,7 @@ public class MetricDefinitionService {
         // validate given device template does not already have the metric
         if (metricDefinitionRepository.existsByDeviceTemplateAndIncomingFieldName(deviceTemplate,
                 request.getIncomingFieldName())) {
-            throw new IllegalStateException(
-                    "A metric with this incoming field already exists for the device template.");
+            throw new DuplicateMetricDefinitionFieldException(request.getIncomingFieldName());
         }
 
         MetricDefinition metricDefinition = new MetricDefinition(
