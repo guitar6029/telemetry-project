@@ -13,12 +13,15 @@ import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.metricDefinition.MetricDataType;
 import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organizationmembership.enums.MembershipStatus;
+import com.joshsoll.telemetry.platform.organizationmembership.enums.OrganizationRole;
 import com.joshsoll.telemetry.platform.seed.device.DeviceGenerator;
 import com.joshsoll.telemetry.platform.seed.devicetemplate.DeviceTemplateGenerator;
 import com.joshsoll.telemetry.platform.seed.hierarchy.HierarchyNodeGenerator;
 import com.joshsoll.telemetry.platform.seed.metricdefinition.MetricDefinitionGenerator;
 import com.joshsoll.telemetry.platform.seed.metricvalue.MetricValueGenerator;
 import com.joshsoll.telemetry.platform.seed.organization.OrganizationGenerator;
+import com.joshsoll.telemetry.platform.seed.organizationmembership.OrganizationMembershipGenerator;
 import com.joshsoll.telemetry.platform.seed.telemetryevent.TelemetryEventGenerator;
 import com.joshsoll.telemetry.platform.seed.user.UserGenerator;
 import com.joshsoll.telemetry.platform.telemetryEvent.entity.TelemetryEvent;
@@ -35,6 +38,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         private final TelemetryEventGenerator telemetryEventGenerator;
         private final MetricValueGenerator metricValueGenerator;
         private final UserGenerator userGenerator;
+        private final OrganizationMembershipGenerator organizationMembershipGenerator;
 
         public DatabaseSeeder(
                         OrganizationGenerator organizationGenerator,
@@ -44,7 +48,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         MetricDefinitionGenerator metricDefinitionGenerator,
                         TelemetryEventGenerator telemetryEventGenerator,
                         MetricValueGenerator metricValueGenerator,
-                        UserGenerator userGenerator
+                        UserGenerator userGenerator,
+                        OrganizationMembershipGenerator organizationMembershipGenerator
 
         ) {
 
@@ -56,6 +61,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 this.telemetryEventGenerator = telemetryEventGenerator;
                 this.metricValueGenerator = metricValueGenerator;
                 this.userGenerator = userGenerator;
+                this.organizationMembershipGenerator = organizationMembershipGenerator;
         }
 
         @Override
@@ -136,6 +142,11 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 "password123",
                                 UserConstants.DEFAULT_AVATAR_URL);
 
-                userGenerator.generate(9);
+                organizationMembershipGenerator.generate(
+                                organization,
+                                user,
+                                OrganizationRole.ADMIN,
+                                MembershipStatus.ACTIVE);
+                // userGenerator.generate(9);
         }
 }
