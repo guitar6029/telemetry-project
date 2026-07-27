@@ -7,23 +7,38 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.joshsoll.telemetry.platform.auth.exception.UserDoesNotExistException;
+import com.joshsoll.telemetry.platform.auth.exception.DuplicateEmailException;
+import com.joshsoll.telemetry.platform.auth.exception.InvalidCredentialsException;
 import com.joshsoll.telemetry.platform.exception.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class AuthExceptionHandler {
-    @ExceptionHandler(UserDoesNotExistException.class)
-    public ResponseEntity<ErrorResponse> handleUserDoesNotExist(
-            UserDoesNotExistException ex,
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(
+            DuplicateEmailException ex,
             HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(
                         Instant.now(),
-                        HttpStatus.NOT_FOUND.value(),
-                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.getReasonPhrase(),
+                        ex.getMessage(),
+                        request.getRequestURI()));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(
+            InvalidCredentialsException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        HttpStatus.UNAUTHORIZED.value(),
+                        HttpStatus.UNAUTHORIZED.getReasonPhrase(),
                         ex.getMessage(),
                         request.getRequestURI()));
     }

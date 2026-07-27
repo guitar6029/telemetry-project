@@ -10,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
-import com.joshsoll.telemetry.platform.auth.exception.UserDoesNotExistException;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -23,6 +22,7 @@ import com.joshsoll.telemetry.platform.organizationmembership.enums.MembershipSt
 import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipAlreadyExistsException;
 import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipNotFoundException;
 import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
+import com.joshsoll.telemetry.platform.user.exception.UserNotFoundException;
 
 @Service
 public class OrganizationMembershipService {
@@ -49,7 +49,7 @@ public class OrganizationMembershipService {
 
                 // user check
                 User user = userRepository.findById(request.getUserId())
-                                .orElseThrow(() -> new UserDoesNotExistException(request.getUserId()));
+                                .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
                 // already exists
                 if (organizationMembershipRepository.existsByOrganization_IdAndUser_Id(request.getOrganizationId(),
