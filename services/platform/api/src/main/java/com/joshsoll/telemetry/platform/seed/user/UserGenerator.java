@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 
 @Component
@@ -30,14 +31,16 @@ public class UserGenerator {
             String lastName,
             String email,
             String password,
-            String avatarUrl) {
+            String avatarUrl,
+            PlatformRole role) {
 
         User user = new User(
                 firstName,
                 lastName,
                 email,
                 passwordEncoder.encode(password),
-                avatarUrl);
+                avatarUrl,
+                role);
 
         return userRepository.save(user);
     }
@@ -50,7 +53,8 @@ public class UserGenerator {
                     "Test" + i,
                     "user" + i + "@example.com",
                     DEFAULT_PASSWORD,
-                    DEFAULT_AVATAR_URL);
+                    DEFAULT_AVATAR_URL,
+                    PlatformRole.USER);
         }
     }
 }

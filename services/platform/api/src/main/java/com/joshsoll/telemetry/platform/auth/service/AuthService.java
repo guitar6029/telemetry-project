@@ -7,6 +7,7 @@ import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.dto.LoginRequest;
 import com.joshsoll.telemetry.platform.auth.dto.RegisterRequest;
 import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.auth.exception.DuplicateEmailException;
 import com.joshsoll.telemetry.platform.auth.exception.InvalidCredentialsException;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
@@ -45,7 +46,8 @@ public class AuthService {
                 request.getLastName(),
                 email,
                 passwordHash,
-                UserConstants.DEFAULT_AVATAR_URL
+                UserConstants.DEFAULT_AVATAR_URL,
+                PlatformRole.USER
 
         );
 

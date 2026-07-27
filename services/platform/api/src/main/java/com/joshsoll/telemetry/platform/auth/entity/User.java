@@ -7,9 +7,12 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Generated;
 
 import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -37,6 +40,10 @@ public class User {
     @Column(nullable = false)
     private String avatarUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PlatformRole platformRole;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -51,7 +58,8 @@ public class User {
             String lastName,
             String email,
             String passwordHash,
-            String avatarUrl
+            String avatarUrl,
+            PlatformRole platformRole
 
     ) {
 
@@ -59,6 +67,7 @@ public class User {
         this.lastName = lastName;
         this.email = email;
         this.avatarUrl = avatarUrl;
+        this.platformRole = platformRole;
         this.passwordHash = passwordHash;
 
         Instant now = Instant.now();
@@ -86,6 +95,10 @@ public class User {
 
     public String getAvatarUrl() {
         return avatarUrl;
+    }
+
+    public PlatformRole getPlatformRole() {
+        return platformRole;
     }
 
     public Instant getCreatedAt() {
