@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.telemetryEvent.dto.CreateTelemetryEventRequest;
@@ -16,7 +17,7 @@ import com.joshsoll.telemetry.platform.telemetryEvent.service.TelemetryProcessin
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/telemetry")
+@RequestMapping(ApiRoutes.API_V1 + "/telemetry")
 public class TelemetryEventController {
 
     private final TelemetryEventService telemetryEventService;

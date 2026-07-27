@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
@@ -21,7 +22,7 @@ import com.joshsoll.telemetry.platform.metricDefinition.service.MetricDefinition
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/metric-definitions")
+@RequestMapping(ApiRoutes.API_V1 + "/metric-definitions")
 public class MetricDefinitionController {
         private final MetricDefinitionService metricDefinitionService;
         private final String DOMAIN_NAME = "Metric Definition";

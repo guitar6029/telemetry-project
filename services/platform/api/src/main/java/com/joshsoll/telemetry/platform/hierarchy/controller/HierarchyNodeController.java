@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.hierarchy.dto.CreateHierarchyNodeRequest;
@@ -20,7 +21,7 @@ import com.joshsoll.telemetry.platform.hierarchy.service.HierarchyNodeService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/hierarchy")
+@RequestMapping(ApiRoutes.API_V1 + "/hierarchy")
 public class HierarchyNodeController {
 
     private final HierarchyNodeService hierarchyNodeService;

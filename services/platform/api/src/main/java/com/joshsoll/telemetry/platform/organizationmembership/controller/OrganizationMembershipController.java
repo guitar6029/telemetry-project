@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/v1/organizations/{organizationId}/memberships")
+@RequestMapping(ApiRoutes.API_V1 + "/organizations/{organizationId}/memberships")
 public class OrganizationMembershipController {
     private final OrganizationMembershipService organizationMembershipService;
     private final String DOMAIN_NAME = "Organization membership";
