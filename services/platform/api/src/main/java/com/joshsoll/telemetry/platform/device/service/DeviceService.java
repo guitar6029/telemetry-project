@@ -15,6 +15,7 @@ import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.exception.DeviceNotFoundException;
+import com.joshsoll.telemetry.platform.device.exception.DuplicateDeviceSerialNumberException;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
@@ -74,8 +75,8 @@ public class DeviceService {
         // Validate serial number uniqueness
         if (deviceRepository.existsByOrganizationAndSerialNumber(organization,
                 request.getSerialNumber())) {
-            throw new IllegalArgumentException(
-                    "A device with this serial number already exists in the organization.");
+            throw new DuplicateDeviceSerialNumberException(
+                    request.getSerialNumber());
         }
 
         Device device = new Device(
