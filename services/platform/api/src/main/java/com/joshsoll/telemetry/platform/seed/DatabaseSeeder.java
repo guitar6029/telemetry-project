@@ -4,6 +4,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
+import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
@@ -18,6 +20,7 @@ import com.joshsoll.telemetry.platform.seed.metricdefinition.MetricDefinitionGen
 import com.joshsoll.telemetry.platform.seed.metricvalue.MetricValueGenerator;
 import com.joshsoll.telemetry.platform.seed.organization.OrganizationGenerator;
 import com.joshsoll.telemetry.platform.seed.telemetryevent.TelemetryEventGenerator;
+import com.joshsoll.telemetry.platform.seed.user.UserGenerator;
 import com.joshsoll.telemetry.platform.telemetryEvent.entity.TelemetryEvent;
 
 @Component
@@ -31,6 +34,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         private final MetricDefinitionGenerator metricDefinitionGenerator;
         private final TelemetryEventGenerator telemetryEventGenerator;
         private final MetricValueGenerator metricValueGenerator;
+        private final UserGenerator userGenerator;
 
         public DatabaseSeeder(
                         OrganizationGenerator organizationGenerator,
@@ -39,7 +43,10 @@ public class DatabaseSeeder implements CommandLineRunner {
                         DeviceGenerator deviceGenerator,
                         MetricDefinitionGenerator metricDefinitionGenerator,
                         TelemetryEventGenerator telemetryEventGenerator,
-                        MetricValueGenerator metricValueGenerator) {
+                        MetricValueGenerator metricValueGenerator,
+                        UserGenerator userGenerator
+
+        ) {
 
                 this.organizationGenerator = organizationGenerator;
                 this.deviceTemplateGenerator = deviceTemplateGenerator;
@@ -48,6 +55,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 this.metricDefinitionGenerator = metricDefinitionGenerator;
                 this.telemetryEventGenerator = telemetryEventGenerator;
                 this.metricValueGenerator = metricValueGenerator;
+                this.userGenerator = userGenerator;
         }
 
         @Override
@@ -120,5 +128,14 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 10,
                                 telemetryEvent,
                                 metricDefinition);
+
+                User user = userGenerator.generate(
+                                "Primary",
+                                "User",
+                                "primary@example.com",
+                                "password123",
+                                UserConstants.DEFAULT_AVATAR_URL);
+
+                userGenerator.generate(9);
         }
 }
