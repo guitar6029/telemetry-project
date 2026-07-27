@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
 import com.joshsoll.telemetry.platform.exception.ErrorResponse;
 import com.joshsoll.telemetry.platform.hierarchy.exception.DuplicateHierarchyNodeException;
 import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
@@ -62,6 +63,20 @@ public class HierarchyNodeExceptionHandler {
         @ExceptionHandler(HierarchyNodeOrganizationMismatchException.class)
         public ResponseEntity<ErrorResponse> handleHierarchyNodeOrganizationMismatch(
                         HierarchyNodeOrganizationMismatchException ex,
+                        HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.BAD_REQUEST.value(),
+                                                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
+
+        @ExceptionHandler(DeviceTemplateOrganizationMismatchException.class)
+        public ResponseEntity<ErrorResponse> handleDeviceTemplateOrganizationMismatch(
+                        DeviceTemplateOrganizationMismatchException ex,
                         HttpServletRequest request) {
 
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)

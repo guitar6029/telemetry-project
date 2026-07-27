@@ -19,6 +19,7 @@ import com.joshsoll.telemetry.platform.device.exception.DuplicateDeviceSerialNum
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
+import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
 import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
@@ -70,7 +71,7 @@ public class DeviceService {
 
         // Validate device template
         if (!deviceTemplate.getOrganizationId().equals(organization.getId())) {
-            throw new IllegalArgumentException("Device template does not belong to the organization");
+            throw new DeviceTemplateOrganizationMismatchException();
         }
 
         // Validate serial number uniqueness
