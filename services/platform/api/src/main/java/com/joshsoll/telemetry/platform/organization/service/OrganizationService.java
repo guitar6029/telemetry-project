@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
@@ -18,14 +20,19 @@ import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.exception.DuplicateOrganizationSlugException;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
+import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
 
 @Service
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
+    private final OrganizationMembershipRepository organizationMembershipRepository;
 
-    public OrganizationService(OrganizationRepository organizationRepository) {
+    public OrganizationService(
+            OrganizationRepository organizationRepository,
+            OrganizationMembershipRepository organizationMembershipRepository) {
         this.organizationRepository = organizationRepository;
+        this.organizationMembershipRepository = organizationMembershipRepository;
     }
 
     public OrganizationResponse createOrganization(CreateOrganizationRequest request) {
@@ -82,12 +89,13 @@ public class OrganizationService {
     }
 
     public PagedApiResponse<OrganizationResponse> getOrganizations(
+            User user,
             int page,
             int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Organization> organizations = organizationRepository.findAll(pageable);
+        Page<Organization> organizations = getAccessibleOrganizations(user, pageable);
 
         List<OrganizationResponse> responses = new ArrayList<>();
 
@@ -118,5 +126,18 @@ public class OrganizationService {
                 organization.getSlug(),
                 organization.getCreatedAt(),
                 organization.getUpdatedAt());
+    }
+
+    private Page<Organization> getAccessibleOrganizations(
+            User user,
+            Pageable pageable) {
+
+        if (user.getPlatformRole() == PlatformRole.SUPER_ADMIN) {
+            return organizationRepository.findAll(pageable);
+        }
+
+        return organizationMembershipRepository.findOrganizationsByUserId(
+                user.getId(),
+                pageable);
     }
 }
