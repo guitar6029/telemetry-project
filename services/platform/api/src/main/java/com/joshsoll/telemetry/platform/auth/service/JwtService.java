@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.auth.config.JwtKeyProvider;
 import com.joshsoll.telemetry.platform.auth.constants.JwtConstants;
 import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -31,6 +32,7 @@ public class JwtService {
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(authenticatedUser.getId().toString())
+                .claim(JwtConstants.PLATFORM_ROLE_CLAIM, authenticatedUser.getPlatformRole())
                 .issuedAt(Date.from(now))
                 .expiration(createExpirationTime(now))
                 .signWith(jwtKeyProvider.getPrivateKey())
@@ -47,6 +49,16 @@ public class JwtService {
         Claims claims = extractClaims(token);
 
         return UUID.fromString(claims.getSubject());
+    }
+
+    public PlatformRole extractPlatformRole(String token) {
+        Claims claims = extractClaims(token);
+
+        String platformRole = claims.get(
+                JwtConstants.PLATFORM_ROLE_CLAIM,
+                String.class);
+
+        return PlatformRole.valueOf(platformRole);
     }
 
     private Claims extractClaims(String token) {

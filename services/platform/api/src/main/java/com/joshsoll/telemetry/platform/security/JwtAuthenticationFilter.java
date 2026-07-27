@@ -6,11 +6,14 @@ import java.util.UUID;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 import com.joshsoll.telemetry.platform.auth.service.JwtService;
 
@@ -24,6 +27,7 @@ import jakarta.servlet.http.Cookie;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String COOKIE_NAME = "access_token";
+    private static final String ROLE_PREFIX = "ROLE_";
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
@@ -73,10 +77,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        PlatformRole platformRole = jwtService.extractPlatformRole(accessToken);
+        GrantedAuthority authority = new SimpleGrantedAuthority(ROLE_PREFIX + platformRole.name());
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user,
                 null,
-                Collections.emptyList());
+                Collections.singletonList(authority));
 
         SecurityContextHolder
                 .getContext()
