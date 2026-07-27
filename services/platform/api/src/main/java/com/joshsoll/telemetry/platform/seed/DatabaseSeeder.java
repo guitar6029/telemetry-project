@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
@@ -140,13 +141,15 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 "User",
                                 "primary@example.com",
                                 "password123",
-                                UserConstants.DEFAULT_AVATAR_URL);
+                                UserConstants.DEFAULT_AVATAR_URL,
+                                PlatformRole.SUPER_ADMIN);
 
                 organizationMembershipGenerator.generate(
                                 organization,
                                 user,
                                 OrganizationRole.ADMIN,
                                 MembershipStatus.ACTIVE);
-                // userGenerator.generate(9);
+
+                userGenerator.generate(9);
         }
 }
