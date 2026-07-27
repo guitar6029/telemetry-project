@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
+import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +34,9 @@ import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepos
 
 @ExtendWith(MockitoExtension.class)
 public class OrganizationServiceTest {
+        @Mock
+        private OrganizationMembershipRepository organizationMembershipRepository;
+
         @Mock
         private OrganizationRepository organizationRepository;
 
@@ -100,7 +108,13 @@ public class OrganizationServiceTest {
         }
 
         @Test
-        void shouldReturnPagedOrganizations() {
+        void shouldReturnAllOrganizationsForSuperAdmin() {
+
+                User user = mock(User.class);
+
+                when(user.getPlatformRole())
+                                .thenReturn(PlatformRole.SUPER_ADMIN);
+
                 Organization org1 = new Organization(
                                 "OpenAI",
                                 "openai",
@@ -115,24 +129,61 @@ public class OrganizationServiceTest {
 
                 List<Organization> orgs = List.of(org1, org2);
 
-                // fake page
                 Page<Organization> page = new PageImpl<>(orgs);
 
-                // call org repo to fetch list of orgs
-                when(organizationRepository.findAll(any(Pageable.class))).thenReturn(page);
+                when(organizationRepository.findAll(any(Pageable.class)))
+                                .thenReturn(page);
 
-                PagedApiResponse<OrganizationResponse> response = organizationService.getOrganizations(0, 10);
+                PagedApiResponse<OrganizationResponse> response = organizationService.getOrganizations(user, 0, 10);
 
                 assertEquals(2, response.getData().size());
-
                 assertEquals("OpenAI", response.getData().get(0).name());
-
                 assertEquals("Google", response.getData().get(1).name());
-
                 assertEquals(0, response.getPage());
-
                 assertEquals(10, response.getSize());
 
-                verify(organizationRepository).findAll(any(Pageable.class));
+                verify(organizationRepository)
+                                .findAll(any(Pageable.class));
         }
+
+        @Test
+        void shouldReturnOnlyAccessibleOrganizationsForUser() {
+
+                User user = mock(User.class);
+                UUID userId = UUID.randomUUID();
+
+                when(user.getId()).thenReturn(userId);
+                when(user.getPlatformRole()).thenReturn(PlatformRole.USER);
+
+                Organization org1 = new Organization(
+                                "Organization One",
+                                "organization-one",
+                                Instant.now(),
+                                Instant.now());
+
+                Organization org2 = new Organization(
+                                "Organization Two",
+                                "organization-two",
+                                Instant.now(),
+                                Instant.now());
+
+                Page<Organization> page = new PageImpl<>(List.of(org1, org2));
+
+                when(organizationMembershipRepository.findOrganizationsByUserId(
+                                org.mockito.ArgumentMatchers.eq(userId),
+                                any(Pageable.class)))
+                                .thenReturn(page);
+
+                PagedApiResponse<OrganizationResponse> response = organizationService.getOrganizations(user, 0, 10);
+
+                assertEquals(2, response.getData().size());
+                assertEquals("Organization One", response.getData().get(0).name());
+                assertEquals("Organization Two", response.getData().get(1).name());
+
+                verify(organizationMembershipRepository)
+                                .findOrganizationsByUserId(
+                                                org.mockito.ArgumentMatchers.eq(userId),
+                                                any(Pageable.class));
+        }
+
 }
