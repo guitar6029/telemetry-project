@@ -46,10 +46,6 @@ public class Device {
     @Column(nullable = false, length = DeviceConstants.FIRMWARE_VERSION_MAX_LENGTH)
     private String firmwareVersion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "device_template_id", nullable = false)
-    private DeviceTemplate deviceTemplate;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = DeviceConstants.DEVICE_STATUS_MAX_LENGTH)
     private DeviceStatus status = DeviceStatus.OFFLINE;
@@ -61,6 +57,10 @@ public class Device {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hierarchy_node_id", nullable = false)
     private HierarchyNode hierarchyNode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "device_template_id", nullable = false)
+    private DeviceTemplate deviceTemplate;
 
     private Instant createdAt;
     private Instant updatedAt;
