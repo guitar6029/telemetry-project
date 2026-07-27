@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.metricdefinition.MetricDataType;
 import com.joshsoll.telemetry.platform.metricdefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricdefinition.exception.UnsupportedMetricDataTypeException;
 import com.joshsoll.telemetry.platform.metricdefinition.repository.MetricDefinitionRepository;
 import com.joshsoll.telemetry.platform.metricvalue.entity.MetricValue;
 import com.joshsoll.telemetry.platform.metricvalue.repository.MetricValueRepository;
@@ -159,8 +160,7 @@ public class TelemetryProcessingService {
                         now);
 
             default:
-                throw new IllegalStateException(
-                        "Unsupported MetricDataType: " + definition.getDataType());
+                throw new UnsupportedMetricDataTypeException(definition.getDataType());
         }
     }
 }

@@ -16,6 +16,7 @@ import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse
 import com.joshsoll.telemetry.platform.devicetemplate.dto.UpdateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
+import com.joshsoll.telemetry.platform.devicetemplate.exception.DuplicateDeviceTemplateNameException;
 import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
@@ -42,7 +43,7 @@ public class DeviceTemplateService {
 
         // Validate template name uniqueness
         if (deviceTemplateRepository.existsByOrganizationAndName(organization, request.getName())) {
-            throw new IllegalArgumentException("Device template already exists with that name");
+            throw new DuplicateDeviceTemplateNameException(request.getName());
         }
 
         DeviceTemplate deviceTemplate = new DeviceTemplate(

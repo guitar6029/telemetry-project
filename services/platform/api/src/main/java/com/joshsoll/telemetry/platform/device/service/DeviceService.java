@@ -15,12 +15,15 @@ import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.exception.DeviceNotFoundException;
+import com.joshsoll.telemetry.platform.device.exception.DuplicateDeviceSerialNumberException;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
+import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
 import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
+import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeOrganizationMismatchException;
 import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
@@ -63,19 +66,19 @@ public class DeviceService {
 
         // Validate hierarchy belongs to organization
         if (!hierarchyNode.getOrganization().getId().equals(organization.getId())) {
-            throw new IllegalArgumentException("Org id is incorrect, try again");
+            throw new HierarchyNodeOrganizationMismatchException();
         }
 
         // Validate device template
         if (!deviceTemplate.getOrganizationId().equals(organization.getId())) {
-            throw new IllegalArgumentException("Device template does not belong to the organization");
+            throw new DeviceTemplateOrganizationMismatchException();
         }
 
         // Validate serial number uniqueness
         if (deviceRepository.existsByOrganizationAndSerialNumber(organization,
                 request.getSerialNumber())) {
-            throw new IllegalArgumentException(
-                    "A device with this serial number already exists in the organization.");
+            throw new DuplicateDeviceSerialNumberException(
+                    request.getSerialNumber());
         }
 
         Device device = new Device(
