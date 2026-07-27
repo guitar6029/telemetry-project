@@ -96,6 +96,20 @@ public class DeviceTemplateService {
         Organization organization = organizationRepository.findById(request.getOrganizationId())
                 .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
 
+        boolean nameChanged = !deviceTemplate.getName().equals(request.getName());
+
+        boolean organizationChanged = !deviceTemplate.getOrganizationId()
+                .equals(organization.getId());
+
+        if ((nameChanged || organizationChanged)
+                && deviceTemplateRepository.existsByOrganizationAndName(
+                        organization,
+                        request.getName())) {
+
+            throw new DuplicateDeviceTemplateNameException(
+                    request.getName());
+        }
+
         deviceTemplate.setName(request.getName());
         deviceTemplate.setDescription(request.getDescription());
         deviceTemplate.setOrganization(organization);
