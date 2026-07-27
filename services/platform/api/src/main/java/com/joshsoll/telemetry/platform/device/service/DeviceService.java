@@ -22,6 +22,7 @@ import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNo
 import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
+import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeOrganizationMismatchException;
 import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
@@ -64,7 +65,7 @@ public class DeviceService {
 
         // Validate hierarchy belongs to organization
         if (!hierarchyNode.getOrganization().getId().equals(organization.getId())) {
-            throw new IllegalArgumentException("Org id is incorrect, try again");
+            throw new HierarchyNodeOrganizationMismatchException();
         }
 
         // Validate device template
