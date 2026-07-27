@@ -4,10 +4,10 @@ import java.time.Instant;
 
 import org.springframework.stereotype.Component;
 
-import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
-import com.joshsoll.telemetry.platform.metricDefinition.MetricDataType;
-import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
-import com.joshsoll.telemetry.platform.metricDefinition.repository.MetricDefinitionRepository;
+import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.metricdefinition.MetricDataType;
+import com.joshsoll.telemetry.platform.metricdefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricdefinition.repository.MetricDefinitionRepository;
 
 @Component
 public class MetricDefinitionGenerator {

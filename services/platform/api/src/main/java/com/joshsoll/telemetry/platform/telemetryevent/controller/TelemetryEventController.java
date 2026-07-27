@@ -1,0 +1,43 @@
+package com.joshsoll.telemetry.platform.telemetryevent.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
+import com.joshsoll.telemetry.platform.common.response.ApiResponse;
+import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
+import com.joshsoll.telemetry.platform.telemetryevent.dto.CreateTelemetryEventRequest;
+import com.joshsoll.telemetry.platform.telemetryevent.dto.TelemetryEventResponse;
+import com.joshsoll.telemetry.platform.telemetryevent.service.TelemetryEventService;
+import com.joshsoll.telemetry.platform.telemetryevent.service.TelemetryProcessingService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping(ApiRoutes.API_V1 + "/telemetry")
+public class TelemetryEventController {
+
+    private final TelemetryEventService telemetryEventService;
+    private final String DOMAIN_NAME = "Telemetry Event";
+
+    public TelemetryEventController(
+
+            TelemetryEventService telemetryEventService,
+
+            TelemetryProcessingService telemetryProcessingService
+
+    ) {
+        this.telemetryEventService = telemetryEventService;
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<TelemetryEventResponse>> createTelemetryEvent(
+            @Valid @RequestBody CreateTelemetryEventRequest request) {
+
+        TelemetryEventResponse telemetryEvent = telemetryEventService.createTelemetryEvent(request);
+        return ResponseFactory.created(telemetryEvent, DOMAIN_NAME);
+    }
+}

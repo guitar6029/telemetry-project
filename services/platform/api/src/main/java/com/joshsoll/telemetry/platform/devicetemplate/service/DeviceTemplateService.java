@@ -1,0 +1,124 @@
+package com.joshsoll.telemetry.platform.devicetemplate.service;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
+import com.joshsoll.telemetry.platform.devicetemplate.dto.CreateDeviceTemplateRequest;
+import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse;
+import com.joshsoll.telemetry.platform.devicetemplate.dto.UpdateDeviceTemplateRequest;
+import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
+import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
+import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
+import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
+
+@Service
+public class DeviceTemplateService {
+    private final DeviceTemplateRepository deviceTemplateRepository;
+    private final OrganizationRepository organizationRepository;
+
+    public DeviceTemplateService(DeviceTemplateRepository deviceTemplateRepository,
+            OrganizationRepository organizationRepository) {
+        this.deviceTemplateRepository = deviceTemplateRepository;
+        this.organizationRepository = organizationRepository;
+    }
+
+    public DeviceTemplateResponse createDeviceTemplate(CreateDeviceTemplateRequest request) {
+
+        Instant now = Instant.now();
+
+        // Find organization
+        Organization organization = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
+
+        // Validate template name uniqueness
+        if (deviceTemplateRepository.existsByOrganizationAndName(organization, request.getName())) {
+            throw new IllegalArgumentException("Device template already exists with that name");
+        }
+
+        DeviceTemplate deviceTemplate = new DeviceTemplate(
+                request.getName(),
+                request.getDescription(),
+                organization,
+                false,
+                now,
+                now);
+
+        DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
+
+        return toResponse(savedDeviceTemplate);
+    }
+
+    public DeviceTemplateResponse getDeviceTemplateById(UUID deviceTemplateId) {
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+        return toResponse(deviceTemplate);
+    }
+
+    public PagedApiResponse<DeviceTemplateResponse> getDeviceTemplates(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<DeviceTemplate> deviceTemplates = deviceTemplateRepository.findAll(pageable);
+
+        List<DeviceTemplateResponse> responses = new ArrayList<>();
+
+        for (DeviceTemplate deviceTemplate : deviceTemplates) {
+            responses.add(toResponse(deviceTemplate));
+        }
+
+        return new PagedApiResponse<>(
+                responses,
+                "",
+                page,
+                size,
+                deviceTemplates.getTotalElements(),
+                deviceTemplates.getTotalPages());
+
+    }
+
+    public DeviceTemplateResponse updateDeviceTemplate(
+            UpdateDeviceTemplateRequest request,
+            UUID deviceTemplateId) {
+
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+
+        Organization organization = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
+
+        deviceTemplate.setName(request.getName());
+        deviceTemplate.setDescription(request.getDescription());
+        deviceTemplate.setOrganization(organization);
+
+        DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
+
+        return toResponse(savedDeviceTemplate);
+    }
+
+    public void deleteDeviceTemplate(UUID deviceTemplateId) {
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+
+        deviceTemplateRepository.delete(deviceTemplate);
+    }
+
+    private DeviceTemplateResponse toResponse(DeviceTemplate deviceTemplate) {
+        return new DeviceTemplateResponse(
+                deviceTemplate.getId(),
+                deviceTemplate.getName(),
+                deviceTemplate.getDescription(),
+                deviceTemplate.getOrganizationId(),
+                deviceTemplate.isArchived(),
+                deviceTemplate.getCreatedAt(),
+                deviceTemplate.getUpdatedAt());
+    }
+}
