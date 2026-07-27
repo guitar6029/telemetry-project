@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
-import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 

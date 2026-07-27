@@ -5,8 +5,8 @@ import java.time.Instant;
 import org.springframework.stereotype.Component;
 
 import com.joshsoll.telemetry.platform.device.entity.Device;
-import com.joshsoll.telemetry.platform.telemetryEvent.entity.TelemetryEvent;
-import com.joshsoll.telemetry.platform.telemetryEvent.repository.TelemetryEventRepository;
+import com.joshsoll.telemetry.platform.telemetryevent.entity.TelemetryEvent;
+import com.joshsoll.telemetry.platform.telemetryevent.repository.TelemetryEventRepository;
 
 @Component
 public class TelemetryEventGenerator {

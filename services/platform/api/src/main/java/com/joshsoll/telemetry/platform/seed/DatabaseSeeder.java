@@ -8,10 +8,10 @@ import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
 import com.joshsoll.telemetry.platform.device.entity.Device;
-import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
-import com.joshsoll.telemetry.platform.metricDefinition.MetricDataType;
-import com.joshsoll.telemetry.platform.metricDefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricdefinition.MetricDataType;
+import com.joshsoll.telemetry.platform.metricdefinition.entity.MetricDefinition;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organizationmembership.enums.MembershipStatus;
 import com.joshsoll.telemetry.platform.organizationmembership.enums.OrganizationRole;
@@ -24,7 +24,7 @@ import com.joshsoll.telemetry.platform.seed.organization.OrganizationGenerator;
 import com.joshsoll.telemetry.platform.seed.organizationmembership.OrganizationMembershipGenerator;
 import com.joshsoll.telemetry.platform.seed.telemetryevent.TelemetryEventGenerator;
 import com.joshsoll.telemetry.platform.seed.user.UserGenerator;
-import com.joshsoll.telemetry.platform.telemetryEvent.entity.TelemetryEvent;
+import com.joshsoll.telemetry.platform.telemetryevent.entity.TelemetryEvent;
 
 @Component
 @Profile("dev")

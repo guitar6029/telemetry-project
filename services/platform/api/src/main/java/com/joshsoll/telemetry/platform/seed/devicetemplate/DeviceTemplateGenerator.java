@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.joshsoll.telemetry.platform.deviceTemplate.entity.DeviceTemplate;
-import com.joshsoll.telemetry.platform.deviceTemplate.repository.DeviceTemplateRepository;
+import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
+import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
 @Component
