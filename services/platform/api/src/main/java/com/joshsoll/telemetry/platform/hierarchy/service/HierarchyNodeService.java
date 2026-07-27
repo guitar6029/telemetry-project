@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.hierarchy.dto.CreateHierarchyNodeRequest;
 import com.joshsoll.telemetry.platform.hierarchy.dto.HierarchyNodeResponse;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
+import com.joshsoll.telemetry.platform.hierarchy.exception.DuplicateHierarchyNodeException;
 import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
+import com.joshsoll.telemetry.platform.hierarchy.exception.InvalidHierarchyNodeParentException;
 import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
@@ -38,19 +40,16 @@ public class HierarchyNodeService {
         }
 
         if (parentNode != null && !parentNode.getOrganization().equals(organization)) {
-            throw new IllegalArgumentException(
-                    "Parent node does not belong to this organization");
+            throw new InvalidHierarchyNodeParentException();
         }
 
         // if we have parentId, parentNode , and name
         // then we check the next step
         // duplicate check - org + parentNode + req.name
 
-        // throw illegal argument exception for now
-        // if exists
         if (hierarchyNodeRepository.existsByOrganizationAndParentNodeAndName(organization, parentNode,
                 request.getName())) {
-            throw new IllegalArgumentException("Node already exists");
+            throw new DuplicateHierarchyNodeException();
         }
 
         Instant now = Instant.now();
