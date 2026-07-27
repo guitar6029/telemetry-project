@@ -7,6 +7,7 @@ import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.dto.LoginRequest;
 import com.joshsoll.telemetry.platform.auth.dto.RegisterRequest;
 import com.joshsoll.telemetry.platform.auth.service.AuthService;
+import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping(ApiRoutes.API_V1 + "/auth")
 public class AuthController {
 
     private final AuthService authService;

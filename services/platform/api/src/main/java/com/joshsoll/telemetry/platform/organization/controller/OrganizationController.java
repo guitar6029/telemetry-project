@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
@@ -24,7 +25,7 @@ import com.joshsoll.telemetry.platform.organization.service.OrganizationService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/organizations")
+@RequestMapping(ApiRoutes.API_V1 + "/organizations")
 public class OrganizationController {
 
     private final OrganizationService organizationService;
