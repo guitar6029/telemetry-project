@@ -63,7 +63,16 @@ class OrganizationControllerTest {
                                 Instant.now(),
                                 Instant.now());
 
-                when(organizationService.getOrganizationById(id))
+                User user = mock(User.class);
+
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                Collections.emptyList());
+
+                when(organizationService.getOrganizationById(
+                                any(User.class),
+                                eq(id)))
                                 .thenReturn(response);
 
                 mockMvc.perform(get("/api/v1/organizations/{id}", id))
@@ -87,7 +96,17 @@ class OrganizationControllerTest {
                                 Instant.now(),
                                 Instant.now());
 
-                when(organizationService.createOrganization(any(CreateOrganizationRequest.class))).thenReturn(response);
+                User user = mock(User.class);
+
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                Collections.emptyList());
+
+                when(organizationService.createOrganization(
+                                any(User.class),
+                                any(CreateOrganizationRequest.class)))
+                                .thenReturn(response);
 
                 final ObjectMapper mapper = new ObjectMapper();
 
@@ -128,8 +147,6 @@ class OrganizationControllerTest {
                                 PAGE, SIZE,
                                 orgs.size(), 2);
 
-                // when(organizationService.getOrganizations(user, PAGE,
-                // SIZE)).thenReturn(responses);
                 when(organizationService.getOrganizations(
                                 any(User.class),
                                 eq(PAGE),

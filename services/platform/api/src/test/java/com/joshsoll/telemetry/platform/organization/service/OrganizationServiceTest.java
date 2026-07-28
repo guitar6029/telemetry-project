@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
+
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,11 +21,11 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
@@ -49,11 +50,14 @@ public class OrganizationServiceTest {
                 // Arrange
                 Organization organization = new Organization("OpenAi", "openai", Instant.now(), Instant.now());
 
-                // Act
+                User user = mock(User.class);
+
+                when(user.getPlatformRole()).thenReturn(PlatformRole.SUPER_ADMIN);
+
                 when(organizationRepository.findById(organization.getId()))
                                 .thenReturn(Optional.of(organization));
 
-                OrganizationResponse response = organizationService.getOrganizationById(organization.getId());
+                OrganizationResponse response = organizationService.getOrganizationById(user, organization.getId());
 
                 // Assert
                 assertEquals(organization.getId(), response.id());
@@ -71,12 +75,16 @@ public class OrganizationServiceTest {
                 // Arrange
                 UUID id = UUID.randomUUID();
 
+                User user = mock(User.class);
+
+                when(user.getPlatformRole()).thenReturn(PlatformRole.SUPER_ADMIN);
+
                 when(organizationRepository.findById(id))
                                 .thenReturn(Optional.empty());
 
                 // Act + Assert
                 assertThrows(OrganizationNotFoundException.class, () -> {
-                        organizationService.getOrganizationById(id);
+                        organizationService.getOrganizationById(user, id);
                 });
         }
 
@@ -87,6 +95,10 @@ public class OrganizationServiceTest {
                 Organization organization = new Organization("MyOrganization", "my-organization", Instant.now(),
                                 Instant.now());
 
+                User user = mock(User.class);
+
+                when(user.getPlatformRole()).thenReturn(PlatformRole.SUPER_ADMIN);
+
                 // call org repo to save this organization
                 when(organizationRepository.save(any(Organization.class)))
                                 .thenReturn(organization);
@@ -95,7 +107,10 @@ public class OrganizationServiceTest {
                                 "MyOrganization",
                                 "my-organization");
 
-                OrganizationResponse response = organizationService.createOrganization(request);
+                when(organizationRepository.existsBySlug(request.getSlug()))
+                                .thenReturn(false);
+
+                OrganizationResponse response = organizationService.createOrganization(user, request);
 
                 assertEquals(request.getName(), response.name());
                 assertEquals(request.getSlug(), response.slug());
@@ -112,8 +127,7 @@ public class OrganizationServiceTest {
 
                 User user = mock(User.class);
 
-                when(user.getPlatformRole())
-                                .thenReturn(PlatformRole.SUPER_ADMIN);
+                when(user.getPlatformRole()).thenReturn(PlatformRole.SUPER_ADMIN);
 
                 Organization org1 = new Organization(
                                 "OpenAI",
