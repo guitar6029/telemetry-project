@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -42,27 +43,30 @@ public class OrganizationMembershipService {
         }
 
         public OrganizationMembershipResponse createOrganizationMembership(
+                        User user,
                         CreateOrganizationMembershipRequest request) {
-                // org check
-                Organization organization = organizationRepository.findById(request.getOrganizationId())
-                                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
+
+                // Authorization + organization lookup
+                Organization organization = getAccessibleOrganization(
+                                user,
+                                request.getOrganizationId());
 
                 // user check
-                User user = userRepository.findById(request.getUserId())
+                User member = userRepository.findById(request.getUserId())
                                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
                 // already exists
                 if (organizationMembershipRepository.existsByOrganization_IdAndUser_Id(request.getOrganizationId(),
                                 request.getUserId())) {
                         throw new OrganizationMembershipAlreadyExistsException(
-                                        request.getOrganizationId(),
-                                        request.getUserId());
+                                        organization.getId(),
+                                        member.getId());
                 }
 
                 // create membership
                 OrganizationMembership membership = new OrganizationMembership(
                                 organization,
-                                user,
+                                member,
                                 request.getRole(),
                                 MembershipStatus.ACTIVE);
 
@@ -73,18 +77,23 @@ public class OrganizationMembershipService {
         }
 
         public PagedApiResponse<OrganizationMembershipResponse> getOrganizationMemberships(
+                        User user,
                         UUID organizationId,
                         int page,
                         int size) {
                 Pageable pageable = PageRequest.of(page, size);
-                Page<OrganizationMembership> organizationMemberships = organizationMembershipRepository
-                                .findAllByOrganization_Id(
-                                                organizationId,
-                                                pageable);
+
+                Organization organization = getAccessibleOrganization(
+                                user,
+                                organizationId);
+
+                Page<OrganizationMembership> membershipPage = organizationMembershipRepository.findAllByOrganization_Id(
+                                organization.getId(),
+                                pageable);
 
                 List<OrganizationMembershipResponse> responses = new ArrayList<>();
 
-                for (OrganizationMembership organizationMembership : organizationMemberships) {
+                for (OrganizationMembership organizationMembership : membershipPage) {
                         responses.add(toResponse(organizationMembership));
                 }
 
@@ -93,18 +102,18 @@ public class OrganizationMembershipService {
                                 "",
                                 page,
                                 size,
-                                organizationMemberships.getTotalElements(),
-                                organizationMemberships.getTotalPages());
+                                membershipPage.getTotalElements(),
+                                membershipPage.getTotalPages());
         }
 
         public OrganizationMembershipResponse getOrganizationMembership(
+                        User user,
                         UUID organizationId,
                         UUID membershipId) {
 
+                Organization organization = getAccessibleOrganization(user, organizationId);
                 OrganizationMembership membership = organizationMembershipRepository
-                                .findByIdAndOrganization_Id(
-                                                membershipId,
-                                                organizationId)
+                                .findByIdAndOrganization_Id(membershipId, organization.getId())
                                 .orElseThrow(() -> new OrganizationMembershipNotFoundException(
                                                 membershipId));
 
@@ -120,5 +129,27 @@ public class OrganizationMembershipService {
                                 organizationMembership.getStatus(),
                                 organizationMembership.getCreatedAt(),
                                 organizationMembership.getUpdatedAt());
+        }
+
+        private Organization getAccessibleOrganization(
+                        User user,
+                        UUID organizationId) {
+                if (user.getPlatformRole() == PlatformRole.SUPER_ADMIN) {
+                        return getOrganizationOrThrow(organizationId);
+
+                }
+
+                return organizationMembershipRepository
+                                .findOrganizationByUserIdAndOrganizationId(
+                                                user.getId(),
+                                                organizationId)
+                                .orElseThrow(() -> new OrganizationNotFoundException(
+                                                organizationId));
+
+        }
+
+        private Organization getOrganizationOrThrow(UUID organizationId) {
+                return organizationRepository.findById(organizationId)
+                                .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
         }
 }
