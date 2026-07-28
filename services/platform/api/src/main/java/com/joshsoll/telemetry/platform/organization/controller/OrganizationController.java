@@ -19,6 +19,7 @@ import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
+import com.joshsoll.telemetry.platform.organization.constants.OrganizationConstants;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.dto.UpdateOrganizationRequest;
@@ -31,7 +32,6 @@ import jakarta.validation.Valid;
 public class OrganizationController {
 
     private final OrganizationService organizationService;
-    private final String DOMAIN_NAME = "Organization";
 
     public OrganizationController(OrganizationService organizationService) {
         this.organizationService = organizationService;
@@ -48,34 +48,39 @@ public class OrganizationController {
         return ResponseFactory.ok(organizations);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrganizationResponse>> getOrganization(@PathVariable UUID id) {
-        OrganizationResponse organization = organizationService.getOrganizationById(id);
+    @GetMapping("/{organizationId}")
+    public ResponseEntity<ApiResponse<OrganizationResponse>> getOrganization(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId) {
+        OrganizationResponse organization = organizationService.getOrganizationById(user, organizationId);
         return ResponseFactory.ok(organization, null);
 
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrganizationResponse>> createOrganization(
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody CreateOrganizationRequest request) {
-        OrganizationResponse organization = organizationService.createOrganization(request);
-        return ResponseFactory.created(organization, DOMAIN_NAME);
+        OrganizationResponse organization = organizationService.createOrganization(user, request);
+        return ResponseFactory.created(organization, OrganizationConstants.DOMAIN_NAME);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{organizationId}")
     public ResponseEntity<ApiResponse<OrganizationResponse>> updateOrganization(
-            @PathVariable UUID id,
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId,
             @Valid @RequestBody UpdateOrganizationRequest request) {
-        OrganizationResponse organization = organizationService.updateOrganization(request, id);
-        return ResponseFactory.updated(organization, DOMAIN_NAME);
+        OrganizationResponse organization = organizationService.updateOrganization(user, request, organizationId);
+        return ResponseFactory.updated(organization, OrganizationConstants.DOMAIN_NAME);
 
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{organizationId}")
     public ResponseEntity<Void> deleteOrganization(
-            @PathVariable UUID id) {
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId) {
 
-        organizationService.deleteOrganization(id);
+        organizationService.deleteOrganization(user, organizationId);
         return ResponseEntity.noContent().build();
     }
 

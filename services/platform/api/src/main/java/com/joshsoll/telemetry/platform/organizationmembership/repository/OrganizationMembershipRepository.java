@@ -13,20 +13,22 @@ import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organizationmembership.entity.OrganizationMembership;
 
 public interface OrganizationMembershipRepository extends JpaRepository<OrganizationMembership, UUID> {
-    boolean existsByOrganization_IdAndUser_Id(UUID organizationId, UUID userId);
+        boolean existsByOrganization_IdAndUser_Id(UUID organizationId, UUID userId);
 
-    Page<OrganizationMembership> findAllByOrganization_Id(UUID organizationId, Pageable pageable);
+        Optional<Organization> findOrganizationByUserIdAndOrganizationId(UUID userId, UUID organizationId);
 
-    Optional<OrganizationMembership> findByIdAndOrganization_Id(
-            UUID membershipId,
-            UUID organizationId);
+        Page<OrganizationMembership> findAllByOrganization_Id(UUID organizationId, Pageable pageable);
 
-    @Query("""
-            SELECT membership.organization
-            FROM OrganizationMembership membership
-            WHERE membership.user.id = :userId
-            """)
-    Page<Organization> findOrganizationsByUserId(
-            @Param("userId") UUID userId,
-            Pageable pageable);
+        Optional<OrganizationMembership> findByIdAndOrganization_Id(
+                        UUID membershipId,
+                        UUID organizationId);
+
+        @Query("""
+                        SELECT membership.organization
+                        FROM OrganizationMembership membership
+                        WHERE membership.user.id = :userId
+                        """)
+        Page<Organization> findOrganizationsByUserId(
+                        @Param("userId") UUID userId,
+                        Pageable pageable);
 }
