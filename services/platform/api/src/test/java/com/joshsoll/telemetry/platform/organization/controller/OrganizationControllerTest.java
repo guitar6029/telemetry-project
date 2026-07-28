@@ -14,7 +14,9 @@ import org.springframework.security.core.Authentication;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -126,13 +128,26 @@ class OrganizationControllerTest {
                                 PAGE, SIZE,
                                 orgs.size(), 2);
 
-                when(organizationService.getOrganizations(user, PAGE, SIZE)).thenReturn(responses);
-
+                // when(organizationService.getOrganizations(user, PAGE,
+                // SIZE)).thenReturn(responses);
+                when(organizationService.getOrganizations(
+                                any(User.class),
+                                eq(PAGE),
+                                eq(SIZE)))
+                                .thenReturn(responses);
                 mockMvc.perform(get("/api/v1/organizations")
                                 .with(authentication(authentication))
                                 .param("page", String.valueOf(PAGE))
                                 .param("size", String.valueOf(SIZE)))
+                                .andDo(print())
+                                .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.page").value(PAGE))
                                 .andExpect(jsonPath("$.size").value(SIZE));
+
+                verify(organizationService).getOrganizations(
+                                any(User.class),
+                                eq(PAGE),
+                                eq(SIZE));
+
         }
 }
