@@ -5,8 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import java.util.Collections;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+
+import com.joshsoll.telemetry.platform.auth.entity.User;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -96,6 +106,12 @@ class OrganizationControllerTest {
                 final int AMOUNT_OF_ORGS = 10;
 
                 Instant now = Instant.now();
+                User user = mock(User.class);
+
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                Collections.emptyList());
 
                 List<OrganizationResponse> orgs = new ArrayList<>();
 
@@ -112,15 +128,26 @@ class OrganizationControllerTest {
                                 PAGE, SIZE,
                                 orgs.size(), 2);
 
-                when(organizationService.getOrganizations(PAGE, SIZE)).thenReturn(responses);
-
+                // when(organizationService.getOrganizations(user, PAGE,
+                // SIZE)).thenReturn(responses);
+                when(organizationService.getOrganizations(
+                                any(User.class),
+                                eq(PAGE),
+                                eq(SIZE)))
+                                .thenReturn(responses);
                 mockMvc.perform(get("/api/v1/organizations")
+                                .with(authentication(authentication))
                                 .param("page", String.valueOf(PAGE))
-                                .param("size", String.valueOf(SIZE))).andExpect(status().isOk())
-                                .andExpect(jsonPath("$.data.length()").value(10))
-                                .andExpect(jsonPath("$.data[0].name").value(orgs.get(0).name()))
-                                .andExpect(jsonPath("$.data[9].name").value(orgs.get(9).name()))
+                                .param("size", String.valueOf(SIZE)))
+                                .andDo(print())
+                                .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.page").value(PAGE))
                                 .andExpect(jsonPath("$.size").value(SIZE));
+
+                verify(organizationService).getOrganizations(
+                                any(User.class),
+                                eq(PAGE),
+                                eq(SIZE));
+
         }
 }

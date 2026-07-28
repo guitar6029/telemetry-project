@@ -1,5 +1,8 @@
 package com.joshsoll.telemetry.platform.seed;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -69,9 +72,20 @@ public class DatabaseSeeder implements CommandLineRunner {
         public void run(String... args) {
 
                 // Organization
+                List<Organization> organizations = new ArrayList<>();
+
                 Organization organization = organizationGenerator.generate(
                                 "Organization 1",
                                 "organization-1");
+
+                organizations.add(organization);
+
+                for (int i = 2; i <= 10; i++) {
+                        organizations.add(
+                                        organizationGenerator.generate(
+                                                        "Organization " + i,
+                                                        "organization-" + i));
+                }
 
                 // Device Templates: 5 total
                 DeviceTemplate deviceTemplate = deviceTemplateGenerator.generate(
@@ -136,7 +150,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 telemetryEvent,
                                 metricDefinition);
 
-                User user = userGenerator.generate(
+                User primaryUser = userGenerator.generate(
                                 "Primary",
                                 "User",
                                 "primary@example.com",
@@ -146,10 +160,26 @@ public class DatabaseSeeder implements CommandLineRunner {
 
                 organizationMembershipGenerator.generate(
                                 organization,
-                                user,
+                                primaryUser,
                                 OrganizationRole.ADMIN,
                                 MembershipStatus.ACTIVE);
 
-                userGenerator.generate(9);
+                for (int i = 1; i <= 9; i++) {
+
+                        User user = userGenerator.generate(
+                                        "User" + i,
+                                        "Test" + i,
+                                        "user" + i + "@example.com",
+                                        "password123",
+                                        UserConstants.DEFAULT_AVATAR_URL,
+                                        PlatformRole.USER);
+
+                        organizationMembershipGenerator.generate(
+                                        organizations.get(i - 1),
+                                        user,
+                                        OrganizationRole.MEMBER,
+                                        MembershipStatus.ACTIVE);
+                }
+
         }
 }
