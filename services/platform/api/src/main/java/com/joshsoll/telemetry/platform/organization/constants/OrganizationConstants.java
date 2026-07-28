@@ -7,6 +7,8 @@ public final class OrganizationConstants {
     public static final int SLUG_MIN_LENGTH = 2;
     public static final int SLUG_MAX_LENGTH = 50;
 
+    public static final String DOMAIN_NAME = "Organization";
+
     private OrganizationConstants() {
     }
 }
