@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { MemberService } from "../../services/member.service";
 import { OrganizationMembershipResponse } from "../../../dto/organization-membership-response";
@@ -13,6 +13,7 @@ import { EmptyStateComponent } from "../../../../../common/components/empty-stat
 import { MatSelectModule } from "@angular/material/select";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership.request";
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-member-form',
@@ -34,6 +35,8 @@ export class MemberFormComponent implements OnInit {
 
     readonly roleSelections = Object.values(OrganizationRole);
     readonly statusSelections = Object.values(MembershipStatus);
+
+    private readonly snackBar = inject(MatSnackBar);
 
     member = signal<OrganizationMembershipResponse | null>(null);
     error = signal<string | null>(null);
@@ -168,10 +171,26 @@ export class MemberFormComponent implements OnInit {
                     this.saving.set(false);
                     this.member.set(response.data);
                     this.router.navigate(['/manage/members', membershipId]);
+                    this.snackBar.open(
+                        'User updated succesfully!',
+                        'Close',
+                        {
+                            duration: 3000,
+                            horizontalPosition: 'right',
+                            verticalPosition: 'top'
+                        }
+                    );
                 },
                 error: (error) => {
-                    //noty
-                    // maybe log.error(error)
+                    this.snackBar.open(
+                        'User was not updated! Try Again!',
+                        'Close',
+                        {
+                            duration: 3000,
+                            horizontalPosition: 'right',
+                            verticalPosition: 'top'
+                        }
+                    );
                     this.saving.set(false);
                 }
 
