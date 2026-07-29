@@ -56,8 +56,14 @@
     </mat-form-field>
 
     @if (editMode()){
-    <button matButton (click)="updateMembership()" [disabled]="memberForm.invalid || !hasChanges()">
+    <button mat-flat-button [disabled]="memberForm.invalid || !hasChanges() || saving()" (click)="updateMembership()">
+
+        @if (saving()) {
+        <mat-spinner diameter="18" />
+        } @else {
         <mat-icon>save</mat-icon>
+        }
+
         Save
     </button>
     }

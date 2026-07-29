@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from "@angular/core";
-import { ActivatedRoute, RouterLink } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { MemberService } from "../../services/member.service";
 import { OrganizationMembershipResponse } from "../../../dto/organization-membership-response";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -12,6 +12,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { EmptyStateComponent } from "../../../../../common/components/empty-state/empty-state.component";
 import { MatSelectModule } from "@angular/material/select";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
+import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership.request";
 
 @Component({
     selector: 'app-member-form',
@@ -36,12 +37,14 @@ export class MemberFormComponent implements OnInit {
 
     member = signal<OrganizationMembershipResponse | null>(null);
     error = signal<string | null>(null);
+    saving = signal(false);
     loading = signal(true);
     editMode = signal<boolean>(false);
 
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private memberService: MemberService
     ) { }
 
@@ -145,7 +148,34 @@ export class MemberFormComponent implements OnInit {
     }
 
     updateMembership(): void {
-        console.log("click update");
+
+        const membershipId = this.member()?.id;
+
+        if (!membershipId) {
+            return;
+        }
+
+        const request: UpdateOrganizationMembershipRequest = {
+            role: this.memberForm.controls.role.value,
+            status: this.memberForm.controls.status.value
+        };
+
+        this.memberService
+            .updateMember(membershipId, request)
+            .subscribe({
+                next: (response) => {
+                    //redirec back to members list
+                    this.saving.set(false);
+                    this.member.set(response.data);
+                    this.router.navigate(['/manage/members', membershipId]);
+                },
+                error: (error) => {
+                    //noty
+                    // maybe log.error(error)
+                    this.saving.set(false);
+                }
+
+            });
     }
 
 }
