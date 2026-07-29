@@ -42,7 +42,7 @@ public class OrganizationMembershipController {
             @Valid @RequestBody CreateOrganizationMembershipRequest request) {
 
         OrganizationMembershipResponse organizationMembership = organizationMembershipService
-                .createOrganizationMembership(user, request);
+                .createOrganizationMembership(user, organizationId, request);
 
         return ResponseFactory.created(organizationMembership, OrganizationMembershipConstants.DOMAIN_NAME);
     }

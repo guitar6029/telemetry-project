@@ -42,19 +42,20 @@ public class OrganizationMembershipService {
 
         public OrganizationMembershipResponse createOrganizationMembership(
                         User user,
+                        UUID organizationId,
                         CreateOrganizationMembershipRequest request) {
 
                 // Authorization + organization lookup
                 Organization organization = getAccessibleOrganization(
                                 user,
-                                request.getOrganizationId());
+                                organizationId);
 
                 // user check
                 User member = userRepository.findById(request.getUserId())
                                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
                 // already exists
-                if (organizationMembershipRepository.existsByOrganization_IdAndUser_Id(request.getOrganizationId(),
+                if (organizationMembershipRepository.existsByOrganization_IdAndUser_Id(organizationId,
                                 request.getUserId())) {
                         throw new OrganizationMembershipAlreadyExistsException(
                                         organization.getId(),
