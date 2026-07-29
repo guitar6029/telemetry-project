@@ -11,6 +11,7 @@ import com.joshsoll.telemetry.platform.metricdefinition.repository.MetricDefinit
 
 @Component
 public class MetricDefinitionGenerator {
+
     private final MetricDefinitionRepository metricDefinitionRepository;
 
     public MetricDefinitionGenerator(
@@ -26,19 +27,26 @@ public class MetricDefinitionGenerator {
             String unit,
             DeviceTemplate deviceTemplate) {
 
-        Instant now = Instant.now();
+        return metricDefinitionRepository
+                .findByDeviceTemplateAndIncomingFieldName(
+                        deviceTemplate,
+                        incomingFieldName)
+                .orElseGet(() -> {
 
-        MetricDefinition metricDefinition = new MetricDefinition(
-                name,
-                description,
-                incomingFieldName,
-                dataType,
-                unit,
-                deviceTemplate,
-                now,
-                now);
+                    Instant now = Instant.now();
 
-        return metricDefinitionRepository.save(metricDefinition);
+                    MetricDefinition metricDefinition = new MetricDefinition(
+                            name,
+                            description,
+                            incomingFieldName,
+                            dataType,
+                            unit,
+                            deviceTemplate,
+                            now,
+                            now);
+
+                    return metricDefinitionRepository.save(metricDefinition);
+                });
     }
 
     public void generate(

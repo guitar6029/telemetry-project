@@ -24,16 +24,24 @@ public class HierarchyNodeGenerator {
             Organization organization,
             HierarchyNode parentNode) {
 
-        Instant now = Instant.now();
+        return hierarchyNodeRepository
+                .findByOrganizationAndParentNodeAndName(
+                        organization,
+                        parentNode,
+                        name)
+                .orElseGet(() -> {
 
-        HierarchyNode hierarchyNode = new HierarchyNode(
-                name,
-                organization,
-                parentNode,
-                now,
-                now);
+                    Instant now = Instant.now();
 
-        return hierarchyNodeRepository.save(hierarchyNode);
+                    HierarchyNode hierarchyNode = new HierarchyNode(
+                            name,
+                            organization,
+                            parentNode,
+                            now,
+                            now);
+
+                    return hierarchyNodeRepository.save(hierarchyNode);
+                });
     }
 
     public void generate(

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
-
 import com.joshsoll.telemetry.platform.organizationmembership.entity.OrganizationMembership;
 import com.joshsoll.telemetry.platform.organizationmembership.enums.MembershipStatus;
 import com.joshsoll.telemetry.platform.organizationmembership.enums.OrganizationRole;
@@ -17,6 +16,7 @@ public class OrganizationMembershipGenerator {
 
     public OrganizationMembershipGenerator(
             OrganizationMembershipRepository organizationMembershipRepository) {
+
         this.organizationMembershipRepository = organizationMembershipRepository;
     }
 
@@ -25,6 +25,16 @@ public class OrganizationMembershipGenerator {
             User user,
             OrganizationRole role,
             MembershipStatus status) {
+
+        if (organizationMembershipRepository.existsByOrganization_IdAndUser_Id(
+                organization.getId(),
+                user.getId())) {
+
+            return organizationMembershipRepository
+                    .findByOrganizationAndUser(organization, user)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Organization membership exists but could not be loaded."));
+        }
 
         OrganizationMembership membership = new OrganizationMembership(
                 organization,

@@ -12,7 +12,6 @@ import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 public class UserGenerator {
 
     private static final String DEFAULT_AVATAR_URL = UserConstants.DEFAULT_AVATAR_URL;
-
     private static final String DEFAULT_PASSWORD = "password123";
 
     private final UserRepository userRepository;
@@ -34,15 +33,19 @@ public class UserGenerator {
             String avatarUrl,
             PlatformRole role) {
 
-        User user = new User(
-                firstName,
-                lastName,
-                email,
-                passwordEncoder.encode(password),
-                avatarUrl,
-                role);
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
 
-        return userRepository.save(user);
+                    User user = new User(
+                            firstName,
+                            lastName,
+                            email,
+                            passwordEncoder.encode(password),
+                            avatarUrl,
+                            role);
+
+                    return userRepository.save(user);
+                });
     }
 
     public void generate(int count) {

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.OrganizationMembershipResponse;
 import com.joshsoll.telemetry.platform.organizationmembership.entity.OrganizationMembership;
@@ -48,4 +49,8 @@ public interface OrganizationMembershipRepository extends JpaRepository<Organiza
         Page<Organization> findOrganizationsByUserId(
                         @Param("userId") UUID userId,
                         Pageable pageable);
+
+        Optional<OrganizationMembership> findByOrganizationAndUser(
+                        Organization organization,
+                        User user);
 }
