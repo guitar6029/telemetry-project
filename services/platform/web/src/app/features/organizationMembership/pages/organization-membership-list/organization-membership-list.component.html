@@ -11,8 +11,9 @@
             Id
         </th>
         <td mat-cell *matCellDef="let user">
-            <!-- <a [routerLink]="['/users', user.id]">{{user.name}}</a> -->
-            {{ user.id}}
+            <a [routerLink]="['/manage/members', user.id]">
+                {{ user.id }}
+            </a>
         </td>
     </ng-container>
 

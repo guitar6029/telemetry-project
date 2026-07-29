@@ -3,10 +3,8 @@ import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
-import { OrganizationResponse } from "../../../organization/dto/organization-response";
 import { OrganizationMembershipService } from "../../services/organization-membership.service";
-import { OrganizationRole } from "../../enums/organization-role";
-import { MembershipStatus } from "../../enums/membership-status";
+
 import { OrganizationMembershipResponse } from "../../dto/organization-membership-response";
 
 
