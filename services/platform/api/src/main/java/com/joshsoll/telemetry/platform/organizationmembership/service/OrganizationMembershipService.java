@@ -24,6 +24,8 @@ import com.joshsoll.telemetry.platform.organizationmembership.exceptions.Organiz
 import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
 import com.joshsoll.telemetry.platform.user.exception.UserNotFoundException;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class OrganizationMembershipService {
         private final OrganizationMembershipRepository organizationMembershipRepository;
@@ -116,6 +118,7 @@ public class OrganizationMembershipService {
                 return toResponse(membership);
         }
 
+        @Transactional
         public OrganizationMembershipResponse updateOrganizationMembership(
                         User user,
                         UUID organizationId,
