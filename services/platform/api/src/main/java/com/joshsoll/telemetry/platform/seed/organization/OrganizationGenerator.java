@@ -19,15 +19,20 @@ public class OrganizationGenerator {
     }
 
     public Organization generate(String name, String slug) {
-        Instant now = Instant.now();
 
-        Organization organization = new Organization(
-                name,
-                slug,
-                now,
-                now);
+        return organizationRepository.findBySlug(slug)
+                .orElseGet(() -> {
 
-        return organizationRepository.save(organization);
+                    Instant now = Instant.now();
+
+                    Organization organization = new Organization(
+                            name,
+                            slug,
+                            now,
+                            now);
+
+                    return organizationRepository.save(organization);
+                });
     }
 
     public void generate(int count) {

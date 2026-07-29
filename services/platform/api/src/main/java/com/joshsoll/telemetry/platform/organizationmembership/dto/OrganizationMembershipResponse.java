@@ -7,12 +7,17 @@ import com.joshsoll.telemetry.platform.organizationmembership.enums.MembershipSt
 import com.joshsoll.telemetry.platform.organizationmembership.enums.OrganizationRole;
 
 public record OrganizationMembershipResponse(
-        UUID id,
-        UUID organizatioId,
-        UUID userId,
-        OrganizationRole role,
-        MembershipStatus status,
-        Instant createdAt,
-        Instant updatedAt) {
+                UUID id,
+                UUID organizationId,
+                UUID userId,
 
+                String firstName,
+                String lastName,
+                String email,
+
+                OrganizationRole role,
+                MembershipStatus status,
+
+                Instant createdAt,
+                Instant updatedAt) {
 }

@@ -16,6 +16,7 @@ public class DeviceTemplateGenerator {
 
     public DeviceTemplateGenerator(
             DeviceTemplateRepository deviceTemplateRepository) {
+
         this.deviceTemplateRepository = deviceTemplateRepository;
     }
 
@@ -24,17 +25,22 @@ public class DeviceTemplateGenerator {
             String description,
             Organization organization) {
 
-        Instant now = Instant.now();
+        return deviceTemplateRepository
+                .findByOrganizationAndName(organization, name)
+                .orElseGet(() -> {
 
-        DeviceTemplate deviceTemplate = new DeviceTemplate(
-                name,
-                description,
-                organization,
-                false,
-                now,
-                now);
+                    Instant now = Instant.now();
 
-        return deviceTemplateRepository.save(deviceTemplate);
+                    DeviceTemplate deviceTemplate = new DeviceTemplate(
+                            name,
+                            description,
+                            organization,
+                            false,
+                            now,
+                            now);
+
+                    return deviceTemplateRepository.save(deviceTemplate);
+                });
     }
 
     public void generate(

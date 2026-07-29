@@ -98,4 +98,11 @@ public class OrganizationMembership {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
+    public void updateMembership(
+            OrganizationRole role,
+            MembershipStatus status) {
+        this.role = role;
+        this.status = status;
+    }
 }

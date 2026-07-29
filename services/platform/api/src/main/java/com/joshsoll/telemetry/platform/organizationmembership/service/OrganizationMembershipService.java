@@ -1,7 +1,5 @@
 package com.joshsoll.telemetry.platform.organizationmembership.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -18,12 +16,15 @@ import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFou
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.CreateOrganizationMembershipRequest;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.OrganizationMembershipResponse;
+import com.joshsoll.telemetry.platform.organizationmembership.dto.UpdateOrganizationMembershipRequest;
 import com.joshsoll.telemetry.platform.organizationmembership.entity.OrganizationMembership;
 import com.joshsoll.telemetry.platform.organizationmembership.enums.MembershipStatus;
 import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipAlreadyExistsException;
 import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipNotFoundException;
 import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
 import com.joshsoll.telemetry.platform.user.exception.UserNotFoundException;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class OrganizationMembershipService {
@@ -44,19 +45,20 @@ public class OrganizationMembershipService {
 
         public OrganizationMembershipResponse createOrganizationMembership(
                         User user,
+                        UUID organizationId,
                         CreateOrganizationMembershipRequest request) {
 
                 // Authorization + organization lookup
                 Organization organization = getAccessibleOrganization(
                                 user,
-                                request.getOrganizationId());
+                                organizationId);
 
                 // user check
                 User member = userRepository.findById(request.getUserId())
                                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
                 // already exists
-                if (organizationMembershipRepository.existsByOrganization_IdAndUser_Id(request.getOrganizationId(),
+                if (organizationMembershipRepository.existsByOrganization_IdAndUser_Id(organizationId,
                                 request.getUserId())) {
                         throw new OrganizationMembershipAlreadyExistsException(
                                         organization.getId(),
@@ -81,24 +83,20 @@ public class OrganizationMembershipService {
                         UUID organizationId,
                         int page,
                         int size) {
+
                 Pageable pageable = PageRequest.of(page, size);
 
                 Organization organization = getAccessibleOrganization(
                                 user,
                                 organizationId);
 
-                Page<OrganizationMembership> membershipPage = organizationMembershipRepository.findAllByOrganization_Id(
-                                organization.getId(),
-                                pageable);
-
-                List<OrganizationMembershipResponse> responses = new ArrayList<>();
-
-                for (OrganizationMembership organizationMembership : membershipPage) {
-                        responses.add(toResponse(organizationMembership));
-                }
+                Page<OrganizationMembershipResponse> membershipPage = organizationMembershipRepository
+                                .findMembershipResponses(
+                                                organization.getId(),
+                                                pageable);
 
                 return new PagedApiResponse<>(
-                                responses,
+                                membershipPage.getContent(),
                                 "",
                                 page,
                                 size,
@@ -120,11 +118,32 @@ public class OrganizationMembershipService {
                 return toResponse(membership);
         }
 
+        @Transactional
+        public OrganizationMembershipResponse updateOrganizationMembership(
+                        User user,
+                        UUID organizationId,
+                        UUID membershipId,
+                        UpdateOrganizationMembershipRequest request) {
+                Organization organization = getAccessibleOrganization(user, organizationId);
+                OrganizationMembership membership = organizationMembershipRepository
+                                .findByIdAndOrganization_Id(membershipId, organization.getId())
+                                .orElseThrow(() -> new OrganizationMembershipNotFoundException(
+                                                membershipId));
+
+                membership.updateMembership(request.role(), request.status());
+
+                return toResponse(membership);
+
+        }
+
         private OrganizationMembershipResponse toResponse(OrganizationMembership organizationMembership) {
                 return new OrganizationMembershipResponse(
                                 organizationMembership.getId(),
                                 organizationMembership.getOrganization().getId(),
                                 organizationMembership.getUser().getId(),
+                                organizationMembership.getUser().getFirstName(),
+                                organizationMembership.getUser().getLastName(),
+                                organizationMembership.getUser().getEmail(),
                                 organizationMembership.getRole(),
                                 organizationMembership.getStatus(),
                                 organizationMembership.getCreatedAt(),

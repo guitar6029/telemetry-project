@@ -32,22 +32,26 @@ public class DeviceGenerator {
             HierarchyNode hierarchyNode,
             DeviceTemplate deviceTemplate) {
 
-        Instant now = Instant.now();
+        return deviceRepository.findBySerialNumber(serialNumber)
+                .orElseGet(() -> {
 
-        Device device = new Device(
-                name,
-                manufacturer,
-                model,
-                serialNumber,
-                firmwareVersion,
-                status,
-                organization,
-                hierarchyNode,
-                deviceTemplate,
-                now,
-                now);
+                    Instant now = Instant.now();
 
-        return deviceRepository.save(device);
+                    Device device = new Device(
+                            name,
+                            manufacturer,
+                            model,
+                            serialNumber,
+                            firmwareVersion,
+                            status,
+                            organization,
+                            hierarchyNode,
+                            deviceTemplate,
+                            now,
+                            now);
+
+                    return deviceRepository.save(device);
+                });
     }
 
     public void generate(
@@ -69,5 +73,4 @@ public class DeviceGenerator {
                     deviceTemplate);
         }
     }
-
 }

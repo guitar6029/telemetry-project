@@ -44,7 +44,7 @@ export class OrganizationDetailsComponent implements OnInit {
                 this.organization.set(response.data);
             },
             error: (error) => {
-                console.error("Failed to load organization.");
+                console.error("Failed to load organization.", error);
                 this.error.set("Unable to load organization.");
             }
         });
