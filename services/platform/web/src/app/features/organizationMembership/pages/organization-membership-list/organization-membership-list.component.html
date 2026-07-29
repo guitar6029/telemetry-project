@@ -4,6 +4,13 @@
 <app-empty-state message="No users found"></app-empty-state>
 }
 
+<div>
+    <button matButton routerLink="invite">
+        <mat-icon>person_add</mat-icon>
+        Invite
+    </button>
+</div>
+
 <table mat-table [dataSource]="users()">
 
     <ng-container matColumnDef="id">

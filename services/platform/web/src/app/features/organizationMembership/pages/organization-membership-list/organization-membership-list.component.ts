@@ -6,6 +6,7 @@ import { EmptyStateComponent } from "../../../../common/components/empty-state/e
 import { OrganizationMembershipService } from "../../services/organization-membership.service";
 
 import { OrganizationMembershipResponse } from "../../dto/organization-membership-response";
+import { MatIcon } from "@angular/material/icon";
 
 
 @Component({
@@ -14,7 +15,8 @@ import { OrganizationMembershipResponse } from "../../dto/organization-membershi
         MatTableModule,
         MatPaginatorModule,
         EmptyStateComponent,
-        RouterLink
+        RouterLink,
+        MatIcon
     ],
     templateUrl: './organization-membership-list.component.html',
     styleUrl: './organization-membership-list.component.scss'
