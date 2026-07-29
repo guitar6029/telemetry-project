@@ -11,6 +11,7 @@ import { MembershipStatus } from "../../../enums/membership-status";
 import { MatIconModule } from "@angular/material/icon";
 import { EmptyStateComponent } from "../../../../../common/components/empty-state/empty-state.component";
 import { MatSelectModule } from "@angular/material/select";
+import { MatProgressSpinner } from "@angular/material/progress-spinner";
 
 @Component({
     selector: 'app-member-form',
@@ -22,6 +23,7 @@ import { MatSelectModule } from "@angular/material/select";
         MatButtonModule,
         MatIconModule,
         MatSelectModule,
+        MatProgressSpinner,
         EmptyStateComponent,
     ],
     templateUrl: './member-form.component.html',
@@ -34,6 +36,7 @@ export class MemberFormComponent implements OnInit {
 
     member = signal<OrganizationMembershipResponse | null>(null);
     error = signal<string | null>(null);
+    loading = signal(true);
     editMode = signal<boolean>(false);
 
 
@@ -54,6 +57,7 @@ export class MemberFormComponent implements OnInit {
         } else {
             console.error("Failed to load member - missing member id");
             this.error.set("Unable to load member - missing member id");
+            this.loading.set(false);
         }
     }
 
@@ -97,6 +101,7 @@ export class MemberFormComponent implements OnInit {
     });
 
     loadMembership(membershipId: string): void {
+        this.loading.set(true);
         this.error.set(null);
         this.memberService.getMember(membershipId).subscribe({
             next: (response) => {
@@ -115,10 +120,13 @@ export class MemberFormComponent implements OnInit {
                     this.memberForm.controls.status.enable();
 
                 }
+
+                this.loading.set(false);
             },
             error: (error) => {
                 console.error("Failed to load member.", error);
                 this.error.set("Unable to load member");
+                this.loading.set(false);
             }
         })
     }

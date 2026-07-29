@@ -1,9 +1,10 @@
 <h1>Member</h1>
 
-@if (error()) {
+@if (loading()) {
+<mat-spinner />
+} @else if (error()) {
 <app-empty-state message="No member data"></app-empty-state>
 } @else {
-
 @if (!editMode()) {
 <button matButton routerLink="edit">
     <mat-icon>edit</mat-icon>
@@ -54,7 +55,7 @@
 
     </mat-form-field>
 
-    @if (this.editMode()){
+    @if (editMode()){
     <button matButton (click)="updateMembership()" [disabled]="memberForm.invalid || !hasChanges()">
         <mat-icon>save</mat-icon>
         Save
