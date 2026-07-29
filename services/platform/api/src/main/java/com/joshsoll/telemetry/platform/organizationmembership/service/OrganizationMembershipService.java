@@ -1,7 +1,5 @@
 package com.joshsoll.telemetry.platform.organizationmembership.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -81,24 +79,20 @@ public class OrganizationMembershipService {
                         UUID organizationId,
                         int page,
                         int size) {
+
                 Pageable pageable = PageRequest.of(page, size);
 
                 Organization organization = getAccessibleOrganization(
                                 user,
                                 organizationId);
 
-                Page<OrganizationMembership> membershipPage = organizationMembershipRepository.findAllByOrganization_Id(
-                                organization.getId(),
-                                pageable);
-
-                List<OrganizationMembershipResponse> responses = new ArrayList<>();
-
-                for (OrganizationMembership organizationMembership : membershipPage) {
-                        responses.add(toResponse(organizationMembership));
-                }
+                Page<OrganizationMembershipResponse> membershipPage = organizationMembershipRepository
+                                .findMembershipResponses(
+                                                organization.getId(),
+                                                pageable);
 
                 return new PagedApiResponse<>(
-                                responses,
+                                membershipPage.getContent(),
                                 "",
                                 page,
                                 size,
@@ -125,6 +119,9 @@ public class OrganizationMembershipService {
                                 organizationMembership.getId(),
                                 organizationMembership.getOrganization().getId(),
                                 organizationMembership.getUser().getId(),
+                                organizationMembership.getUser().getFirstName(),
+                                organizationMembership.getUser().getLastName(),
+                                organizationMembership.getUser().getEmail(),
                                 organizationMembership.getRole(),
                                 organizationMembership.getStatus(),
                                 organizationMembership.getCreatedAt(),
