@@ -16,6 +16,7 @@ import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFou
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.CreateOrganizationMembershipRequest;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.OrganizationMembershipResponse;
+import com.joshsoll.telemetry.platform.organizationmembership.dto.UpdateOrganizationMembershipRequest;
 import com.joshsoll.telemetry.platform.organizationmembership.entity.OrganizationMembership;
 import com.joshsoll.telemetry.platform.organizationmembership.enums.MembershipStatus;
 import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipAlreadyExistsException;
@@ -113,6 +114,23 @@ public class OrganizationMembershipService {
                                                 membershipId));
 
                 return toResponse(membership);
+        }
+
+        public OrganizationMembershipResponse updateOrganizationMembership(
+                        User user,
+                        UUID organizationId,
+                        UUID membershipId,
+                        UpdateOrganizationMembershipRequest request) {
+                Organization organization = getAccessibleOrganization(user, organizationId);
+                OrganizationMembership membership = organizationMembershipRepository
+                                .findByIdAndOrganization_Id(membershipId, organization.getId())
+                                .orElseThrow(() -> new OrganizationMembershipNotFoundException(
+                                                membershipId));
+
+                membership.updateMembership(request.role(), request.status());
+
+                return toResponse(membership);
+
         }
 
         private OrganizationMembershipResponse toResponse(OrganizationMembership organizationMembership) {

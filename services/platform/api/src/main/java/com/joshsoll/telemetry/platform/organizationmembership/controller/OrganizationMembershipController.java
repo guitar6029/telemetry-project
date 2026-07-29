@@ -12,6 +12,7 @@ import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.organizationmembership.constants.OrganizationMembershipConstants;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.CreateOrganizationMembershipRequest;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.OrganizationMembershipResponse;
+import com.joshsoll.telemetry.platform.organizationmembership.dto.UpdateOrganizationMembershipRequest;
 import com.joshsoll.telemetry.platform.organizationmembership.service.OrganizationMembershipService;
 
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -75,6 +77,20 @@ public class OrganizationMembershipController {
                 organizationId,
                 membershipId);
 
+        return ResponseFactory.ok(membership, null);
+    }
+
+    @PatchMapping("/{membershipId}")
+    public ResponseEntity<ApiResponse<OrganizationMembershipResponse>> updateOrganizationMembership(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId,
+            @PathVariable UUID membershipId,
+            @RequestBody @Valid UpdateOrganizationMembershipRequest request) {
+        OrganizationMembershipResponse membership = organizationMembershipService.updateOrganizationMembership(
+                user,
+                organizationId,
+                membershipId,
+                request);
         return ResponseFactory.ok(membership, null);
     }
 
