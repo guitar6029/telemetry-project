@@ -1,7 +1,66 @@
-<h1>member form</h1>
+<h1>Member</h1>
 
-@if (member(); as member) {
-<p>{{ member.firstName }}</p>
-<p>{{ member.lastName }}</p>
-<p>{{ member.email }}</p>
+@if (error()) {
+<app-empty-state message="No member data"></app-empty-state>
+} @else {
+
+@if (!editMode()) {
+<button matButton routerLink="edit">
+    <mat-icon>edit</mat-icon>
+    Edit
+</button>
+}
+
+<form [formGroup]="memberForm">
+
+    <mat-form-field appearance="outline">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Role</mat-label>
+
+        <mat-select formControlName="role">
+            @for (role of roleSelections; track role) {
+            <mat-option [value]="role">
+                {{ role }}
+            </mat-option>
+            }
+        </mat-select>
+
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+
+        <mat-select formControlName="status">
+            @for (status of statusSelections; track status) {
+            <mat-option [value]="status">
+                {{ status }}
+            </mat-option>
+            }
+        </mat-select>
+
+    </mat-form-field>
+
+    @if (this.editMode()){
+    <button matButton (click)="updateMembership()" [disabled]="memberForm.invalid || !hasChanges()">
+        <mat-icon>save</mat-icon>
+        Save
+    </button>
+    }
+
+</form>
+
 }
