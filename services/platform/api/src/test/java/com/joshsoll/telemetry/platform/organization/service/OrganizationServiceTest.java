@@ -2,13 +2,14 @@ package com.joshsoll.telemetry.platform.organization.service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
+import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,6 +42,9 @@ public class OrganizationServiceTest {
         @Mock
         private OrganizationRepository organizationRepository;
 
+        @Mock
+        private AuthorizationService authorizationService;
+
         @InjectMocks
         private OrganizationService organizationService;
 
@@ -52,11 +56,12 @@ public class OrganizationServiceTest {
 
                 User user = mock(User.class);
 
-                when(user.getPlatformRole()).thenReturn(PlatformRole.SUPER_ADMIN);
+                when(authorizationService.requireOrganizationAccess(
+                                user,
+                                organization.getId()))
+                                .thenReturn(organization);
 
-                when(organizationRepository.findById(organization.getId()))
-                                .thenReturn(Optional.of(organization));
-
+                // Act
                 OrganizationResponse response = organizationService.getOrganizationById(user, organization.getId());
 
                 // Assert
@@ -64,8 +69,8 @@ public class OrganizationServiceTest {
                 assertEquals(organization.getName(), response.name());
                 assertEquals(organization.getSlug(), response.slug());
 
-                // Verify
-                verify(organizationRepository).findById(organization.getId());
+                verify(authorizationService)
+                                .requireOrganizationAccess(user, organization.getId());
 
         }
 
@@ -77,15 +82,16 @@ public class OrganizationServiceTest {
 
                 User user = mock(User.class);
 
-                when(user.getPlatformRole()).thenReturn(PlatformRole.SUPER_ADMIN);
-
-                when(organizationRepository.findById(id))
-                                .thenReturn(Optional.empty());
+                when(authorizationService.requireOrganizationAccess(user, id))
+                                .thenThrow(new OrganizationNotFoundException(id));
 
                 // Act + Assert
                 assertThrows(OrganizationNotFoundException.class, () -> {
                         organizationService.getOrganizationById(user, id);
                 });
+
+                verify(authorizationService)
+                                .requireOrganizationAccess(user, id);
         }
 
         @Test
@@ -96,8 +102,6 @@ public class OrganizationServiceTest {
                                 Instant.now());
 
                 User user = mock(User.class);
-
-                when(user.getPlatformRole()).thenReturn(PlatformRole.SUPER_ADMIN);
 
                 // call org repo to save this organization
                 when(organizationRepository.save(any(Organization.class)))
@@ -116,6 +120,12 @@ public class OrganizationServiceTest {
                 assertEquals(request.getSlug(), response.slug());
                 assertNotNull(response.createdAt());
                 assertNotNull(response.updatedAt());
+
+                verify(organizationRepository)
+                                .save(any(Organization.class));
+
+                verify(authorizationService)
+                                .requireSuperAdmin(user);
 
                 verify(organizationRepository)
                                 .save(any(Organization.class));
