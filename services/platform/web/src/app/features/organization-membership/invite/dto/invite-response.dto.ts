@@ -1,4 +1,4 @@
-import { OrganizationRole } from "../../enums/organization-role";
+import { OrganizationRole } from "../../enum/organization-role.enum";
 
 export interface InviteResponse {
     email: string;

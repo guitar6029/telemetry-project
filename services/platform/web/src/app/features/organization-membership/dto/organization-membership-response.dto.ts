@@ -1,5 +1,5 @@
-import { OrganizationRole } from "../enums/organization-role";
-import { MembershipStatus } from "../enums/membership-status";
+import { OrganizationRole } from "../enum/organization-role.enum";
+import { MembershipStatus } from "../enum/membership-status.enum";
 
 export interface OrganizationMembershipResponse {
     id: string;

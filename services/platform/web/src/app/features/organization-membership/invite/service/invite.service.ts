@@ -1,8 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { InviteRequest } from "../dto/invite.request";
-import { ApiResponse } from "../../../../common/dto/api-response";
-import { InviteResponse } from "../dto/invite.response";
+import { InviteRequest } from "../dto/invite-request.dto";
+import { ApiResponse } from "../../../../common/dto/api-response.dto";
+import { InviteResponse } from "../dto/invite-response.dto";
 import { Observable } from "rxjs";
 import { ApiConstants } from "../../../../constants/api.constants";
 

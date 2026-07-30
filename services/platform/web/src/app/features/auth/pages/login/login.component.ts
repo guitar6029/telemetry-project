@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { AuthService } from "../../services/auth.service";
+import { AuthService } from "../../service/auth.service";
 import { UserConstants } from "../../constants/user.constants";
-import { LoginRequest } from "../../dto/login-request";
+import { LoginRequest } from "../../dto/login-request.dto";
 import { Router, RouterLink } from "@angular/router";
 import { MatAnchor, MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";

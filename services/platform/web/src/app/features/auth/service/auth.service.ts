@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
-import { LoginRequest } from "../dto/login-request";
+import { LoginRequest } from "../dto/login-request.dto";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { RegisterRequest } from "../dto/register-request";
+import { RegisterRequest } from "../dto/register-request.dto";
 import { ApiConstants } from "../../../constants/api.constants";
 
 @Injectable({

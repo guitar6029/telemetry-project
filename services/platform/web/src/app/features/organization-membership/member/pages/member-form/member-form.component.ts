@@ -1,18 +1,18 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { MemberService } from "../../services/member.service";
-import { OrganizationMembershipResponse } from "../../../dto/organization-membership-response";
+import { MemberService } from "../../service/member.service";
+import { OrganizationMembershipResponse } from "../../../dto/organization-membership-response.dto";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { OrganizationRole } from "../../../enums/organization-role";
-import { MembershipStatus } from "../../../enums/membership-status";
+import { OrganizationRole } from "../../../enum/organization-role.enum";
+import { MembershipStatus } from "../../../enum/membership-status.enum";
 import { MatIconModule } from "@angular/material/icon";
 import { EmptyStateComponent } from "../../../../../common/components/empty-state/empty-state.component";
 import { MatSelectModule } from "@angular/material/select";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership.request";
+import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership-request.dto";
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({

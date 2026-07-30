@@ -1,9 +1,9 @@
 import { Component } from "@angular/core";
-import { OrganizationService } from "../../services/organization.service";
+import { OrganizationService } from "../../service/organization.service";
 import { Router } from "@angular/router";
 import { OrganizationCreateConstants } from "../../constants/organization-create.constants";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { OrganizationCreateRequest } from "../../dto/organization-create.request";
+import { OrganizationCreateRequest } from "../../dto/organization-create-request.dto";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";

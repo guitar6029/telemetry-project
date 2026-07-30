@@ -1,10 +1,10 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { ApiResponse } from "../../../../common/dto/api-response";
+import { ApiResponse } from "../../../../common/dto/api-response.dto";
 import { ApiConstants } from "../../../../constants/api.constants";
-import { OrganizationMembershipResponse } from "../../dto/organization-membership-response";
-import { UpdateOrganizationMembershipRequest } from "../dto/update-organization-membership.request";
+import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
+import { UpdateOrganizationMembershipRequest } from "../dto/update-organization-membership-request.dto";
 
 @Injectable({
     providedIn: 'root'

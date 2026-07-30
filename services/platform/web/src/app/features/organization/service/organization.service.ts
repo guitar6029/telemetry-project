@@ -2,11 +2,11 @@ import { Injectable } from "@angular/core";
 import { ApiConstants } from "../../../constants/api.constants";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { PagedApiResponse } from "../../../common/dto/paged-api-response";
-import { OrganizationResponse } from "../dto/organization-response";
-import { ApiResponse } from "../../../common/dto/api-response";
-import { OrganizationCreateRequest } from "../dto/organization-create.request";
-import { OrganizationUpdateRequest } from "../dto/organization-update.request";
+import { PagedApiResponse } from "../../../common/dto/paged-api-response.dto";
+import { OrganizationResponse } from "../dto/organization-response.dto";
+import { ApiResponse } from "../../../common/dto/api-response.dto";
+import { OrganizationCreateRequest } from "../dto/organization-create-request.dto";
+import { OrganizationUpdateRequest } from "../dto/organization-update-request.dto";
 
 
 @Injectable({
