@@ -15,3 +15,13 @@ CREATE TABLE invitations (
 
     expires_at TIMESTAMPTZ NOT NULL
 );
+
+
+CREATE INDEX idx_invitation_org
+    ON invitations (organization_id);
+
+CREATE INDEX idx_invitation_org_email_status
+    ON invitations (organization_id, email, status);
+
+CREATE INDEX idx_invitation_status_expires
+    ON invitations (status, expires_at);
