@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
-import { AuthService } from "../../services/auth.service";
+import { AuthService } from "../../service/auth.service";
 import { AbstractControl, ValidationErrors, ValidatorFn, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserConstants } from "../../constants/user.constants";
-import { RegisterRequest } from "../../dto/register-request";
+import { RegisterRequest } from "../../dto/register-request.dto";
 import { Router, RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";

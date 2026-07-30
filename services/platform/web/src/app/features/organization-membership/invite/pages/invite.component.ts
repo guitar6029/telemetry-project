@@ -1,10 +1,10 @@
 import { Component, inject, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserConstants } from "../../../auth/constants/user.constants";
-import { OrganizationRole } from "../../enums/organization-role";
-import { MembershipStatus } from "../../enums/membership-status";
-import { InviteRequest } from "../dto/invite.request";
-import { InviteService } from "../services/invite.service";
+import { OrganizationRole } from "../../enum/organization-role.enum";
+import { MembershipStatus } from "../../enum/membership-status.enum";
+import { InviteRequest } from "../dto/invite-request.dto";
+import { InviteService } from "../service/invite.service";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";

@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from "@angular/core";
-import { OrganizationService } from "../../services/organization.service";
+import { OrganizationService } from "../../service/organization.service";
 import { ActivatedRoute } from "@angular/router";
-import { OrganizationResponse } from "../../dto/organization-response";
+import { OrganizationResponse } from "../../dto/organization-response.dto";
 import { MatCardModule } from "@angular/material/card";
 
 @Component({

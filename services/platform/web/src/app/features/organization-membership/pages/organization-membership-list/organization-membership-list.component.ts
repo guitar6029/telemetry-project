@@ -3,9 +3,9 @@ import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
 import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
-import { OrganizationMembershipService } from "../../services/organization-membership.service";
+import { OrganizationMembershipService } from "../../service/organization-membership.service";
 
-import { OrganizationMembershipResponse } from "../../dto/organization-membership-response";
+import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
 import { MatIcon } from "@angular/material/icon";
 
 

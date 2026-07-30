@@ -1,5 +1,5 @@
 import { Component, OnInit, signal } from "@angular/core";
-import { OrganizationService } from "../../services/organization.service";
+import { OrganizationService } from "../../service/organization.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { OrganizationCreateConstants } from "../../constants/organization-create.constants";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -7,7 +7,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
-import { OrganizationUpdateRequest } from "../../dto/organization-update.request";
+import { OrganizationUpdateRequest } from "../../dto/organization-update-request.dto";
 
 @Component({
     selector: 'app-organization-update',

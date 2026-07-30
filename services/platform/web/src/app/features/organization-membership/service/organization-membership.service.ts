@@ -2,8 +2,8 @@ import { Injectable } from "@angular/core";
 import { ApiConstants } from "../../../constants/api.constants";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { PagedApiResponse } from "../../../common/dto/paged-api-response";
-import { OrganizationMembershipResponse } from "../dto/organization-membership-response";
+import { PagedApiResponse } from "../../../common/dto/paged-api-response.dto";
+import { OrganizationMembershipResponse } from "../dto/organization-membership-response.dto";
 
 
 @Injectable({

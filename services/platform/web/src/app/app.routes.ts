@@ -21,7 +21,7 @@ export const routes: Routes = [
             {
                 path: 'members',
                 loadChildren: () =>
-                    import('./features/organizationMembership/organizationMembership.routes')
+                    import('./features/organization-membership/organization-membership.routes')
                         .then(m => m.ORGANIZATION_MEMBERSHIP_ROUTES)
             },
 

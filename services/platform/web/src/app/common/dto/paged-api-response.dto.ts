@@ -1,4 +1,4 @@
-import { ApiResponse } from "./api-response";
+import { ApiResponse } from "./api-response.dto";
 
 export interface PagedApiResponse<T> extends ApiResponse<T[]> {
     page: number;
