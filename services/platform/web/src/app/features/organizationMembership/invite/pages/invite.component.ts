@@ -1,4 +1,4 @@
-import { Component, signal } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserConstants } from "../../../auth/constants/user.constants";
 import { OrganizationRole } from "../../enums/organization-role";
@@ -13,6 +13,7 @@ import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { RouterLink } from "@angular/router";
 import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent } from "@angular/material/card";
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-invite',
@@ -41,6 +42,7 @@ export class InviteFormComponent {
     error = signal<string | null>(null);
     loading = signal(false)
     protected readonly OrganizationRole = OrganizationRole;
+    private readonly snackBar = inject(MatSnackBar);
 
     constructor(private inviteService: InviteService) { }
 
@@ -82,6 +84,15 @@ export class InviteFormComponent {
             next: (response) => {
                 //noty
                 this.loading.set(false);
+                this.snackBar.open(
+                    'Invitation sent succesfully!',
+                    'Close',
+                    {
+                        duration: 3000,
+                        horizontalPosition: 'right',
+                        verticalPosition: 'top'
+                    }
+                );
             },
             error: (error) => {
                 //noty

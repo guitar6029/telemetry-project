@@ -16,14 +16,15 @@ export class InviteService {
     private readonly url =
         `${ApiConstants.API_V1}/organizations`
 
+    // for now , until we get the user persistence
     private readonly organizationId =
-        '47dbd192-2342-4d50-ae0d-3407db4f274b';
+        '30925faf-5cc1-4b0f-976f-b4f5a09a10db';
 
     constructor(private http: HttpClient) { }
 
     sendInvite(request: InviteRequest): Observable<ApiResponse<InviteResponse>> {
         return this.http.post<ApiResponse<InviteResponse>>(
-            `${this.url}/${this.organizationId}/memberships/invite`,
+            `${this.url}/${this.organizationId}/invitations`,
             request, {
             withCredentials: true
         }
