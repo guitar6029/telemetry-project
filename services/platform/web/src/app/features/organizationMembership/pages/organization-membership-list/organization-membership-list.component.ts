@@ -6,6 +6,7 @@ import { EmptyStateComponent } from "../../../../common/components/empty-state/e
 import { OrganizationMembershipService } from "../../services/organization-membership.service";
 
 import { OrganizationMembershipResponse } from "../../dto/organization-membership-response";
+import { MatIcon } from "@angular/material/icon";
 
 
 @Component({
@@ -14,7 +15,8 @@ import { OrganizationMembershipResponse } from "../../dto/organization-membershi
         MatTableModule,
         MatPaginatorModule,
         EmptyStateComponent,
-        RouterLink
+        RouterLink,
+        MatIcon
     ],
     templateUrl: './organization-membership-list.component.html',
     styleUrl: './organization-membership-list.component.scss'
@@ -69,7 +71,7 @@ export class OrganizationMembershipListComponent implements OnInit {
         size = this.pageSize()
     ) {
         this.organizationMembershipService.getOrganizationMemberships(
-            "47dbd192-2342-4d50-ae0d-3407db4f274b",
+            "30925faf-5cc1-4b0f-976f-b4f5a09a10db",
             page,
             size
         ).subscribe({

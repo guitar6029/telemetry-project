@@ -8,11 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
-import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
+import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
-import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.CreateOrganizationMembershipRequest;
 import com.joshsoll.telemetry.platform.organizationmembership.dto.OrganizationMembershipResponse;
@@ -29,18 +28,20 @@ import jakarta.transaction.Transactional;
 @Service
 public class OrganizationMembershipService {
         private final OrganizationMembershipRepository organizationMembershipRepository;
-        private final OrganizationRepository organizationRepository;
+
         private final UserRepository userRepository;
+        private final AuthorizationService authorizationService;
 
         public OrganizationMembershipService(
                         OrganizationMembershipRepository organizationMembershipRepository,
                         OrganizationRepository organizationRepository,
-                        UserRepository userRepository
+                        UserRepository userRepository,
+                        AuthorizationService authorizationService
 
         ) {
                 this.organizationMembershipRepository = organizationMembershipRepository;
-                this.organizationRepository = organizationRepository;
                 this.userRepository = userRepository;
+                this.authorizationService = authorizationService;
         }
 
         public OrganizationMembershipResponse createOrganizationMembership(
@@ -48,10 +49,7 @@ public class OrganizationMembershipService {
                         UUID organizationId,
                         CreateOrganizationMembershipRequest request) {
 
-                // Authorization + organization lookup
-                Organization organization = getAccessibleOrganization(
-                                user,
-                                organizationId);
+                Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
 
                 // user check
                 User member = userRepository.findById(request.getUserId())
@@ -86,9 +84,7 @@ public class OrganizationMembershipService {
 
                 Pageable pageable = PageRequest.of(page, size);
 
-                Organization organization = getAccessibleOrganization(
-                                user,
-                                organizationId);
+                Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
 
                 Page<OrganizationMembershipResponse> membershipPage = organizationMembershipRepository
                                 .findMembershipResponses(
@@ -109,7 +105,7 @@ public class OrganizationMembershipService {
                         UUID organizationId,
                         UUID membershipId) {
 
-                Organization organization = getAccessibleOrganization(user, organizationId);
+                Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
                 OrganizationMembership membership = organizationMembershipRepository
                                 .findByIdAndOrganization_Id(membershipId, organization.getId())
                                 .orElseThrow(() -> new OrganizationMembershipNotFoundException(
@@ -124,7 +120,7 @@ public class OrganizationMembershipService {
                         UUID organizationId,
                         UUID membershipId,
                         UpdateOrganizationMembershipRequest request) {
-                Organization organization = getAccessibleOrganization(user, organizationId);
+                Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
                 OrganizationMembership membership = organizationMembershipRepository
                                 .findByIdAndOrganization_Id(membershipId, organization.getId())
                                 .orElseThrow(() -> new OrganizationMembershipNotFoundException(
@@ -148,27 +144,5 @@ public class OrganizationMembershipService {
                                 organizationMembership.getStatus(),
                                 organizationMembership.getCreatedAt(),
                                 organizationMembership.getUpdatedAt());
-        }
-
-        private Organization getAccessibleOrganization(
-                        User user,
-                        UUID organizationId) {
-                if (user.getPlatformRole() == PlatformRole.SUPER_ADMIN) {
-                        return getOrganizationOrThrow(organizationId);
-
-                }
-
-                return organizationMembershipRepository
-                                .findOrganizationByUserIdAndOrganizationId(
-                                                user.getId(),
-                                                organizationId)
-                                .orElseThrow(() -> new OrganizationNotFoundException(
-                                                organizationId));
-
-        }
-
-        private Organization getOrganizationOrThrow(UUID organizationId) {
-                return organizationRepository.findById(organizationId)
-                                .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
         }
 }

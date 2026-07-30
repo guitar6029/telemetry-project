@@ -12,14 +12,13 @@ import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
+import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
-import com.joshsoll.telemetry.platform.exception.security.PlatformAccessDeniedException;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
 import com.joshsoll.telemetry.platform.organization.dto.UpdateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 import com.joshsoll.telemetry.platform.organization.exception.DuplicateOrganizationSlugException;
-import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
 
@@ -28,19 +27,22 @@ public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
     private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final AuthorizationService authorizationService;
 
     public OrganizationService(
             OrganizationRepository organizationRepository,
-            OrganizationMembershipRepository organizationMembershipRepository) {
+            OrganizationMembershipRepository organizationMembershipRepository,
+            AuthorizationService authorizationService) {
         this.organizationRepository = organizationRepository;
         this.organizationMembershipRepository = organizationMembershipRepository;
+        this.authorizationService = authorizationService;
     }
 
     public OrganizationResponse createOrganization(
             User user,
             CreateOrganizationRequest request) {
 
-        ensureSuperAdmin(user);
+        authorizationService.requireSuperAdmin(user);
 
         if (organizationRepository.existsBySlug(request.getSlug())) {
             throw new DuplicateOrganizationSlugException(
@@ -63,9 +65,7 @@ public class OrganizationService {
             UpdateOrganizationRequest request,
             UUID organizationId) {
 
-        Organization organization = getAccessibleOrganization(
-                user,
-                organizationId);
+        Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
 
         if (!organization.getSlug().equals(request.getSlug())
                 && organizationRepository.existsBySlug(request.getSlug())) {
@@ -93,9 +93,7 @@ public class OrganizationService {
             User user,
             UUID organizationId) {
 
-        Organization organization = getAccessibleOrganization(
-                user,
-                organizationId);
+        Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
 
         return toResponse(organization);
     }
@@ -128,9 +126,7 @@ public class OrganizationService {
             User user,
             UUID organizationId) {
 
-        Organization organization = getAccessibleOrganization(
-                user,
-                organizationId);
+        Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
 
         organizationRepository.delete(organization);
     }
@@ -155,34 +151,6 @@ public class OrganizationService {
         return organizationMembershipRepository.findOrganizationsByUserId(
                 user.getId(),
                 pageable);
-    }
-
-    private Organization getAccessibleOrganization(
-            User user,
-            UUID organizationId) {
-
-        if (user.getPlatformRole() == PlatformRole.SUPER_ADMIN) {
-            return getOrganizationOrThrow(organizationId);
-        }
-
-        return organizationMembershipRepository
-                .findOrganizationByUserIdAndOrganizationId(
-                        user.getId(),
-                        organizationId)
-                .orElseThrow(() -> new OrganizationNotFoundException(
-                        organizationId));
-    }
-
-    private void ensureSuperAdmin(User user) {
-
-        if (user.getPlatformRole() != PlatformRole.SUPER_ADMIN) {
-            throw new PlatformAccessDeniedException();
-        }
-    }
-
-    private Organization getOrganizationOrThrow(UUID organizationId) {
-        return organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
     }
 
 }

@@ -1,0 +1,64 @@
+<div class="invite-container">
+
+    <mat-card>
+
+        <mat-card-header>
+            <mat-card-title>Invite Member</mat-card-title>
+            <mat-card-subtitle>
+                Send an invitation to join your organization.
+            </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+
+            <form [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+
+                    <input matInput type="email" formControlName="email">
+
+                    <mat-error *ngIf="inviteForm.controls.email.hasError('required')">
+                        Email is required.
+                    </mat-error>
+
+                    <mat-error *ngIf="inviteForm.controls.email.hasError('email')">
+                        Enter a valid email.
+                    </mat-error>
+
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Role</mat-label>
+
+                    <mat-select formControlName="role">
+
+                        <mat-option [value]="OrganizationRole.ADMIN">
+                            Administrator
+                        </mat-option>
+
+                        <mat-option [value]="OrganizationRole.PROJECT_MANAGER">
+                            Project Manager
+                        </mat-option>
+
+                        <mat-option [value]="OrganizationRole.MEMBER">
+                            Member
+                        </mat-option>
+
+                    </mat-select>
+
+                </mat-form-field>
+
+                <button mat-flat-button color="primary" type="submit" [disabled]="inviteForm.invalid || loading()">
+
+                    Send Invitation
+
+                </button>
+
+            </form>
+
+        </mat-card-content>
+
+    </mat-card>
+
+</div>

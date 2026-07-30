@@ -11,7 +11,7 @@ import { OrganizationMembershipResponse } from "../dto/organization-membership-r
 })
 
 export class OrganizationMembershipService {
-    private readonly TEST_ORG_ID = "24538324-d871-4e7a-bad6-d9b242c434b4";
+    private readonly TEST_ORG_ID = "30925faf-5cc1-4b0f-976f-b4f5a09a10db";
     private readonly organizationMembershipUrl =
         `${ApiConstants.API_V1}/organizations`;
 
