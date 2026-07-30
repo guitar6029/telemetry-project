@@ -90,9 +90,6 @@ public class TelemetryProcessingService {
 
             MetricValue metricValue = createMetricValue(telemetryEvent, definition, value);
 
-            System.out
-                    .println("\nDefinition : " + definition + "\nValue: " + value + "\n has been logged to the system");
-
             metricValueRepository.save(metricValue);
         }
 
