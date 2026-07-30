@@ -16,7 +16,7 @@ import { UpdateOrganizationMembershipRequest } from "../../dto/update-organizati
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-    selector: 'app-member-form',
+    selector: 'telemetry-member-form',
     imports: [
         ReactiveFormsModule,
         RouterLink,

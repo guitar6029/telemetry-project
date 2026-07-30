@@ -10,7 +10,7 @@ import { MatIcon } from "@angular/material/icon";
 
 
 @Component({
-    selector: 'app-organization-membership-list',
+    selector: 'telemetry-organization-membership-list',
     imports: [
         MatTableModule,
         MatPaginatorModule,

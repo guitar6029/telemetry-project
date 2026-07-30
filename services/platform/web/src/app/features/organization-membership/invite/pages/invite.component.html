@@ -18,13 +18,18 @@
 
                     <input matInput type="email" formControlName="email">
 
-                    <mat-error *ngIf="inviteForm.controls.email.hasError('required')">
+                    @if (inviteForm.controls.email.hasError('required')){
+                    <mat-error>
                         Email is required.
                     </mat-error>
+                    }
 
-                    <mat-error *ngIf="inviteForm.controls.email.hasError('email')">
+                    @if (inviteForm.controls.email.hasError('email')){
+
+                    <mat-error>
                         Enter a valid email.
                     </mat-error>
+                    }
 
                 </mat-form-field>
 

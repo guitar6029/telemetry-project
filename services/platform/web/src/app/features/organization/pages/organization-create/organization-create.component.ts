@@ -10,7 +10,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 
 @Component({
-    selector: 'app-organization-create',
+    selector: 'telemetry-organization-create',
     imports: [
         ReactiveFormsModule,
         MatCardModule,

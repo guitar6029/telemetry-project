@@ -1,7 +1,7 @@
 @if (error()){
 <p>{{ error()}}</p>
 } @else if (users().length === 0){
-<app-empty-state message="No users found"></app-empty-state>
+<telemetry-empty-state message="No users found"></telemetry-empty-state>
 }
 
 <div>

@@ -10,7 +10,7 @@ import { MatInputModule } from "@angular/material/input";
 
 
 @Component({
-    selector: 'app-login',
+    selector: 'telemetry-login',
     imports: [
         ReactiveFormsModule,
         MatAnchor,

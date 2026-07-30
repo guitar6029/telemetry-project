@@ -4,7 +4,7 @@ import { RouterOutlet } from "@angular/router";
 
 
 @Component({
-    selector: 'app-auth-layout',
+    selector: 'telemetry-auth-layout',
     imports: [
         RouterOutlet,
         MatCardModule

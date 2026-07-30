@@ -5,7 +5,7 @@ import { OrganizationResponse } from "../../dto/organization-response.dto";
 import { MatCardModule } from "@angular/material/card";
 
 @Component({
-    selector: 'app-organization-details',
+    selector: 'telemetry-organization-details',
     imports: [
         MatCardModule
     ],

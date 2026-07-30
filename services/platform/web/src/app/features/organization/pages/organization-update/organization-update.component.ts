@@ -10,7 +10,7 @@ import { MatInputModule } from "@angular/material/input";
 import { OrganizationUpdateRequest } from "../../dto/organization-update-request.dto";
 
 @Component({
-    selector: 'app-organization-update',
+    selector: 'telemetry-organization-update',
     imports: [
         ReactiveFormsModule,
         MatCardModule,
