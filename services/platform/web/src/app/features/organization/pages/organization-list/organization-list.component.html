@@ -1,7 +1,7 @@
 @if (error()){
 <p>{{ error()}}</p>
 } @else if (organizations().length === 0){
-<app-empty-state message="No organizations found"></app-empty-state>
+<telemetry-empty-state message="No organizations found"></telemetry-empty-state>
 }
 
 <table mat-table [dataSource]="organizations()">

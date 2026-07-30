@@ -3,7 +3,7 @@
 @if (loading()) {
 <mat-spinner />
 } @else if (error()) {
-<app-empty-state message="No member data"></app-empty-state>
+<telemetry-empty-state message="No member data"></telemetry-empty-state>
 } @else {
 @if (!editMode()) {
 <button matButton routerLink="edit">

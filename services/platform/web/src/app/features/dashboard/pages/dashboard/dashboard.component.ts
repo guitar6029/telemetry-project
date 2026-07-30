@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 
 @Component({
-    selector: 'app-dashboard',
+    selector: 'telemetry-dashboard',
     imports: [RouterLink],
     templateUrl: './dashboard.component.html',
     styleUrl: './dashboard.component.scss'

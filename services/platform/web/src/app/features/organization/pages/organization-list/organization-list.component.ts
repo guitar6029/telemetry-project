@@ -7,7 +7,7 @@ import { EmptyStateComponent } from "../../../../common/components/empty-state/e
 import { RouterLink } from "@angular/router";
 
 @Component({
-    selector: 'app-organization-list',
+    selector: 'telemetry-organization-list',
     imports: [
         MatTableModule,
         MatPaginatorModule,
