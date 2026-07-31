@@ -14,6 +14,8 @@ import { MatSelectModule } from "@angular/material/select";
 //import { RouterLink } from "@angular/router";
 import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent } from "@angular/material/card";
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from "../../../../common/notification/service/notification.service";
+import { NotificationSettingsConstants } from "../../../../common/notification/constants/notification-settings.constants";
 
 @Component({
     selector: 'telemetry-invite',
@@ -43,8 +45,9 @@ export class InviteFormComponent {
     loading = signal(false)
     protected readonly OrganizationRole = OrganizationRole;
     private readonly snackBar = inject(MatSnackBar);
-
-    constructor(private inviteService: InviteService) { }
+    private inviteService = inject(InviteService);
+    private notificationService = inject(NotificationService);
+    private readonly notificationSettings = NotificationSettingsConstants;
 
 
     inviteForm = new FormGroup({
@@ -82,21 +85,18 @@ export class InviteFormComponent {
         this.loading.set(true);
         this.inviteService.sendInvite(request).subscribe({
             next: (response) => {
-                //noty
                 this.loading.set(false);
-                this.snackBar.open(
-                    'Invitation sent succesfully!',
-                    'Close',
-                    {
-                        duration: 3000,
-                        horizontalPosition: 'right',
-                        verticalPosition: 'top'
-                    }
-                );
+                this.notificationService.success({
+                    message: `Invitation sent to ${response.data.email} successfully!`,
+                });
+
             },
-            error: (error) => {
-                //noty
+            error: (httpError) => {
                 this.loading.set(false);
+                this.notificationService.error({
+                    message: httpError.error?.message ?? httpError.message
+                });
+
             }
         })
     }
