@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.joshsoll.telemetry.platform.auth.constants.JwtConstants;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
@@ -27,7 +28,7 @@ import jakarta.servlet.http.Cookie;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String COOKIE_NAME = "access_token";
+    private static final String COOKIE_NAME = JwtConstants.COOKIE_NAME;
     private static final String ROLE_PREFIX = "ROLE_";
     private final JwtService jwtService;
     private final UserRepository userRepository;
