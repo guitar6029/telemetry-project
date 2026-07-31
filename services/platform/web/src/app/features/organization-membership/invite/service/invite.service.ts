@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { InviteRequest } from "../dto/invite-request.dto";
 import { ApiResponse } from "../../../../common/dto/api-response.dto";
 import { InviteResponse } from "../dto/invite-response.dto";
@@ -20,7 +20,7 @@ export class InviteService {
     private readonly organizationId =
         '30925faf-5cc1-4b0f-976f-b4f5a09a10db';
 
-    constructor(private http: HttpClient) { }
+    private http = inject(HttpClient)
 
     sendInvite(request: InviteRequest): Observable<ApiResponse<InviteResponse>> {
         return this.http.post<ApiResponse<InviteResponse>>(

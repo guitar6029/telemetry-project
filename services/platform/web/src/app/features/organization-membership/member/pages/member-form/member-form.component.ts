@@ -13,7 +13,8 @@ import { EmptyStateComponent } from "../../../../../common/components/empty-stat
 import { MatSelectModule } from "@angular/material/select";
 import { MatProgressSpinner } from "@angular/material/progress-spinner";
 import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership-request.dto";
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageDefaultConstants } from "../../../../../constants/message.constants";
+import { NotificationService } from "../../../../../common/notification/service/notification.service";
 
 @Component({
     selector: 'telemetry-member-form',
@@ -36,8 +37,6 @@ export class MemberFormComponent implements OnInit {
     readonly roleSelections = Object.values(OrganizationRole);
     readonly statusSelections = Object.values(MembershipStatus);
 
-    private readonly snackBar = inject(MatSnackBar);
-
     member = signal<OrganizationMembershipResponse | null>(null);
     error = signal<string | null>(null);
     saving = signal(false);
@@ -45,11 +44,12 @@ export class MemberFormComponent implements OnInit {
     editMode = signal<boolean>(false);
 
 
-    constructor(
-        private route: ActivatedRoute,
-        private router: Router,
-        private memberService: MemberService
-    ) { }
+
+    private route = inject(ActivatedRoute);
+    private router = inject(Router)
+    private memberService = inject(MemberService);
+    private notificationService = inject(NotificationService)
+
 
 
     ngOnInit(): void {
@@ -64,6 +64,9 @@ export class MemberFormComponent implements OnInit {
             console.error("Failed to load member - missing member id");
             this.error.set("Unable to load member - missing member id");
             this.loading.set(false);
+            this.notificationService.error({
+                message: "Unable to load member - missing member id"
+            })
         }
     }
 
@@ -129,10 +132,12 @@ export class MemberFormComponent implements OnInit {
 
                 this.loading.set(false);
             },
-            error: (error) => {
-                console.error("Failed to load member.", error);
+            error: (httpError) => {
                 this.error.set("Unable to load member");
                 this.loading.set(false);
+                this.notificationService.error({
+                    message: httpError.error?.message ?? MessageDefaultConstants.organization.update.error
+                });
             }
         })
     }
@@ -167,30 +172,17 @@ export class MemberFormComponent implements OnInit {
             .updateMember(membershipId, request)
             .subscribe({
                 next: (response) => {
-                    //redirec back to members list
                     this.saving.set(false);
                     this.member.set(response.data);
                     this.router.navigate(['/manage/members', membershipId]);
-                    this.snackBar.open(
-                        'User updated succesfully!',
-                        'Close',
-                        {
-                            duration: 3000,
-                            horizontalPosition: 'right',
-                            verticalPosition: 'top'
-                        }
-                    );
+                    this.notificationService.success({
+                        message: response?.message ?? "Updated user successfully!"
+                    })
                 },
-                error: (error) => {
-                    this.snackBar.open(
-                        'User was not updated! Try Again!',
-                        'Close',
-                        {
-                            duration: 3000,
-                            horizontalPosition: 'right',
-                            verticalPosition: 'top'
-                        }
-                    );
+                error: (httpError) => {
+                    this.notificationService.error({
+                        message: httpError.error?.message ?? "User could not be updated."
+                    })
                     this.saving.set(false);
                 }
 

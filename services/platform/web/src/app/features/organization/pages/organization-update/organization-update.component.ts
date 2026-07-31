@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { OrganizationService } from "../../service/organization.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { OrganizationCreateConstants } from "../../constants/organization-create.constants";
@@ -8,6 +8,8 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { OrganizationUpdateRequest } from "../../dto/organization-update-request.dto";
+import { MessageDefaultConstants } from "../../../../constants/message.constants";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
 
 @Component({
     selector: 'telemetry-organization-update',
@@ -27,21 +29,23 @@ export class OrganizationUpdateComponent implements OnInit {
     error = signal<string | null>(null);
     organizationId: string | null = null;
 
-    constructor(
-        private organizationService: OrganizationService,
-        private router: Router,
-        private route: ActivatedRoute
 
-    ) { }
+    private organizationService = inject(OrganizationService,)
+    private router = inject(Router)
+    private route = inject(ActivatedRoute)
+    private notificationService = inject(NotificationService);
+
 
     ngOnInit(): void {
-        //get the id
         this.organizationId = this.route.snapshot.paramMap.get('organizationId');
 
         if (this.organizationId) {
             this.loadOrganization(this.organizationId);
         } else {
             this.error.set('Organization ID is missing.');
+            this.notificationService.error({
+                message: MessageDefaultConstants.organization.details.errorId
+            });
         }
     }
 
@@ -76,11 +80,10 @@ export class OrganizationUpdateComponent implements OnInit {
                         slug: response.data.slug
                     });
                 },
-                error: (error) => {
-                    console.error(
-                        'Failed to load organization',
-                        error
-                    );
+                error: (httpError) => {
+                    this.notificationService.error({
+                        message: httpError.error?.message ?? MessageDefaultConstants.organization.update.error
+                    });
                 }
             });
     }
@@ -102,10 +105,15 @@ export class OrganizationUpdateComponent implements OnInit {
             .subscribe({
                 next: (response) => {
                     this.router.navigate([`/organizations/${response.data.id}`])
+                    this.notificationService.success({
+                        message: response?.message ?? MessageDefaultConstants.organization.update.success
+                    });
                 },
-                error: (error) => {
-                    console.error('Failed to update organization', error);
-                    this.error.set('Unable to load organization');
+                error: (httpError) => {
+                    this.notificationService.error({
+                        message: httpError.error?.message ?? MessageDefaultConstants.organization.update.error
+                    });
+
                 }
             })
 

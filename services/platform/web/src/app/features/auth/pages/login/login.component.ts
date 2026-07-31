@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { AuthService } from "../../service/auth.service";
 import { UserConstants } from "../../constants/user.constants";
@@ -7,6 +7,8 @@ import { Router, RouterLink } from "@angular/router";
 import { MatAnchor, MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
+import { MessageDefaultConstants } from "../../../../constants/message.constants";
 
 
 @Component({
@@ -27,10 +29,13 @@ export class LoginComponent {
 
     loginError = false;
 
-    constructor(
-        private authService: AuthService,
-        private router: Router
-    ) { }
+
+    private authService = inject(AuthService);
+    private router = inject(Router);
+    private notificationService = inject(NotificationService);
+
+
+
 
     loginForm = new FormGroup({
         email: new FormControl('', {
@@ -61,9 +66,15 @@ export class LoginComponent {
         this.authService.login(request).subscribe({
             next: () => {
                 this.router.navigate(['/dashboard']);
+                this.notificationService.success({
+                    message: MessageDefaultConstants.auth.login.success,
+                });
             },
-            error: () => {
+            error: (httpError) => {
                 this.loginError = true;
+                this.notificationService.error({
+                    message: httpError.error?.message ?? MessageDefaultConstants.auth.login.error,
+                });
             }
         })
     }

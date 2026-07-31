@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatTableModule } from "@angular/material/table";
 import { RouterLink } from "@angular/router";
@@ -7,6 +7,7 @@ import { OrganizationMembershipService } from "../../service/organization-member
 
 import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
 import { MatIcon } from "@angular/material/icon";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
 
 
 @Component({
@@ -58,9 +59,9 @@ export class OrganizationMembershipListComponent implements OnInit {
         'updatedAt'
     ]
 
-    constructor(
-        private organizationMembershipService: OrganizationMembershipService
-    ) { }
+
+    private organizationMembershipService = inject(OrganizationMembershipService)
+    private notificationService = inject(NotificationService)
 
     ngOnInit(): void {
         this.loadUsers();
@@ -78,9 +79,11 @@ export class OrganizationMembershipListComponent implements OnInit {
             next: (response) => {
                 this.users.set(response.data);
             },
-            error: (error) => {
+            error: (httpError) => {
                 this.error.set("Unable to load organization membership");
-                console.error('Failed to load organization membership', error);
+                this.notificationService.error({
+                    message: httpError.error?.message ?? "Unable to load organization membership."
+                })
             }
         })
     }
