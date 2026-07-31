@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { AuthService } from "../../service/auth.service";
 import { AbstractControl, ValidationErrors, ValidatorFn, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserConstants } from "../../constants/user.constants";
@@ -7,6 +7,7 @@ import { Router, RouterLink } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
 
 @Component({
     selector: 'telemetry-register',
@@ -23,10 +24,10 @@ import { MatInputModule } from "@angular/material/input";
 
 export class RegisterComponent {
     readonly UserConstants = UserConstants;
-    constructor(
-        private authService: AuthService,
-        private router: Router
-    ) { }
+
+    private authService = inject(AuthService);
+    private router = inject(Router);
+    private notificationService = inject(NotificationService);
 
     registerForm = new FormGroup(
         {
@@ -94,9 +95,15 @@ export class RegisterComponent {
         this.authService.register(request).subscribe({
             next: () => {
                 this.router.navigate(['/auth/login'])
+                this.notificationService.success({
+                    message: 'Successfully registered!',
+                });
             },
-            error: (error) => {
-                console.error(error);
+            error: (httpError) => {
+
+                this.notificationService.error({
+                    message: httpError.error?.message ?? 'Something went wrong! Try Again',
+                });
             }
         });
     }

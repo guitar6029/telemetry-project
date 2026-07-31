@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { LoginRequest } from "../dto/login-request.dto";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
@@ -11,10 +11,7 @@ import { ApiConstants } from "../../../constants/api.constants";
 export class AuthService {
 
     private readonly authUrl = `${ApiConstants.API_V1}/auth`;
-
-    constructor(private http: HttpClient) {
-
-    }
+    private http = inject(HttpClient)
 
     login(request: LoginRequest): Observable<void> {
         return this.http.post<void>(

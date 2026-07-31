@@ -13,7 +13,6 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 //import { RouterLink } from "@angular/router";
 import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent } from "@angular/material/card";
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { NotificationSettingsConstants } from "../../../../common/notification/constants/notification-settings.constants";
 
@@ -44,10 +43,9 @@ export class InviteFormComponent {
     error = signal<string | null>(null);
     loading = signal(false)
     protected readonly OrganizationRole = OrganizationRole;
-    private readonly snackBar = inject(MatSnackBar);
     private inviteService = inject(InviteService);
     private notificationService = inject(NotificationService);
-    private readonly notificationSettings = NotificationSettingsConstants;
+
 
 
     inviteForm = new FormGroup({

@@ -1,10 +1,12 @@
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { OrganizationResponse } from "../../dto/organization-response.dto";
 import { OrganizationService } from "../../service/organization.service";
 import { MatTableModule } from "@angular/material/table";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
 import { RouterLink } from "@angular/router";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
+import { MessageDefaultConstants } from "../../../../constants/message.constants";
 
 @Component({
     selector: 'telemetry-organization-list',
@@ -34,9 +36,9 @@ export class OrganizationListComponent implements OnInit {
         'updatedAt'
     ]
 
-    constructor(
-        private organizationService: OrganizationService
-    ) { }
+
+    private organizationService = inject(OrganizationService)
+    private notificationService = inject(NotificationService)
 
     ngOnInit(): void {
         this.loadOrganizations();
@@ -55,9 +57,11 @@ export class OrganizationListComponent implements OnInit {
                 this.total.set(response.total);
 
             },
-            error: (error) => {
+            error: (httpError) => {
                 this.error.set("Unable to load organizations.")
-                console.error('Failed to load organizations', error);
+                this.notificationService.error({
+                    message: httpError.error?.message ?? MessageDefaultConstants.organizations.list.error
+                });
             }
         })
     }

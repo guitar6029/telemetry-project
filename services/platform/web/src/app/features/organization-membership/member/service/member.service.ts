@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../../../../common/dto/api-response.dto";
 import { ApiConstants } from "../../../../constants/api.constants";
@@ -12,7 +12,7 @@ import { UpdateOrganizationMembershipRequest } from "../dto/update-organization-
 
 export class MemberService {
 
-    constructor(private http: HttpClient) { }
+    private http = inject(HttpClient)
     private readonly organizationId =
         '30925faf-5cc1-4b0f-976f-b4f5a09a10db';
 

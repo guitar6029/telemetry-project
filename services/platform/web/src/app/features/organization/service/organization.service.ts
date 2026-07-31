@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ApiConstants } from "../../../constants/api.constants";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
@@ -21,7 +21,7 @@ export class OrganizationService {
     private readonly DEFAULT_PAGE = 0;
     private readonly DEFAULT_PAGE_SIZE = 10;
 
-    constructor(private http: HttpClient) { }
+    private http = inject(HttpClient)
 
     getOrganizations(
         page = this.DEFAULT_PAGE,

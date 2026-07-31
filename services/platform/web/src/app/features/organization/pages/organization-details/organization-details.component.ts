@@ -1,8 +1,10 @@
-import { Component, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal } from "@angular/core";
 import { OrganizationService } from "../../service/organization.service";
 import { ActivatedRoute } from "@angular/router";
 import { OrganizationResponse } from "../../dto/organization-response.dto";
 import { MatCardModule } from "@angular/material/card";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
+import { MessageDefaultConstants } from "../../../../constants/message.constants";
 
 @Component({
     selector: 'telemetry-organization-details',
@@ -18,20 +20,22 @@ export class OrganizationDetailsComponent implements OnInit {
     organization = signal<OrganizationResponse | null>(null);
     error = signal<string | null>(null);
 
-    constructor(
-        private route: ActivatedRoute,
-        private organizationService: OrganizationService
-    ) { }
+
+    private route = inject(ActivatedRoute)
+    private organizationService = inject(OrganizationService)
+    private notificationService = inject(NotificationService);
+
 
     ngOnInit(): void {
-
-        //get the id
         const organizationId = this.route.snapshot.paramMap.get("organizationId");
 
         if (organizationId) {
             this.loadOrganization(organizationId);
         } else {
             this.error.set("Organization ID is missing.")
+            this.notificationService.success({
+                message: MessageDefaultConstants.organization.details.errorId
+            });
         }
 
     }
@@ -43,9 +47,11 @@ export class OrganizationDetailsComponent implements OnInit {
             next: (response) => {
                 this.organization.set(response.data);
             },
-            error: (error) => {
-                console.error("Failed to load organization.", error);
+            error: (httpError) => {
                 this.error.set("Unable to load organization.");
+                this.notificationService.error({
+                    message: httpError.error?.message ?? MessageDefaultConstants.organization.details.error
+                });
             }
         });
 
