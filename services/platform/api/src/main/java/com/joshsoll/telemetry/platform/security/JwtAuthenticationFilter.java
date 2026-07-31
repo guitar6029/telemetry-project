@@ -16,6 +16,7 @@ import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 import com.joshsoll.telemetry.platform.auth.service.JwtService;
+import com.joshsoll.telemetry.platform.auth.service.TokenRevocationService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,10 +31,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String ROLE_PREFIX = "ROLE_";
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final TokenRevocationService tokenRevocationService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository) {
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            UserRepository userRepository,
+            TokenRevocationService tokenRevocationService) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
+        this.tokenRevocationService = tokenRevocationService;
     }
 
     @Override
@@ -67,6 +73,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        if (tokenRevocationService.isRevoked(accessToken)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         // extract sub and look up the user
         UUID userId = jwtService.extractSubject(accessToken);
 
