@@ -68,16 +68,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // extract sub and look up the user
-        UUID sub = jwtService.extractSubject(accessToken);
+        UUID userId = jwtService.extractSubject(accessToken);
 
-        User user = userRepository.findById(sub).orElse(null);
+        User user = userRepository.findById(userId).orElse(null);
 
         if (user == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        PlatformRole platformRole = jwtService.extractPlatformRole(accessToken);
+        PlatformRole platformRole = user.getPlatformRole();
         GrantedAuthority authority = new SimpleGrantedAuthority(ROLE_PREFIX + platformRole.name());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
