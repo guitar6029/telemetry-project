@@ -15,7 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
-@RequestMapping(ApiRoutes.API_V1 + "/users")
+@RequestMapping(ApiRoutes.API_V1 + "/profile")
 public class ProfileController {
 
     private final ProfileService profileService;
