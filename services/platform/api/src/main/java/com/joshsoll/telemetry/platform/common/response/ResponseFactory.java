@@ -78,6 +78,12 @@ public final class ResponseFactory {
                 .body(response);
     }
 
+    public static ResponseEntity<Void> noContent() {
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
     private static String normalizeMessage(String message) {
         if (message == null || message.isBlank()) {
             return null;

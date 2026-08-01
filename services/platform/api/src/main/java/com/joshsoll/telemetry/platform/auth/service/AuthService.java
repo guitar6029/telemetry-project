@@ -18,16 +18,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenRevocationService tokenRevocationService;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            TokenRevocationService tokenRevocationService
 
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.tokenRevocationService = tokenRevocationService;
     }
 
     public void register(RegisterRequest request) {
@@ -66,6 +69,12 @@ public class AuthService {
         }
 
         return jwtService.generateAccessToken(user);
+
+    }
+
+    public void logout(String token) {
+
+        tokenRevocationService.revokeToken(token);
 
     }
 }

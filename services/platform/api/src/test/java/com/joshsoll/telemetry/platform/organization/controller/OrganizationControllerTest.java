@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 import com.joshsoll.telemetry.platform.auth.service.JwtService;
+import com.joshsoll.telemetry.platform.auth.service.TokenRevocationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.organization.dto.CreateOrganizationRequest;
 import com.joshsoll.telemetry.platform.organization.dto.OrganizationResponse;
@@ -51,6 +52,9 @@ class OrganizationControllerTest {
 
         @MockitoBean
         private UserRepository userRepository;
+
+        @MockitoBean
+        private TokenRevocationService tokenRevocationService;
 
         @Test
         void shouldReturnOrganizationById() throws Exception {

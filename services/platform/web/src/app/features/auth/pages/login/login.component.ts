@@ -9,6 +9,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
+import { ProfileStore } from "../../../../core/stores/profile.store";
+import { switchMap, tap } from "rxjs";
+import { ProfileService } from "../../../profile/service/profile.service";
 
 
 @Component({
@@ -33,7 +36,8 @@ export class LoginComponent {
     private authService = inject(AuthService);
     private router = inject(Router);
     private notificationService = inject(NotificationService);
-
+    private profileService = inject(ProfileService);
+    private profileStore = inject(ProfileStore);
 
 
 
@@ -63,12 +67,24 @@ export class LoginComponent {
         this.loginError = false;
 
         const request: LoginRequest = this.loginForm.getRawValue();
-        this.authService.login(request).subscribe({
+        this.authService.login(request).pipe(
+            switchMap(() => this.profileService.me()),
+
+            tap({
+                next: (response) => {
+                    console.log("Profile : ", response.data);
+                    this.profileStore.setProfile(response.data);
+                }
+            })
+
+        ).subscribe({
             next: () => {
-                this.router.navigate(['/dashboard']);
+                this.router.navigate(['/app/dashboard']);
                 this.notificationService.success({
                     message: MessageDefaultConstants.auth.login.success,
                 });
+
+
             },
             error: (httpError) => {
                 this.loginError = true;
@@ -80,3 +96,4 @@ export class LoginComponent {
     }
 
 }
+
