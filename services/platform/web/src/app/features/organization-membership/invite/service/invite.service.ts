@@ -5,6 +5,7 @@ import { ApiResponse } from "../../../../common/dto/api-response.dto";
 import { InviteResponse } from "../dto/invite-response.dto";
 import { Observable } from "rxjs";
 import { ApiConstants } from "../../../../constants/api.constants";
+import { ProfileStore } from "../../../../core/stores/profile.store";
 
 
 @Injectable({
@@ -16,9 +17,10 @@ export class InviteService {
     private readonly url =
         `${ApiConstants.API_V1}/organizations`
 
-    // for now , until we get the user persistence
+    private profileStore = inject(ProfileStore)
+
     private readonly organizationId =
-        '30925faf-5cc1-4b0f-976f-b4f5a09a10db';
+        this.profileStore.getOrganizationId
 
     private http = inject(HttpClient)
 

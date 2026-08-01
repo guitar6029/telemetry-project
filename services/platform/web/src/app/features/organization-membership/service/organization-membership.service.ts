@@ -11,7 +11,6 @@ import { OrganizationMembershipResponse } from "../dto/organization-membership-r
 })
 
 export class OrganizationMembershipService {
-    private readonly TEST_ORG_ID = "30925faf-5cc1-4b0f-976f-b4f5a09a10db";
     private readonly organizationMembershipUrl =
         `${ApiConstants.API_V1}/organizations`;
 
@@ -22,11 +21,10 @@ export class OrganizationMembershipService {
 
 
     getOrganizationMemberships(
-        organizationId = this.TEST_ORG_ID,
+        organizationId: string,
         page = this.DEFAULT_PAGE,
         size = this.DEFAULT_PAGE_SIZE
     ): Observable<PagedApiResponse<OrganizationMembershipResponse>> {
-
         return this.http.get<PagedApiResponse<OrganizationMembershipResponse>>(
             `${this.organizationMembershipUrl}/${organizationId}/memberships`,
             {
