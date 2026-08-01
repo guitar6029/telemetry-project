@@ -8,6 +8,7 @@ import { OrganizationMembershipService } from "../../service/organization-member
 import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
 import { MatIcon } from "@angular/material/icon";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
+import { ProfileStore } from "../../../../core/stores/profile.store";
 
 
 @Component({
@@ -62,8 +63,21 @@ export class OrganizationMembershipListComponent implements OnInit {
 
     private organizationMembershipService = inject(OrganizationMembershipService)
     private notificationService = inject(NotificationService)
+    private profileStore = inject(ProfileStore)
+
 
     ngOnInit(): void {
+
+        const profile = this.profileStore.profile();
+
+        if (profile === null) {
+            this.notificationService.error({
+                message: "Unable to determine organization."
+            });
+            return;
+        }
+
+
         this.loadUsers();
     }
 
@@ -71,8 +85,12 @@ export class OrganizationMembershipListComponent implements OnInit {
         page = this.page(),
         size = this.pageSize()
     ) {
+
+
+        const organizationId = this.profileStore.requireOrganizationId();
+
         this.organizationMembershipService.getOrganizationMemberships(
-            "30925faf-5cc1-4b0f-976f-b4f5a09a10db",
+            organizationId,
             page,
             size
         ).subscribe({
@@ -97,17 +115,3 @@ export class OrganizationMembershipListComponent implements OnInit {
 
 
 }
-
-// type User = {
-//     id: string;
-//     organizationId: string;
-//     userId: string;
-//     firstName: string;
-//     lastName: string;
-//     email: string;
-//     role: OrganizationRole;
-//     status: MembershipStatus;
-//     createdAt: Date,
-//     updatedAt: Date;
-
-// }

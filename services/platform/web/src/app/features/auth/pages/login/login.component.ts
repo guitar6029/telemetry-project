@@ -72,7 +72,6 @@ export class LoginComponent {
 
             tap({
                 next: (response) => {
-                    console.log("Profile : ", response.data);
                     this.profileStore.setProfile(response.data);
                 }
             })

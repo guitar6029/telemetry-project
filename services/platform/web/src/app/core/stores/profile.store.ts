@@ -1,4 +1,4 @@
-import { Injectable, signal } from "@angular/core";
+import { computed, Injectable, signal } from "@angular/core";
 import { MeResponse } from "../../features/profile/dto/me-response.dto";
 
 
@@ -11,6 +11,21 @@ export class ProfileStore {
     private readonly _profile = signal<MeResponse | null>(null)
 
     readonly profile = this._profile.asReadonly();
+
+    readonly organizationId = computed(() =>
+        this._profile()?.organizationId ?? null
+    );
+
+    requireOrganizationId(): string {
+
+        const organizationId = this.organizationId();
+
+        if (organizationId === null) {
+            throw new Error("Organization context is not initialized.");
+        }
+
+        return organizationId;
+    }
 
 
     setProfile(response: MeResponse) {
