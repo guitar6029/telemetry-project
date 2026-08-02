@@ -87,7 +87,7 @@ export class OrganizationMembershipListComponent implements OnInit {
     ) {
 
 
-        const organizationId = this.profileStore.requireOrganizationId();
+        const organizationId = this.profileStore.organizationId();
 
         this.organizationMembershipService.getOrganizationMemberships(
             organizationId,
