@@ -9,9 +9,8 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
-import { ProfileStore } from "../../../../core/stores/profile.store";
-import { switchMap, tap } from "rxjs";
-import { ProfileService } from "../../../profile/service/profile.service";
+import { switchMap } from "rxjs";
+import { SessionService } from "../../service/session.service";
 
 
 @Component({
@@ -33,11 +32,10 @@ export class LoginComponent {
     loginError = false;
 
 
-    private authService = inject(AuthService);
-    private router = inject(Router);
-    private notificationService = inject(NotificationService);
-    private profileService = inject(ProfileService);
-    private profileStore = inject(ProfileStore);
+    private readonly authService = inject(AuthService);
+    private readonly router = inject(Router);
+    private readonly notificationService = inject(NotificationService);
+    private readonly sessionService = inject(SessionService);
 
 
 
@@ -68,13 +66,8 @@ export class LoginComponent {
 
         const request: LoginRequest = this.loginForm.getRawValue();
         this.authService.login(request).pipe(
-            switchMap(() => this.profileService.me()),
 
-            tap({
-                next: (response) => {
-                    this.profileStore.setProfile(response.data);
-                }
-            })
+            switchMap(() => this.sessionService.initialize())
 
         ).subscribe({
             next: () => {

@@ -3,6 +3,9 @@ export const MessageDefaultConstants = {
         login: {
             success: "Successfully logged in!",
             error: "Issues with logging in."
+        },
+        logout: {
+            error: "Unable to log out."
         }
     },
     organization: {

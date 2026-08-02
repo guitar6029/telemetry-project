@@ -30,10 +30,10 @@ export class OrganizationUpdateComponent implements OnInit {
     organizationId: string | null = null;
 
 
-    private organizationService = inject(OrganizationService,)
-    private router = inject(Router)
-    private route = inject(ActivatedRoute)
-    private notificationService = inject(NotificationService);
+    private readonly organizationService = inject(OrganizationService,)
+    private readonly router = inject(Router)
+    private readonly route = inject(ActivatedRoute)
+    private readonly notificationService = inject(NotificationService);
 
 
     ngOnInit(): void {

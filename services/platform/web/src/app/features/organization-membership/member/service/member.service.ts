@@ -13,9 +13,9 @@ import { ProfileStore } from "../../../../core/stores/profile.store";
 
 export class MemberService {
 
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
 
-    private profileStore = inject(ProfileStore)
+    private readonly profileStore = inject(ProfileStore)
 
     private readonly organizationId =
         this.profileStore.getOrganizationId

@@ -11,7 +11,7 @@ import { ApiConstants } from "../../../constants/api.constants";
 export class AuthService {
 
     private readonly authUrl = `${ApiConstants.API_V1}/auth`;
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
 
     login(request: LoginRequest): Observable<void> {
         return this.http.post<void>(
@@ -27,6 +27,16 @@ export class AuthService {
         return this.http.post<void>(
             `${this.authUrl}/register`,
             request
+        )
+    }
+
+    logout(): Observable<void> {
+        return this.http.post<void>(
+            `${this.authUrl}/logout`,
+            {},
+            {
+                withCredentials: true
+            }
         )
     }
 

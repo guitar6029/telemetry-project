@@ -25,9 +25,9 @@ import { NotificationService } from "../../../../common/notification/service/not
 export class RegisterComponent {
     readonly UserConstants = UserConstants;
 
-    private authService = inject(AuthService);
-    private router = inject(Router);
-    private notificationService = inject(NotificationService);
+    private readonly authService = inject(AuthService);
+    private readonly router = inject(Router);
+    private readonly notificationService = inject(NotificationService);
 
     registerForm = new FormGroup(
         {

@@ -1,5 +1,6 @@
 import { computed, Injectable, signal } from "@angular/core";
 import { MeResponse } from "../../features/profile/dto/me-response.dto";
+import { InvalidSessionError } from "../../features/auth/exception/invalid-session.exception";
 
 
 @Injectable({
@@ -13,23 +14,21 @@ export class ProfileStore {
     readonly profile = this._profile.asReadonly();
 
     readonly organizationId = computed(() =>
-        this._profile()?.organizationId ?? null
+        this.profileOrThrow.organizationId
     );
 
-    requireOrganizationId(): string {
+    private get profileOrThrow(): MeResponse {
+        const profile = this._profile();
 
-        const organizationId = this.organizationId();
-
-        if (organizationId === null) {
-            throw new Error("Organization context is not initialized.");
+        if (profile === null) {
+            throw new InvalidSessionError("Authenticated profile is not initialized.");
         }
 
-        return organizationId;
+        return profile;
     }
 
-
-    setProfile(response: MeResponse) {
-        this._profile.set(response);
+    setProfile(profile: MeResponse) {
+        this._profile.set(profile);
     }
 
     getFullName() {
@@ -46,5 +45,9 @@ export class ProfileStore {
 
     getOrganizationId() {
         return this._profile()?.organizationId
+    }
+
+    clear(): void {
+        this._profile.set(null);
     }
 }

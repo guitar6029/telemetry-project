@@ -37,8 +37,8 @@ export class OrganizationListComponent implements OnInit {
     ]
 
 
-    private organizationService = inject(OrganizationService)
-    private notificationService = inject(NotificationService)
+    private readonly organizationService = inject(OrganizationService)
+    private readonly notificationService = inject(NotificationService)
 
     ngOnInit(): void {
         this.loadOrganizations();

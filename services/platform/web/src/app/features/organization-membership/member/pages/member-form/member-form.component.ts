@@ -45,10 +45,10 @@ export class MemberFormComponent implements OnInit {
 
 
 
-    private route = inject(ActivatedRoute);
-    private router = inject(Router)
-    private memberService = inject(MemberService);
-    private notificationService = inject(NotificationService)
+    private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router)
+    private readonly memberService = inject(MemberService);
+    private readonly notificationService = inject(NotificationService)
 
 
 

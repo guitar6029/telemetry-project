@@ -61,9 +61,9 @@ export class OrganizationMembershipListComponent implements OnInit {
     ]
 
 
-    private organizationMembershipService = inject(OrganizationMembershipService)
-    private notificationService = inject(NotificationService)
-    private profileStore = inject(ProfileStore)
+    private readonly organizationMembershipService = inject(OrganizationMembershipService)
+    private readonly notificationService = inject(NotificationService)
+    private readonly profileStore = inject(ProfileStore)
 
 
     ngOnInit(): void {
@@ -87,7 +87,7 @@ export class OrganizationMembershipListComponent implements OnInit {
     ) {
 
 
-        const organizationId = this.profileStore.requireOrganizationId();
+        const organizationId = this.profileStore.organizationId();
 
         this.organizationMembershipService.getOrganizationMemberships(
             organizationId,

@@ -17,7 +17,7 @@ export class OrganizationMembershipService {
     private readonly DEFAULT_PAGE = 0;
     private readonly DEFAULT_PAGE_SIZE = 10;
 
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
 
 
     getOrganizationMemberships(
