@@ -1,5 +1,10 @@
-import { computed, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { SessionConstants } from "../constants/session.constants";
+import { Observable, tap } from "rxjs";
+import { ApiResponse } from "../../../common/dto/api-response.dto";
+import { MeResponse } from "../../profile/dto/me-response.dto";
+import { ProfileService } from "../../profile/service/profile.service";
+import { ProfileStore } from "../../../core/stores/profile.store";
 
 @Injectable({
     providedIn: 'root'
@@ -8,6 +13,8 @@ import { SessionConstants } from "../constants/session.constants";
 export class SessionService {
 
     private readonly sessionStartedAt = signal<number | null>(null);
+    private readonly profileService = inject(ProfileService);
+    private readonly profileStore = inject(ProfileStore);
 
     readonly sessionMinutesRemaining = computed(() => {
         const start = this.sessionStartedAt();
@@ -29,8 +36,17 @@ export class SessionService {
         return msPassed / (SessionConstants.MILLI_SECONDS_PER_MINUTE)
     })
 
-    initialize(): void {
-        this.startIdleTimer()
+    initialize(): Observable<ApiResponse<MeResponse>> {
+        return this.profileService.me().pipe(
+
+            tap((response) => {
+                this.profileStore.setProfile(response.data);
+            }),
+
+            tap(() => {
+                this.startIdleTimer()
+            })
+        )
     }
 
     logout(): void {
