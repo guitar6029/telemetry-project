@@ -11,7 +11,7 @@ import { ApiConstants } from "../../../constants/api.constants";
 export class AuthService {
 
     private readonly authUrl = `${ApiConstants.API_V1}/auth`;
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
 
     login(request: LoginRequest): Observable<void> {
         return this.http.post<void>(

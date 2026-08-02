@@ -17,12 +17,12 @@ export class InviteService {
     private readonly url =
         `${ApiConstants.API_V1}/organizations`
 
-    private profileStore = inject(ProfileStore)
+    private readonly profileStore = inject(ProfileStore)
 
     private readonly organizationId =
         this.profileStore.getOrganizationId
 
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
 
     sendInvite(request: InviteRequest): Observable<ApiResponse<InviteResponse>> {
         return this.http.post<ApiResponse<InviteResponse>>(

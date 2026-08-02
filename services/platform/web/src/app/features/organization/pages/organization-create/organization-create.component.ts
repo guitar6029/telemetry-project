@@ -28,9 +28,9 @@ export class OrganizationCreateComponent {
     readonly OrganizationConstants = OrganizationCreateConstants;
 
 
-    private organizationService = inject(OrganizationService);
-    private router = inject(Router)
-    private notificationService = inject(NotificationService);
+    private readonly organizationService = inject(OrganizationService);
+    private readonly router = inject(Router)
+    private readonly notificationService = inject(NotificationService);
 
     organizationForm = new FormGroup(
         {

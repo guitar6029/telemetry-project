@@ -15,7 +15,7 @@ export class ProfileService {
     private readonly url =
         `${ApiConstants.API_V1}/profile`;
 
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
 
     me(): Observable<ApiResponse<MeResponse>> {
         return this.http.get<ApiResponse<MeResponse>>(

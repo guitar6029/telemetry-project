@@ -20,8 +20,7 @@ export class OrganizationService {
 
     private readonly DEFAULT_PAGE = 0;
     private readonly DEFAULT_PAGE_SIZE = 10;
-
-    private http = inject(HttpClient)
+    private readonly http = inject(HttpClient)
 
     getOrganizations(
         page = this.DEFAULT_PAGE,

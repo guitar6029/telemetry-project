@@ -43,8 +43,8 @@ export class InviteFormComponent {
     error = signal<string | null>(null);
     loading = signal(false)
     protected readonly OrganizationRole = OrganizationRole;
-    private inviteService = inject(InviteService);
-    private notificationService = inject(NotificationService);
+    private readonly inviteService = inject(InviteService);
+    private readonly notificationService = inject(NotificationService);
 
 
 

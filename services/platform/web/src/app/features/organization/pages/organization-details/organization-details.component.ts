@@ -21,9 +21,9 @@ export class OrganizationDetailsComponent implements OnInit {
     error = signal<string | null>(null);
 
 
-    private route = inject(ActivatedRoute)
-    private organizationService = inject(OrganizationService)
-    private notificationService = inject(NotificationService);
+    private readonly route = inject(ActivatedRoute)
+    private readonly organizationService = inject(OrganizationService)
+    private readonly notificationService = inject(NotificationService);
 
 
     ngOnInit(): void {
