@@ -67,17 +67,6 @@ export class OrganizationMembershipListComponent implements OnInit {
 
 
     ngOnInit(): void {
-
-        const profile = this.profileStore.profile();
-
-        if (profile === null) {
-            this.notificationService.error({
-                message: "Unable to determine organization."
-            });
-            return;
-        }
-
-
         this.loadUsers();
     }
 
