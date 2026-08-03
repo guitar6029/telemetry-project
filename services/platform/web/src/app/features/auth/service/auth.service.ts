@@ -2,7 +2,6 @@ import { inject, Injectable } from "@angular/core";
 import { LoginRequest } from "../dto/login-request.dto";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { RegisterRequest } from "../dto/register-request.dto";
 import { ApiConstants } from "../../../constants/api.constants";
 
 @Injectable({
@@ -20,13 +19,6 @@ export class AuthService {
             {
                 withCredentials: true
             }
-        )
-    }
-
-    register(request: RegisterRequest): Observable<void> {
-        return this.http.post<void>(
-            `${this.authUrl}/register`,
-            request
         )
     }
 
