@@ -31,22 +31,6 @@ export class ProfileStore {
         this._profile.set(profile);
     }
 
-    getFullName() {
-        return `${this._profile()?.firstName} ${this._profile()?.lastName}`
-    }
-
-    getEmail() {
-        return this._profile()?.email
-    }
-
-    getAvatarUrl() {
-        return this._profile()?.avatarUrl
-    }
-
-    getOrganizationId() {
-        return this._profile()?.organizationId
-    }
-
     clear(): void {
         this._profile.set(null);
     }
