@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { SessionConstants } from "../constants/session.constants";
-import { Observable, tap } from "rxjs";
+import { catchError, Observable, tap, throwError } from "rxjs";
 import { ApiResponse } from "../../../common/dto/api-response.dto";
 import { MeResponse } from "../../profile/dto/me-response.dto";
 import { ProfileService } from "../../profile/service/profile.service";
@@ -20,9 +20,12 @@ export class SessionService {
     private readonly sessionStartedAt = signal<number | null>(null);
     private readonly profileService = inject(ProfileService);
     private readonly profileStore = inject(ProfileStore);
-    private readonly authSession = inject(AuthService);
+    private readonly authService = inject(AuthService);
     private readonly router = inject(Router)
     private readonly notificationService = inject(NotificationService);
+    private readonly authenticated = signal(false);
+
+    readonly isAuthenticated = this.authenticated.asReadonly();
 
     readonly sessionMinutesRemaining = computed(() => {
         const start = this.sessionStartedAt();
@@ -48,25 +51,31 @@ export class SessionService {
         return this.profileService.me().pipe(
 
             tap((response) => {
-
                 this.validateProfile(response.data);
-
-
                 this.profileStore.setProfile(response.data);
+                this.setAuthenticated();
             }),
 
             tap(() => {
                 this.startIdleTimer()
+            }),
+
+            catchError(error => {
+                this.profileStore.clear();
+                this.clearSession();
+                this.clearAuthenticated();
+
+                return throwError(() => error);
             })
         )
     }
 
     logout(): void {
-        this.authSession.logout().subscribe({
+        this.authService.logout().subscribe({
             next: () => {
-
                 this.profileStore.clear();
                 this.clearSession();
+                this.clearAuthenticated();
 
                 this.router.navigate(
                     ['/auth/login'],
@@ -83,16 +92,9 @@ export class SessionService {
         })
     }
 
-    startIdleTimer(): void {
+
+    private startIdleTimer(): void {
         this.sessionStartedAt.set(Date.now());
-    }
-
-    resetIdleTimer(): void {
-        this.startIdleTimer();
-    }
-
-    clearSession(): void {
-        this.sessionStartedAt.set(null)
     }
 
     private validateProfile(profile: MeResponse): void {
@@ -126,5 +128,17 @@ export class SessionService {
                 "Authenticated profile is missing avatarUrl."
             );
         }
+    }
+
+    private setAuthenticated(): void {
+        this.authenticated.set(true);
+    }
+
+    private clearAuthenticated(): void {
+        this.authenticated.set(false);
+    }
+
+    private clearSession(): void {
+        this.sessionStartedAt.set(null)
     }
 }
