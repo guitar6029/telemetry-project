@@ -3,6 +3,7 @@ import { AUTH_ROUTES } from './features/auth/auth.routes';
 import { DashboardComponent } from './features/dashboard/pages/dashboard/dashboard.component';
 import { authGuard } from './core/guards/auth.guard';
 import { AppLayoutComponent } from './layout/app-layout.component';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
     {
@@ -12,7 +13,8 @@ export const routes: Routes = [
     },
     {
         path: 'auth',
-        children: AUTH_ROUTES
+        canActivate: [guestGuard],
+        children: AUTH_ROUTES,
     },
     {
         path: 'app',
