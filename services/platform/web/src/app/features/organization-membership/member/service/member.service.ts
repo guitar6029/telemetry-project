@@ -18,7 +18,7 @@ export class MemberService {
     private readonly profileStore = inject(ProfileStore)
 
     private readonly organizationId =
-        this.profileStore.getOrganizationId
+        this.profileStore.organizationId();
 
 
     private readonly membershipUrl =

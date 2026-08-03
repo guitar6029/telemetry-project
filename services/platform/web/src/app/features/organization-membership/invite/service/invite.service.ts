@@ -20,7 +20,7 @@ export class InviteService {
     private readonly profileStore = inject(ProfileStore)
 
     private readonly organizationId =
-        this.profileStore.getOrganizationId
+        this.profileStore.organizationId();
 
     private readonly http = inject(HttpClient)
 
