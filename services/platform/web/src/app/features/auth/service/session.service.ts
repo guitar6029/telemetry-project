@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { SessionConstants } from "../constants/session.constants";
-import { catchError, Observable, tap, throwError } from "rxjs";
+import { catchError, EMPTY, Observable, tap, throwError } from "rxjs";
 import { ApiResponse } from "../../../common/dto/api-response.dto";
 import { MeResponse } from "../../profile/dto/me-response.dto";
 import { ProfileService } from "../../profile/service/profile.service";
@@ -10,6 +10,7 @@ import { AuthService } from "./auth.service";
 import { Router } from "@angular/router";
 import { NotificationService } from "../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../constants/message.constants";
+import { SessionStatus } from "../types/session-status.types";
 
 @Injectable({
     providedIn: 'root'
@@ -23,9 +24,12 @@ export class SessionService {
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router)
     private readonly notificationService = inject(NotificationService);
-    private readonly authenticated = signal(false);
 
-    readonly isAuthenticated = this.authenticated.asReadonly();
+
+    private readonly sessionStatus = signal<SessionStatus>("unknown");
+    readonly sessionStatusReadOnly = this.sessionStatus.asReadonly();
+
+
 
     readonly sessionMinutesRemaining = computed(() => {
         const start = this.sessionStartedAt();
@@ -48,24 +52,28 @@ export class SessionService {
     })
 
     initialize(): Observable<ApiResponse<MeResponse>> {
+
+        this.setUnknownStatus();
+
         return this.profileService.me().pipe(
 
             tap((response) => {
                 this.validateProfile(response.data);
                 this.profileStore.setProfile(response.data);
-                this.setAuthenticated();
+                this.setAuthenticatedStatus();
             }),
 
             tap(() => {
                 this.startIdleTimer()
             }),
 
-            catchError(error => {
+            catchError(() => {
+
                 this.profileStore.clear();
                 this.clearSession();
-                this.clearAuthenticated();
 
-                return throwError(() => error);
+                this.setUnauthenticatedStatus();
+                return EMPTY
             })
         )
     }
@@ -75,7 +83,7 @@ export class SessionService {
             next: () => {
                 this.profileStore.clear();
                 this.clearSession();
-                this.clearAuthenticated();
+                this.setUnauthenticatedStatus();
 
                 this.router.navigate(
                     ['/auth/login'],
@@ -130,15 +138,32 @@ export class SessionService {
         }
     }
 
-    private setAuthenticated(): void {
-        this.authenticated.set(true);
-    }
-
-    private clearAuthenticated(): void {
-        this.authenticated.set(false);
-    }
 
     private clearSession(): void {
         this.sessionStartedAt.set(null)
+    }
+
+    readonly isAuthenticated = computed(() =>
+        this.sessionStatus() === 'authenticated'
+    );
+
+    readonly isUnauthenticated = computed(() =>
+        this.sessionStatus() === 'unauthenticated'
+    );
+
+    readonly isInitializing = computed(() =>
+        this.sessionStatus() === 'unknown'
+    );
+
+    private setUnknownStatus(): void {
+        this.sessionStatus.set('unknown');
+    }
+
+    private setAuthenticatedStatus(): void {
+        this.sessionStatus.set('authenticated');
+    }
+
+    private setUnauthenticatedStatus(): void {
+        this.sessionStatus.set('unauthenticated');
     }
 }
