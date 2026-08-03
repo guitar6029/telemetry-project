@@ -1,12 +1,12 @@
 import { CanActivateFn, Router } from "@angular/router";
-import { ProfileStore } from "../stores/profile.store";
 import { inject } from "@angular/core";
+import { SessionService } from "../../features/auth/service/session.service";
 
 
 export const authGuard: CanActivateFn = () => {
-    const profileStore = inject(ProfileStore);
+    const sessionService = inject(SessionService);
     const router = inject(Router);
-    if (profileStore.profile() !== null) {
+    if (sessionService.isAuthenticated()) {
         return true;
     }
 
