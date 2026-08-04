@@ -52,3 +52,110 @@ Browser history provides user experience.
 Removing a page from history using replaceUrl should improve navigation flow—not be relied upon for security.
 
 Protected routes must always remain protected by authorization guards regardless of browser history.
+
+
+
+
+---------------------------
+ADDITIONAL NOTES
+
+. Browser History (Browser)
+
+Responsible for:
+
+Back button
+Forward button
+Address bar history
+BFCache
+
+The browser owns this.
+
+We cannot tell Chrome, Firefox, or Brave:
+
+"Delete everything from history."
+
+That would be a huge security/privacy problem.
+
+2. Angular Router (Application)
+
+Responsible for:
+
+matching routes
+lazy loading
+guards
+redirects
+replaceUrl
+
+This is what we control.
+
+For example:
+
+/auth/login
+        ↓
+login successful
+        ↓
+navigate(..., replaceUrl: true)
+
+Angular replaces the current history entry.
+
+3. Backend (Security)
+
+Responsible for:
+
+cookies
+sessions
+authorization
+authentication
+
+This is where the application is actually protected.
+
+What you observed
+
+You saw two different cases.
+
+Case 1
+Dashboard
+↓
+Logout
+↓
+Back disabled
+
+Perfect.
+
+History became
+
+Dashboard
+↓ replace
+Login
+Case 2
+Dashboard
+↓
+Logout
+↓
+Back
+↓
+Brave Homepage
+
+Also perfect.
+
+Because now the only thing left in browser history was outside your application.
+
+That tells us Angular handled your application's history correctly.
+
+What happens if someone manually types a URL?
+
+For example
+
+/app/dashboard
+
+after logout.
+
+Angular says
+
+Auth Guard
+↓
+Not authenticated
+↓
+Redirect
+↓
+/auth/login
