@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { SessionConstants } from "../constants/session.constants";
-import { catchError, EMPTY, Observable, tap, throwError } from "rxjs";
+import { catchError, EMPTY, Observable, tap } from "rxjs";
 import { ApiResponse } from "../../../common/dto/api-response.dto";
 import { MeResponse } from "../../profile/dto/me-response.dto";
 import { ProfileService } from "../../profile/service/profile.service";
@@ -68,10 +68,8 @@ export class SessionService {
             }),
 
             catchError(() => {
-
                 this.profileStore.clear();
                 this.clearSession();
-
                 this.setUnauthenticatedStatus();
                 return EMPTY
             })

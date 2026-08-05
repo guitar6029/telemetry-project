@@ -71,7 +71,12 @@ export class LoginComponent {
 
         ).subscribe({
             next: () => {
-                this.router.navigate(['/app/dashboard']);
+                this.router.navigate(
+                    ['/app/dashboard'],
+                    {
+                        replaceUrl: true
+                    }
+                );
                 this.notificationService.success({
                     message: MessageDefaultConstants.auth.login.success,
                 });
