@@ -3,7 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { AuthService } from "../../service/auth.service";
 import { UserConstants } from "../../constants/user.constants";
 import { LoginRequest } from "../../dto/login-request.dto";
-import { Router, RouterLink } from "@angular/router";
+import { Router } from "@angular/router";
 import { MatAnchor, MatButtonModule } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
@@ -18,7 +18,6 @@ import { SessionService } from "../../service/session.service";
     imports: [
         ReactiveFormsModule,
         MatAnchor,
-        RouterLink,
         MatFormFieldModule,
         MatInputModule,
         MatButtonModule
