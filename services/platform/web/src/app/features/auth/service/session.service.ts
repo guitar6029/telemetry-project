@@ -26,7 +26,7 @@ export class SessionService {
     private readonly notificationService = inject(NotificationService);
 
 
-    private readonly sessionStatus = signal<SessionStatus>("unknown");
+    private readonly sessionStatus = signal<SessionStatus>(SessionStatus.Unknown);
     readonly sessionStatusReadOnly = this.sessionStatus.asReadonly();
 
 
@@ -142,26 +142,26 @@ export class SessionService {
     }
 
     readonly isAuthenticated = computed(() =>
-        this.sessionStatus() === 'authenticated'
+        this.sessionStatus() === SessionStatus.Authenticated
     );
 
     readonly isUnauthenticated = computed(() =>
-        this.sessionStatus() === 'unauthenticated'
+        this.sessionStatus() === SessionStatus.Unauthenticated
     );
 
     readonly isInitializing = computed(() =>
-        this.sessionStatus() === 'unknown'
+        this.sessionStatus() === SessionStatus.Unknown
     );
 
     private setUnknownStatus(): void {
-        this.sessionStatus.set('unknown');
+        this.sessionStatus.set(SessionStatus.Unknown);
     }
 
     private setAuthenticatedStatus(): void {
-        this.sessionStatus.set('authenticated');
+        this.sessionStatus.set(SessionStatus.Authenticated);
     }
 
     private setUnauthenticatedStatus(): void {
-        this.sessionStatus.set('unauthenticated');
+        this.sessionStatus.set(SessionStatus.Unauthenticated);
     }
 }
