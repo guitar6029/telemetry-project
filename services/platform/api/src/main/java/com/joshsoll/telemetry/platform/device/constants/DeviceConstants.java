@@ -18,6 +18,8 @@ public class DeviceConstants {
 
     public static final int DEVICE_STATUS_MAX_LENGTH = 20;
 
+    public static final String DOMAIN_NAME = "Device";
+
     private DeviceConstants() {
     }
 }

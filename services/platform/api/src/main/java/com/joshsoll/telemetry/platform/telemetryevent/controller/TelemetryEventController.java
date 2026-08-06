@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
+import com.joshsoll.telemetry.platform.telemetryevent.constants.TelemetryEventConstants;
 import com.joshsoll.telemetry.platform.telemetryevent.dto.CreateTelemetryEventRequest;
 import com.joshsoll.telemetry.platform.telemetryevent.dto.TelemetryEventResponse;
 import com.joshsoll.telemetry.platform.telemetryevent.service.TelemetryEventService;
@@ -21,7 +22,7 @@ import jakarta.validation.Valid;
 public class TelemetryEventController {
 
     private final TelemetryEventService telemetryEventService;
-    private final String DOMAIN_NAME = "Telemetry Event";
+    private final String DOMAIN_NAME = TelemetryEventConstants.DOMAIN_NAME;
 
     public TelemetryEventController(
 

@@ -14,6 +14,8 @@ public class MetricDefinitionConstants {
 
     public static final int DATA_TYPE_MAX_LENGTH = 20;
 
+    public static final String DOMAIN_NAME = "Metric Definition";
+
     private MetricDefinitionConstants() {
     }
 }

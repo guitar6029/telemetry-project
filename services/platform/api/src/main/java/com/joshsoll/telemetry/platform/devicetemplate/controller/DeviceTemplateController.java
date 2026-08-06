@@ -17,6 +17,7 @@ import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
+import com.joshsoll.telemetry.platform.devicetemplate.constants.DeviceTemplateConstants;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.CreateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.UpdateDeviceTemplateRequest;
@@ -29,7 +30,7 @@ import jakarta.validation.Valid;
 public class DeviceTemplateController {
 
     private final DeviceTemplateService deviceTemplateService;
-    private final String DOMAIN_NAME = "Device Template";
+    private final String DOMAIN_NAME = DeviceTemplateConstants.DOMAIN_NAME;
 
     public DeviceTemplateController(DeviceTemplateService deviceTemplateService) {
         this.deviceTemplateService = deviceTemplateService;

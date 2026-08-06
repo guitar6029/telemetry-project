@@ -17,6 +17,7 @@ import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
+import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
 import com.joshsoll.telemetry.platform.device.service.DeviceService;
@@ -27,7 +28,7 @@ import jakarta.validation.Valid;
 @RequestMapping(ApiRoutes.API_V1 + "devices")
 public class DeviceController {
     private final DeviceService deviceService;
-    private final String DOMAIN_NAME = "Device";
+    private final String DOMAIN_NAME = DeviceConstants.DOMAIN_NAME;
 
     public DeviceController(DeviceService deviceService) {
         this.deviceService = deviceService;
@@ -53,14 +54,6 @@ public class DeviceController {
         DeviceResponse device = deviceService.createDevice(request);
         return ResponseFactory.created(device, DOMAIN_NAME);
     }
-
-    // @PutMapping("{id}")
-    // public ResponseEntity<ApiResponse<DeviceResponse>> updateDevice(
-    // @PathVariable UUID id,
-    // @Valid @RequestBody UpdateDeviceRequest request) {
-    // DeviceResponse deviceResponse = deviceService.updateDevice(request, id);
-    // return ResponseFactory.updated(deviceResponse, DOMAIN_NAME);
-    // }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDevice(
