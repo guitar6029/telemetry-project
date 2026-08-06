@@ -14,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+
 import jakarta.persistence.Table;
 
 @Entity
@@ -44,6 +45,9 @@ public class User {
     @Column(nullable = false)
     private PlatformRole platformRole;
 
+    @Column(name = "last_organization_used")
+    private UUID lastOrganizationUsed;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -59,7 +63,8 @@ public class User {
             String email,
             String passwordHash,
             String avatarUrl,
-            PlatformRole platformRole
+            PlatformRole platformRole,
+            UUID lastOrganizationUsed
 
     ) {
 
@@ -68,6 +73,7 @@ public class User {
         this.email = email;
         this.avatarUrl = avatarUrl;
         this.platformRole = platformRole;
+        this.lastOrganizationUsed = lastOrganizationUsed;
         this.passwordHash = passwordHash;
 
         Instant now = Instant.now();
@@ -99,6 +105,10 @@ public class User {
 
     public PlatformRole getPlatformRole() {
         return platformRole;
+    }
+
+    public UUID getLastOrganizationUsed() {
+        return lastOrganizationUsed;
     }
 
     public Instant getCreatedAt() {
