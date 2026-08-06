@@ -1,6 +1,6 @@
 package com.joshsoll.telemetry.platform.devicetemplate.constants;
 
-public class DeviceTemplateConstants {
+public final class DeviceTemplateConstants {
 
     public static final int NAME_MIN_LENGTH = 2;
     public static final int NAME_MAX_LENGTH = 50;
