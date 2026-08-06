@@ -30,6 +30,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/organization/organization.routes').then(m => m.ORGANIZATION_ROUTES)
             },
             {
+                path: 'devices',
+                loadChildren: () => import('./features/device/device.routes').then(m => m.DEVICE_ROUTES)
+            },
+            {
                 path: 'manage',
                 children: [
                     {
