@@ -5,7 +5,7 @@ import { inject, Injectable } from "@angular/core";
     providedIn: 'root'
 })
 
-export class DeviceTemplateServce {
+export class DeviceTemplateService {
 
     private readonly http = inject(HttpClient)
 
