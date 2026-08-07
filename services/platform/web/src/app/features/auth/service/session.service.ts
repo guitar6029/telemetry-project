@@ -1,7 +1,6 @@
 import { computed, inject, Injectable, signal } from "@angular/core";
 import { SessionConstants } from "../constants/session.constants";
-import { catchError, EMPTY, Observable, tap } from "rxjs";
-import { ApiResponse } from "../../../common/dto/api-response.dto";
+import { catchError, EMPTY, Observable, switchMap, tap } from "rxjs";
 import { MeResponse } from "../../profile/dto/me-response.dto";
 import { ProfileService } from "../../profile/service/profile.service";
 import { ProfileStore } from "../../../core/stores/profile.store";
@@ -11,6 +10,10 @@ import { Router } from "@angular/router";
 import { NotificationService } from "../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../constants/message.constants";
 import { SessionStatus } from "../types/session-status.types";
+import { OrganizationContextStore } from "../../../core/stores/organization-context.store";
+import { OrganizationService } from "../../organization/service/organization.service";
+import { OrganizationResponse } from "../../organization/dto/organization-response.dto";
+import { PagedApiResponse } from "../../../common/dto/paged-api-response.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -21,9 +24,11 @@ export class SessionService {
     private readonly sessionStartedAt = signal<number | null>(null);
     private readonly profileService = inject(ProfileService);
     private readonly profileStore = inject(ProfileStore);
+    private readonly organizationContext = inject(OrganizationContextStore);
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router)
     private readonly notificationService = inject(NotificationService);
+    private readonly organizationService = inject(OrganizationService);
 
 
     private readonly sessionStatus = signal<SessionStatus>(SessionStatus.Unknown);
@@ -51,19 +56,32 @@ export class SessionService {
         return msPassed / (SessionConstants.MILLI_SECONDS_PER_MINUTE)
     })
 
-    initialize(): Observable<ApiResponse<MeResponse>> {
+    initialize(): Observable<PagedApiResponse<OrganizationResponse>> {
 
         this.setUnknownStatus();
 
         return this.profileService.me().pipe(
 
+
             tap((response) => {
                 this.validateProfile(response.data);
                 this.profileStore.setProfile(response.data);
-                this.setAuthenticatedStatus();
             }),
 
+
+            switchMap((profileResponse) =>
+                this.organizationService.getOrganizations().pipe(
+                    tap((organizationsResponse) => {
+                        this.organizationContext.initialize(
+                            organizationsResponse.data,
+                            profileResponse.data.lastOrganizationUsed
+                        );
+                    })
+                )
+            ),
+
             tap(() => {
+                this.setAuthenticatedStatus();
                 this.startIdleTimer()
             }),
 
