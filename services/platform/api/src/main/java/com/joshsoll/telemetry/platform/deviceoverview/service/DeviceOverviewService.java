@@ -34,9 +34,9 @@ public class DeviceOverviewService {
 
         Organization organization = authorizationService.requireOrganizationAccess(authenticatedUser, organizationId);
 
-        long numberOfDeviceTemplates = deviceTemplateRepository.countByOrganizationId(organization.getId());
+        long numberOfDeviceTemplates = deviceTemplateRepository.countByOrganization_Id(organization.getId());
 
-        long numberOfDevices = deviceRepository.countByOrganizationId(organization.getId());
+        long numberOfDevices = deviceRepository.countByOrganization_Id(organization.getId());
 
         DevicesOverviewResponse deviceOverview = new DevicesOverviewResponse(
                 numberOfDeviceTemplates,

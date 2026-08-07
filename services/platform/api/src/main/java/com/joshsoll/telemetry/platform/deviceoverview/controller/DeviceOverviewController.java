@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
-@RequestMapping(ApiRoutes.API_V1 + "organizations/{organizationId}/device-overview")
+@RequestMapping(ApiRoutes.API_V1 + "/organizations/{organizationId}/device-overview")
 public class DeviceOverviewController {
 
     private final DeviceOverviewService deviceOverviewService;
