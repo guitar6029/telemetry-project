@@ -4,9 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.joshsoll.telemetry.platform.auth.constants.JwtConstants;
-import com.joshsoll.telemetry.platform.auth.constants.UserConstants;
 import com.joshsoll.telemetry.platform.auth.dto.LoginRequest;
-import com.joshsoll.telemetry.platform.auth.dto.RegisterRequest;
 import com.joshsoll.telemetry.platform.auth.exception.MissingAccessTokenException;
 import com.joshsoll.telemetry.platform.auth.service.AuthService;
 import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
@@ -28,18 +26,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AuthController {
 
     private final AuthService authService;
-    private static final String RESOURCE_NAME = UserConstants.RESOURCE_NAME;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(
-            @Valid @RequestBody RegisterRequest request) {
-        authService.register(request);
-
-        return ResponseFactory.created(RESOURCE_NAME);
     }
 
     @PostMapping("/login")

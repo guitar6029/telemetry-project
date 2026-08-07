@@ -156,13 +156,16 @@ public class DatabaseSeeder implements CommandLineRunner {
                                 "primary@example.com",
                                 "password123",
                                 UserConstants.DEFAULT_AVATAR_URL,
-                                PlatformRole.SUPER_ADMIN);
+                                PlatformRole.SUPER_ADMIN,
+                                null);
 
                 organizationMembershipGenerator.generate(
                                 organization,
                                 primaryUser,
                                 OrganizationRole.ADMIN,
                                 MembershipStatus.ACTIVE);
+
+                userGenerator.updateLastOrganizationUsed(primaryUser, organization.getId());
 
                 for (int i = 1; i <= 9; i++) {
 
@@ -172,13 +175,16 @@ public class DatabaseSeeder implements CommandLineRunner {
                                         "user" + i + "@example.com",
                                         "password123",
                                         UserConstants.DEFAULT_AVATAR_URL,
-                                        PlatformRole.USER);
+                                        PlatformRole.USER,
+                                        null);
 
                         organizationMembershipGenerator.generate(
                                         organizations.get(i - 1),
                                         user,
                                         OrganizationRole.MEMBER,
                                         MembershipStatus.ACTIVE);
+
+                        userGenerator.updateLastOrganizationUsed(user, organizations.get(i - 1).getId());
                 }
 
         }

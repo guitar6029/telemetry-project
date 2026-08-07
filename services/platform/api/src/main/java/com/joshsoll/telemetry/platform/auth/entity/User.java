@@ -111,6 +111,11 @@ public class User {
         return lastOrganizationUsed;
     }
 
+    public void updateLastOrganizationUsed(UUID organizationId) {
+        this.lastOrganizationUsed = organizationId;
+        this.updatedAt = Instant.now();
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
