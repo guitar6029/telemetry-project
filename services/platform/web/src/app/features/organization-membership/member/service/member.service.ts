@@ -5,7 +5,7 @@ import { ApiResponse } from "../../../../common/dto/api-response.dto";
 import { ApiConstants } from "../../../../constants/api.constants";
 import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
 import { UpdateOrganizationMembershipRequest } from "../dto/update-organization-membership-request.dto";
-import { ProfileStore } from "../../../../core/stores/profile.store";
+import { OrganizationContextStore } from "../../../../core/stores/organization-context.store";
 
 @Injectable({
     providedIn: 'root'
@@ -14,10 +14,14 @@ import { ProfileStore } from "../../../../core/stores/profile.store";
 export class MemberService {
 
     private readonly http = inject(HttpClient)
-
+    private readonly organizationContext = inject(OrganizationContextStore);
 
     private readonly membershipUrl =
-        `${ApiConstants.API_V1}/organizations`
+        `${ApiConstants.API_V1}/organizations`;
+
+    private get organizationId(): string {
+        return this.organizationContext.requireCurrentOrganizationId();
+    }
 
     getMember(memberId: string): Observable<ApiResponse<OrganizationMembershipResponse>> {
         return this.http.get<ApiResponse<OrganizationMembershipResponse>>(

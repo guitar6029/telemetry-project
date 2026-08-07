@@ -1,4 +1,4 @@
-import { Injectable, signal } from "@angular/core";
+import { computed, Injectable, signal } from "@angular/core";
 import { OrganizationResponse } from "../../features/organization/dto/organization-response.dto";
 
 
@@ -59,5 +59,19 @@ export class OrganizationContextStore {
         }
 
         this._currentOrganization.set(organizations[0]);
+    }
+
+    readonly currentOrganizationId = computed(() =>
+        this._currentOrganization()?.id ?? null
+    );
+
+    requireCurrentOrganizationId(): string {
+        const organizationId = this.currentOrganizationId();
+
+        if (organizationId === null) {
+            throw new Error("Organization context is not initialized.");
+        }
+
+        return organizationId;
     }
 }
