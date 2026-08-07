@@ -5,31 +5,35 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.auth.entity.User;
-import com.joshsoll.telemetry.platform.organizationmembership.exceptions.OrganizationMembershipNotFoundException;
-import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
+import com.joshsoll.telemetry.platform.auth.repository.UserRepository;
 import com.joshsoll.telemetry.platform.profile.dto.MeResponse;
 
 @Service
 public class ProfileService {
 
-    private final OrganizationMembershipRepository organizationMembershipRepository;
+    private final UserRepository userRepository;
 
     public ProfileService(
-            OrganizationMembershipRepository organizationMembershipRepository) {
-        this.organizationMembershipRepository = organizationMembershipRepository;
+            UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public MeResponse me(User authenticatedUser) {
-
-        UUID organizationId = organizationMembershipRepository
-                .findOrganizationIdByUserId(authenticatedUser.getId())
-                .orElseThrow(() -> OrganizationMembershipNotFoundException.forUser(authenticatedUser.getId()));
-        return toResponse(authenticatedUser, organizationId);
+        return toResponse(authenticatedUser);
     }
 
-    private MeResponse toResponse(User authenticatedUser, UUID organizationId) {
+    public MeResponse updateLastOrganizationUsed(User authenticatedUser, UUID lastOrganizationUsed) {
+
+        authenticatedUser.updateLastOrganizationUsed(lastOrganizationUsed);
+
+        User updatedUser = userRepository.save(authenticatedUser);
+
+        return toResponse(updatedUser);
+    }
+
+    private MeResponse toResponse(User authenticatedUser) {
         return new MeResponse(
-                organizationId,
+                authenticatedUser.getLastOrganizationUsed(),
                 authenticatedUser.getFirstName(),
                 authenticatedUser.getLastName(),
                 authenticatedUser.getEmail(),

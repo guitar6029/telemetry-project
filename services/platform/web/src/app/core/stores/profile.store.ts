@@ -13,10 +13,6 @@ export class ProfileStore {
 
     readonly profile = this._profile.asReadonly();
 
-    readonly organizationId = computed(() =>
-        this.profileOrThrow.organizationId
-    );
-
     private get profileOrThrow(): MeResponse {
         const profile = this._profile();
 
@@ -34,4 +30,8 @@ export class ProfileStore {
     clear(): void {
         this._profile.set(null);
     }
+
+    readonly lastOrganizationUsed = computed(() =>
+        this.profileOrThrow.lastOrganizationUsed
+    );
 }
