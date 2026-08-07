@@ -1,5 +1,5 @@
 export interface MeResponse {
-    organizationId: string,
+    lastOrganizationUsed: string | null,
     firstName: string,
     lastName: string,
     email: string,
