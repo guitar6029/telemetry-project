@@ -25,4 +25,15 @@ export class ProfileService {
             }
         )
     }
+
+    updateLastOrganizationUsed(lastOrganizationUsed: string): Observable<ApiResponse<MeResponse>> {
+        return this.http.patch<ApiResponse<MeResponse>>(
+            `${this.url}//last-organization-used`,
+            lastOrganizationUsed,
+            {
+                withCredentials: true
+            }
+
+        )
+    }
 }
