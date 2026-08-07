@@ -21,7 +21,6 @@ export class OrganizationMembershipService {
 
 
     getOrganizationMemberships(
-        organizationId: string,
         page = this.DEFAULT_PAGE,
         size = this.DEFAULT_PAGE_SIZE
     ): Observable<PagedApiResponse<OrganizationMembershipResponse>> {

@@ -17,10 +17,7 @@ export class InviteService {
     private readonly url =
         `${ApiConstants.API_V1}/organizations`
 
-    private readonly profileStore = inject(ProfileStore)
 
-    private readonly organizationId =
-        this.profileStore.organizationId();
 
     private readonly http = inject(HttpClient)
 

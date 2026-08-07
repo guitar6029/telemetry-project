@@ -105,12 +105,6 @@ export class SessionService {
 
     private validateProfile(profile: MeResponse): void {
 
-        if (!profile.organizationId) {
-            throw new InvalidSessionError(
-                "Authenticated profile is missing organizationId."
-            );
-        }
-
         if (!profile.firstName) {
             throw new InvalidSessionError(
                 "Authenticated profile is missing firstName."

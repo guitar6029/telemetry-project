@@ -15,11 +15,6 @@ export class MemberService {
 
     private readonly http = inject(HttpClient)
 
-    private readonly profileStore = inject(ProfileStore)
-
-    private readonly organizationId =
-        this.profileStore.organizationId();
-
 
     private readonly membershipUrl =
         `${ApiConstants.API_V1}/organizations`
