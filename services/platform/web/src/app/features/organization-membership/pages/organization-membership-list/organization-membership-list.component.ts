@@ -63,7 +63,6 @@ export class OrganizationMembershipListComponent implements OnInit {
 
     private readonly organizationMembershipService = inject(OrganizationMembershipService)
     private readonly notificationService = inject(NotificationService)
-    private readonly profileStore = inject(ProfileStore)
 
 
     ngOnInit(): void {
@@ -75,11 +74,7 @@ export class OrganizationMembershipListComponent implements OnInit {
         size = this.pageSize()
     ) {
 
-
-        const organizationId = this.profileStore.organizationId();
-
         this.organizationMembershipService.getOrganizationMemberships(
-            organizationId,
             page,
             size
         ).subscribe({
