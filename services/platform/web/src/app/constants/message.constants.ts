@@ -8,6 +8,9 @@ export const MessageDefaultConstants = {
             error: "Unable to log out."
         }
     },
+    devicesSummary: {
+        error: "Unable to load devices summary."
+    },
     organization: {
         load: {
             error: "Could not load organization."

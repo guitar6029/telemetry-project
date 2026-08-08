@@ -15,6 +15,7 @@ import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
+import com.joshsoll.telemetry.platform.metricdefinition.constants.MetricDefinitionConstants;
 import com.joshsoll.telemetry.platform.metricdefinition.dto.CreateMetricDefinitionRequest;
 import com.joshsoll.telemetry.platform.metricdefinition.dto.MetricDefinitionResponse;
 import com.joshsoll.telemetry.platform.metricdefinition.service.MetricDefinitionService;
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 @RequestMapping(ApiRoutes.API_V1 + "/metric-definitions")
 public class MetricDefinitionController {
         private final MetricDefinitionService metricDefinitionService;
-        private final String DOMAIN_NAME = "Metric Definition";
+        private final String DOMAIN_NAME = MetricDefinitionConstants.DOMAIN_NAME;
 
         public MetricDefinitionController(MetricDefinitionService metricDefinitionService) {
                 this.metricDefinitionService = metricDefinitionService;

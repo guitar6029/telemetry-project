@@ -14,4 +14,6 @@ public interface DeviceTemplateRepository extends JpaRepository<DeviceTemplate, 
     Optional<DeviceTemplate> findByOrganizationAndName(
             Organization organization,
             String name);
+
+    long countByOrganization_Id(UUID organizationId);
 }

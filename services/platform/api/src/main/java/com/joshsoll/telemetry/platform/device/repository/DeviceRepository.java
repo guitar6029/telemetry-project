@@ -14,4 +14,6 @@ public interface DeviceRepository extends JpaRepository<Device, UUID> {
             String serialNumber);
 
     Optional<Device> findBySerialNumber(String serialNumber);
+
+    long countByOrganization_Id(UUID organizationId);
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
+import com.joshsoll.telemetry.platform.hierarchy.constants.HierarchyNodeConstants;
 import com.joshsoll.telemetry.platform.hierarchy.dto.CreateHierarchyNodeRequest;
 import com.joshsoll.telemetry.platform.hierarchy.dto.HierarchyNodeResponse;
 import com.joshsoll.telemetry.platform.hierarchy.service.HierarchyNodeService;
@@ -25,7 +26,7 @@ import jakarta.validation.Valid;
 public class HierarchyNodeController {
 
     private final HierarchyNodeService hierarchyNodeService;
-    private final String DOMAIN_NAME = "Hierarchy Node";
+    private final String DOMAIN_NAME = HierarchyNodeConstants.DOMAIN_NAME;
 
     public HierarchyNodeController(HierarchyNodeService hierarchyNodeService) {
         this.hierarchyNodeService = hierarchyNodeService;
