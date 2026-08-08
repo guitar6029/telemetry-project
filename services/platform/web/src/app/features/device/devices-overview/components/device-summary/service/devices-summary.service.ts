@@ -23,10 +23,8 @@ export class DevicesSummaryService {
     }
 
     getDevicesSummary(): Observable<ApiResponse<DevicesSummaryResponse>> {
-
-        console.log(` url : ${this.devicesSummaryUrl}/${this.organizationId}/devices-overview`,)
         return this.http.get<ApiResponse<DevicesSummaryResponse>>(
-            `${this.devicesSummaryUrl}/${this.organizationId}/device-overview`,
+            `${this.devicesSummaryUrl}/${this.organizationId}/devices-overview`,
             {
                 withCredentials: true
             }

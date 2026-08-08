@@ -4,25 +4,27 @@ import { NotificationService } from "../../../../../../common/notification/servi
 import { MessageDefaultConstants } from "../../../../../../constants/message.constants";
 import { DevicesSummaryResponse } from "../dto/devices-summary-response.dto";
 import { DevicesSummaryService } from "../service/devices-summary.service";
+import { MatCard, MatCardHeader, MatCardTitle, MatCardContent } from "@angular/material/card";
 
 
 @Component({
     selector: 'telemetry-device-summary',
     templateUrl: './devices-summary.component.html',
-    styleUrl: './devices-summary.component.scss'
+    styleUrl: './devices-summary.component.scss',
+    imports: [MatCard, MatCardHeader, MatCardTitle, MatCardContent]
 })
 
 export class DevicesSummaryComponent implements OnInit {
 
     private readonly devicesSummaryService = inject(DevicesSummaryService);
     private error = signal<string | null>(null)
-    readonly overview = signal<DevicesSummaryResponse | null>(null);
+    readonly summary = signal<DevicesSummaryResponse | null>(null);
     private readonly notificationService = inject(NotificationService);
 
     ngOnInit(): void {
         this.devicesSummaryService.getDevicesSummary().subscribe({
             next: (response) => {
-                this.overview.set(response.data);
+                this.summary.set(response.data);
             },
             error: (httpError) => {
                 console.log(httpError)
