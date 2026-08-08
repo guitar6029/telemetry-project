@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.joshsoll.telemetry.platform.exception.ErrorResponse;
 import com.joshsoll.telemetry.platform.organization.exception.DuplicateOrganizationSlugException;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationAccessDeniedException;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,32 +17,46 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class OrganizationExceptionHandler {
 
-    @ExceptionHandler(OrganizationNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleOrganizationNotFound(
-            OrganizationNotFoundException ex,
-            HttpServletRequest request) {
+        @ExceptionHandler(OrganizationNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleOrganizationNotFound(
+                        OrganizationNotFoundException ex,
+                        HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(
-                        Instant.now(),
-                        HttpStatus.NOT_FOUND.value(),
-                        HttpStatus.NOT_FOUND.getReasonPhrase(),
-                        ex.getMessage(),
-                        request.getRequestURI()));
-    }
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.NOT_FOUND.value(),
+                                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
 
-    @ExceptionHandler(DuplicateOrganizationSlugException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateOrganizationSlug(
-            DuplicateOrganizationSlugException ex,
-            HttpServletRequest request) {
+        @ExceptionHandler(DuplicateOrganizationSlugException.class)
+        public ResponseEntity<ErrorResponse> handleDuplicateOrganizationSlug(
+                        DuplicateOrganizationSlugException ex,
+                        HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse(
-                        Instant.now(),
-                        HttpStatus.CONFLICT.value(),
-                        HttpStatus.CONFLICT.getReasonPhrase(),
-                        ex.getMessage(),
-                        request.getRequestURI()));
-    }
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.CONFLICT.value(),
+                                                HttpStatus.CONFLICT.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
+
+        @ExceptionHandler(OrganizationAccessDeniedException.class)
+        public ResponseEntity<ErrorResponse> handleOrganizationAccessDenied(
+                        OrganizationAccessDeniedException ex,
+                        HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.FORBIDDEN.value(),
+                                                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
 
 }
