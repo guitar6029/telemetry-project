@@ -2,6 +2,7 @@ import { MetricDefinitionRequest } from "../../metric-definition/dto/metric-defi
 
 export interface DeviceTemplateRequest {
     name: string;
+    description: string | null;
     organizationId: string;
     metricDefinitions: MetricDefinitionRequest[]
 }
