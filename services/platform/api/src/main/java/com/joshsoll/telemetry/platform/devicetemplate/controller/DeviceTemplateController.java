@@ -28,7 +28,7 @@ import com.joshsoll.telemetry.platform.devicetemplate.service.DeviceTemplateServ
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(ApiRoutes.API_V1 + "/device-templates")
+@RequestMapping(ApiRoutes.API_V1 + "/organizations/{organizationId}/device-templates")
 public class DeviceTemplateController {
 
     private final DeviceTemplateService deviceTemplateService;
