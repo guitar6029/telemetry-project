@@ -25,6 +25,10 @@ services:
       context: services/platform/web
       dockerfile: Dockerfile
 
+    volumes:
+      - ./services/platform/web:/src
+      - web_node_modules:/src/node_modules
+
     ports:
       - "4200:4200"
 
@@ -54,4 +58,5 @@ services:
 
 volumes:
   postgres_data:
+  web_node_modules:
   # redis-data for later

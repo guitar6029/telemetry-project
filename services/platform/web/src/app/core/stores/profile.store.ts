@@ -23,6 +23,7 @@ export class ProfileStore {
         return profile;
     }
 
+
     setProfile(profile: MeResponse) {
         this._profile.set(profile);
     }
@@ -31,7 +32,23 @@ export class ProfileStore {
         this._profile.set(null);
     }
 
+
+    // COMPUTED
     readonly lastOrganizationUsed = computed(() =>
         this.profileOrThrow.lastOrganizationUsed
     );
+
+    readonly email = computed(() => {
+        return this.profileOrThrow.email
+    })
+
+    readonly fullName = computed(() => {
+        const profile = this.profileOrThrow;
+
+        return `${profile.firstName} ${profile.lastName}`;
+    })
+
+    readonly avatarUrl = computed(() => {
+        return this.profileOrThrow.avatarUrl;
+    })
 }
