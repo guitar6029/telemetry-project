@@ -21,4 +21,6 @@ public interface MetricDefinitionRepository
         Optional<MetricDefinition> findByDeviceTemplateAndIncomingFieldName(
                         DeviceTemplate deviceTemplate,
                         String incomingFieldName);
+
+        List<MetricDefinition> findAllByDeviceTemplate_Id(UUID deviceTemplateId);
 }

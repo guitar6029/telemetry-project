@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -171,41 +170,58 @@ public class DeviceTemplateService {
 
                 Instant now = Instant.now();
 
-                // now convert the response to metrics then save
-                List<MetricDefinition> metricDefinitions = IntStream.range(0, request.getMetricDefinitions().size())
-                                .mapToObj(i -> {
-                                        var metricDefinitionRequest = request.getMetricDefinitions().get(i);
+                List<MetricDefinition> existingMetricDefinitions = metricDefinitionRepository
+                                .findAllByDeviceTemplate_Id(
+                                                deviceTemplate.getId());
 
-                                        MetricDefinition metricDefinition = metricDefinitionRepository
-                                                        .findById(metricDefinitionRequest.getId())
-                                                        .orElseGet(() -> new MetricDefinition(
-                                                                        metricDefinitionRequest.getName(),
-                                                                        metricDefinitionRequest
-                                                                                        .getDescription(),
-                                                                        metricDefinitionRequest
-                                                                                        .getIncomingFieldName(),
-                                                                        metricDefinitionRequest.getDataType(),
-                                                                        metricDefinitionRequest.getUnit(),
-                                                                        savedDeviceTemplate,
-                                                                        now,
-                                                                        now));
-
-                                        metricDefinition.update(
-                                                        metricDefinitionRequest.getName(),
-                                                        metricDefinitionRequest.getDescription(),
-                                                        metricDefinitionRequest.getIncomingFieldName(),
-                                                        metricDefinitionRequest.getDataType(),
-                                                        metricDefinitionRequest.getUnit(),
-                                                        now);
-
-                                        return metricDefinition;
-
-                                })
+                List<UUID> metricsToRemove = existingMetricDefinitions.stream()
+                                .filter(existingMetric -> request.getMetricDefinitions()
+                                                .stream()
+                                                .noneMatch(requestMetric -> existingMetric.getId()
+                                                                .equals(requestMetric.getId())))
+                                .map(MetricDefinition::getId)
                                 .toList();
+
+                // first delete all metrics which were not part of the request
+                metricDefinitionRepository.deleteAllById(metricsToRemove);
+
+                // now convert the response to metrics
+                // if existing metric -> update, else create new Metric Definition
+                List<MetricDefinition> metricDefinitions = request.getMetricDefinitions().stream()
+                                .map(requestMetricDefinition -> {
+
+                                        MetricDefinition existingMetricDefinition = existingMetricDefinitions.stream()
+                                                        .filter(metric -> metric.getId()
+                                                                        .equals(requestMetricDefinition.getId()))
+                                                        .findFirst()
+                                                        .orElse(null);
+
+                                        if (existingMetricDefinition != null) {
+                                                existingMetricDefinition.update(requestMetricDefinition.getName(),
+                                                                requestMetricDefinition.getDescription(),
+                                                                requestMetricDefinition.getIncomingFieldName(),
+                                                                requestMetricDefinition.getDataType(),
+                                                                requestMetricDefinition.getUnit(), now);
+
+                                                return existingMetricDefinition;
+                                        }
+
+                                        return new MetricDefinition(
+                                                        requestMetricDefinition.getName(),
+                                                        requestMetricDefinition.getDescription(),
+                                                        requestMetricDefinition.getIncomingFieldName(),
+                                                        requestMetricDefinition.getDataType(),
+                                                        requestMetricDefinition.getUnit(),
+                                                        savedDeviceTemplate,
+                                                        now,
+                                                        now);
+                                }).toList();
 
                 metricDefinitionRepository.saveAll(metricDefinitions);
 
-                return toResponse(savedDeviceTemplate);
+                return
+
+                toResponse(savedDeviceTemplate);
         }
 
         public void deleteDeviceTemplate(UUID deviceTemplateId) {
