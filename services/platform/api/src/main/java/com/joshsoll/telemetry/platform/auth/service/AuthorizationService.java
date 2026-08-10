@@ -8,8 +8,11 @@ import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.enums.PlatformRole;
 import com.joshsoll.telemetry.platform.exception.security.PlatformAccessDeniedException;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
+import com.joshsoll.telemetry.platform.organization.exception.OrganizationAccessDeniedException;
 import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
 import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
+import com.joshsoll.telemetry.platform.organizationmembership.entity.OrganizationMembership;
+import com.joshsoll.telemetry.platform.organizationmembership.enums.OrganizationRole;
 import com.joshsoll.telemetry.platform.organizationmembership.repository.OrganizationMembershipRepository;
 
 @Service
@@ -46,5 +49,26 @@ public class AuthorizationService {
         if (user.getPlatformRole() != PlatformRole.SUPER_ADMIN) {
             throw new PlatformAccessDeniedException();
         }
+    }
+
+    public Organization requireOrganizationAdmin(
+            User user,
+            UUID organizationId) {
+
+        if (user.getPlatformRole() == PlatformRole.SUPER_ADMIN) {
+            return organizationRepository.findById(organizationId)
+                    .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
+        }
+
+        OrganizationMembership membership = organizationMembershipRepository
+                .findByUserIdAndOrganizationId(user.getId(), organizationId)
+                .orElseThrow(() -> new OrganizationAccessDeniedException(organizationId));
+
+        if (membership.getRole() != OrganizationRole.ADMIN
+                && membership.getRole() != OrganizationRole.MANAGER) {
+            throw new OrganizationAccessDeniedException(organizationId);
+        }
+
+        return membership.getOrganization();
     }
 }

@@ -27,7 +27,6 @@ export class DevicesSummaryComponent implements OnInit {
                 this.summary.set(response.data);
             },
             error: (httpError) => {
-                console.log(httpError)
                 this.error.set("Unable to load devices summary.");
                 this.notificationService.error({
                     message: httpError.error?.message ?? MessageDefaultConstants.devicesSummary.error

@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.joshsoll.telemetry.platform.auth.entity.User;
+import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.CreateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse;
@@ -18,122 +20,246 @@ import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DuplicateDeviceTemplateNameException;
 import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
+import com.joshsoll.telemetry.platform.metricdefinition.dto.MetricDefinitionResponse;
+import com.joshsoll.telemetry.platform.metricdefinition.entity.MetricDefinition;
+import com.joshsoll.telemetry.platform.metricdefinition.repository.MetricDefinitionRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
-import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
-import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class DeviceTemplateService {
-    private final DeviceTemplateRepository deviceTemplateRepository;
-    private final OrganizationRepository organizationRepository;
+        private final DeviceTemplateRepository deviceTemplateRepository;
+        private final AuthorizationService authorizationService;
+        private final MetricDefinitionRepository metricDefinitionRepository;
 
-    public DeviceTemplateService(DeviceTemplateRepository deviceTemplateRepository,
-            OrganizationRepository organizationRepository) {
-        this.deviceTemplateRepository = deviceTemplateRepository;
-        this.organizationRepository = organizationRepository;
-    }
-
-    public DeviceTemplateResponse createDeviceTemplate(CreateDeviceTemplateRequest request) {
-
-        Instant now = Instant.now();
-
-        // Find organization
-        Organization organization = organizationRepository.findById(request.getOrganizationId())
-                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
-
-        // Validate template name uniqueness
-        if (deviceTemplateRepository.existsByOrganizationAndName(organization, request.getName())) {
-            throw new DuplicateDeviceTemplateNameException(request.getName());
+        public DeviceTemplateService(
+                        DeviceTemplateRepository deviceTemplateRepository,
+                        AuthorizationService authorizationService,
+                        MetricDefinitionRepository metricDefinitionRepository) {
+                this.deviceTemplateRepository = deviceTemplateRepository;
+                this.authorizationService = authorizationService;
+                this.metricDefinitionRepository = metricDefinitionRepository;
         }
 
-        DeviceTemplate deviceTemplate = new DeviceTemplate(
-                request.getName(),
-                request.getDescription(),
-                organization,
-                false,
-                now,
-                now);
+        @Transactional
+        public DeviceTemplateResponse createDeviceTemplate(
+                        User authenticatedUser,
+                        UUID organizationId,
+                        CreateDeviceTemplateRequest request) {
 
-        DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
+                Instant now = Instant.now();
 
-        return toResponse(savedDeviceTemplate);
-    }
+                Organization organization = authorizationService.requireOrganizationAdmin(authenticatedUser,
+                                organizationId);
 
-    public DeviceTemplateResponse getDeviceTemplateById(UUID deviceTemplateId) {
-        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
-                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
-        return toResponse(deviceTemplate);
-    }
+                if (deviceTemplateRepository.existsByOrganizationAndName(organization, request.getName())) {
+                        throw new DuplicateDeviceTemplateNameException(request.getName());
+                }
 
-    public PagedApiResponse<DeviceTemplateResponse> getDeviceTemplates(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+                DeviceTemplate deviceTemplate = new DeviceTemplate(
+                                request.getName(),
+                                request.getDescription(),
+                                organization,
+                                false,
+                                now,
+                                now);
 
-        Page<DeviceTemplate> deviceTemplates = deviceTemplateRepository.findAll(pageable);
+                DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
 
-        List<DeviceTemplateResponse> responses = new ArrayList<>();
+                List<MetricDefinition> metricDefinitions = request.getMetricDefinitions()
+                                .stream()
+                                .map(metricRequest -> new MetricDefinition(
+                                                metricRequest.getName(),
+                                                metricRequest.getDescription(),
+                                                metricRequest.getIncomingFieldName(),
+                                                metricRequest.getDataType(),
+                                                metricRequest.getUnit(),
+                                                savedDeviceTemplate,
+                                                now,
+                                                now))
+                                .toList();
 
-        for (DeviceTemplate deviceTemplate : deviceTemplates) {
-            responses.add(toResponse(deviceTemplate));
+                List<MetricDefinition> savedMetricDefinitions = metricDefinitionRepository.saveAll(metricDefinitions);
+
+                List<MetricDefinitionResponse> metricDefinitionResponses = savedMetricDefinitions.stream()
+                                .map(this::toResponseMetricDefinition)
+                                .toList();
+
+                return new DeviceTemplateResponse(
+                                savedDeviceTemplate.getId(),
+                                savedDeviceTemplate.getName(),
+                                savedDeviceTemplate.getDescription(),
+                                savedDeviceTemplate.getOrganizationId(),
+                                savedDeviceTemplate.isArchived(),
+                                metricDefinitionResponses,
+                                savedDeviceTemplate.getCreatedAt(),
+                                savedDeviceTemplate.getUpdatedAt());
         }
 
-        return new PagedApiResponse<>(
-                responses,
-                "",
-                page,
-                size,
-                deviceTemplates.getTotalElements(),
-                deviceTemplates.getTotalPages());
+        public DeviceTemplateResponse getDeviceTemplateById(
+                        User authenticatedUser,
+                        UUID organizationId,
+                        UUID deviceTemplateId) {
 
-    }
+                Organization organization = authorizationService.requireOrganizationAdmin(authenticatedUser,
+                                organizationId);
 
-    public DeviceTemplateResponse updateDeviceTemplate(
-            UpdateDeviceTemplateRequest request,
-            UUID deviceTemplateId) {
+                DeviceTemplate deviceTemplate = deviceTemplateRepository
+                                .findByOrganization_IdAndId(organization.getId(), deviceTemplateId)
+                                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
 
-        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
-                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
-
-        Organization organization = organizationRepository.findById(request.getOrganizationId())
-                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
-
-        boolean nameChanged = !deviceTemplate.getName().equals(request.getName());
-
-        boolean organizationChanged = !deviceTemplate.getOrganizationId()
-                .equals(organization.getId());
-
-        if ((nameChanged || organizationChanged)
-                && deviceTemplateRepository.existsByOrganizationAndName(
-                        organization,
-                        request.getName())) {
-
-            throw new DuplicateDeviceTemplateNameException(
-                    request.getName());
+                return toResponse(deviceTemplate);
         }
 
-        deviceTemplate.setName(request.getName());
-        deviceTemplate.setDescription(request.getDescription());
-        deviceTemplate.setOrganization(organization);
+        public PagedApiResponse<DeviceTemplateResponse> getDeviceTemplates(int page, int size) {
+                Pageable pageable = PageRequest.of(page, size);
 
-        DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
+                Page<DeviceTemplate> deviceTemplates = deviceTemplateRepository.findAll(pageable);
 
-        return toResponse(savedDeviceTemplate);
-    }
+                List<DeviceTemplateResponse> responses = new ArrayList<>();
 
-    public void deleteDeviceTemplate(UUID deviceTemplateId) {
-        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
-                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+                for (DeviceTemplate deviceTemplate : deviceTemplates) {
+                        responses.add(toResponse(deviceTemplate));
+                }
 
-        deviceTemplateRepository.delete(deviceTemplate);
-    }
+                return new PagedApiResponse<>(
+                                responses,
+                                "",
+                                page,
+                                size,
+                                deviceTemplates.getTotalElements(),
+                                deviceTemplates.getTotalPages());
 
-    private DeviceTemplateResponse toResponse(DeviceTemplate deviceTemplate) {
-        return new DeviceTemplateResponse(
-                deviceTemplate.getId(),
-                deviceTemplate.getName(),
-                deviceTemplate.getDescription(),
-                deviceTemplate.getOrganizationId(),
-                deviceTemplate.isArchived(),
-                deviceTemplate.getCreatedAt(),
-                deviceTemplate.getUpdatedAt());
-    }
+        }
+
+        @Transactional
+        public DeviceTemplateResponse updateDeviceTemplate(
+                        User authenticatedUser,
+                        UUID organizationId,
+                        UUID deviceTemplateId,
+                        UpdateDeviceTemplateRequest request) {
+
+                Organization organization = authorizationService.requireOrganizationAdmin(
+                                authenticatedUser,
+                                organizationId);
+
+                DeviceTemplate deviceTemplate = deviceTemplateRepository
+                                .findByOrganization_IdAndId(organization.getId(), deviceTemplateId)
+                                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+
+                boolean nameChanged = !deviceTemplate.getName().equals(request.getName());
+
+                boolean organizationChanged = !deviceTemplate.getOrganizationId()
+                                .equals(organization.getId());
+
+                if ((nameChanged || organizationChanged)
+                                && deviceTemplateRepository.existsByOrganizationAndName(
+                                                organization,
+                                                request.getName())) {
+
+                        throw new DuplicateDeviceTemplateNameException(
+                                        request.getName());
+                }
+
+                deviceTemplate.setName(request.getName());
+                deviceTemplate.setDescription(request.getDescription());
+                deviceTemplate.setOrganization(organization);
+
+                DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
+
+                Instant now = Instant.now();
+
+                List<MetricDefinition> existingMetricDefinitions = metricDefinitionRepository
+                                .findAllByDeviceTemplate_Id(
+                                                deviceTemplate.getId());
+
+                List<UUID> metricsToRemove = existingMetricDefinitions.stream()
+                                .filter(existingMetric -> request.getMetricDefinitions()
+                                                .stream()
+                                                .noneMatch(requestMetric -> existingMetric.getId()
+                                                                .equals(requestMetric.getId())))
+                                .map(MetricDefinition::getId)
+                                .toList();
+
+                // first delete all metrics which were not part of the request
+                metricDefinitionRepository.deleteAllById(metricsToRemove);
+
+                // now convert the response to metrics
+                // if existing metric -> update, else create new Metric Definition
+                List<MetricDefinition> metricDefinitions = request.getMetricDefinitions().stream()
+                                .map(requestMetricDefinition -> {
+
+                                        MetricDefinition existingMetricDefinition = existingMetricDefinitions.stream()
+                                                        .filter(metric -> metric.getId()
+                                                                        .equals(requestMetricDefinition.getId()))
+                                                        .findFirst()
+                                                        .orElse(null);
+
+                                        if (existingMetricDefinition != null) {
+                                                existingMetricDefinition.update(requestMetricDefinition.getName(),
+                                                                requestMetricDefinition.getDescription(),
+                                                                requestMetricDefinition.getIncomingFieldName(),
+                                                                requestMetricDefinition.getDataType(),
+                                                                requestMetricDefinition.getUnit(), now);
+
+                                                return existingMetricDefinition;
+                                        }
+
+                                        return new MetricDefinition(
+                                                        requestMetricDefinition.getName(),
+                                                        requestMetricDefinition.getDescription(),
+                                                        requestMetricDefinition.getIncomingFieldName(),
+                                                        requestMetricDefinition.getDataType(),
+                                                        requestMetricDefinition.getUnit(),
+                                                        savedDeviceTemplate,
+                                                        now,
+                                                        now);
+                                }).toList();
+
+                metricDefinitionRepository.saveAll(metricDefinitions);
+
+                return
+
+                toResponse(savedDeviceTemplate);
+        }
+
+        public void deleteDeviceTemplate(UUID deviceTemplateId) {
+                DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                                .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+
+                deviceTemplateRepository.delete(deviceTemplate);
+        }
+
+        private MetricDefinitionResponse toResponseMetricDefinition(MetricDefinition metricDefinition) {
+                return new MetricDefinitionResponse(
+                                metricDefinition.getId(),
+                                metricDefinition.getName(),
+                                metricDefinition.getDescription(),
+                                metricDefinition.getIncomingFieldName(),
+                                metricDefinition.getDataType(),
+                                metricDefinition.getUnit(),
+                                metricDefinition.getDeviceTemplateId(),
+                                metricDefinition.getCreatedAt(),
+                                metricDefinition.getUpdatedAt());
+        }
+
+        private DeviceTemplateResponse toResponse(DeviceTemplate deviceTemplate) {
+
+                List<MetricDefinitionResponse> metricDefinitionResponses = metricDefinitionRepository
+                                .findAllByDeviceTemplate(deviceTemplate)
+                                .stream()
+                                .map(this::toResponseMetricDefinition)
+                                .toList();
+
+                return new DeviceTemplateResponse(
+                                deviceTemplate.getId(),
+                                deviceTemplate.getName(),
+                                deviceTemplate.getDescription(),
+                                deviceTemplate.getOrganizationId(),
+                                deviceTemplate.isArchived(),
+                                metricDefinitionResponses,
+                                deviceTemplate.getCreatedAt(),
+                                deviceTemplate.getUpdatedAt());
+        }
 }

@@ -3,19 +3,20 @@ package com.joshsoll.telemetry.platform.metricdefinition.dto;
 import java.util.UUID;
 
 import com.joshsoll.telemetry.platform.metricdefinition.MetricDataType;
-import com.joshsoll.telemetry.platform.metricdefinition.constants.MetricDefinitionConstants;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
-public class CreateMetricDefinitionRequest {
+import jakarta.validation.constraints.NotNull;
+
+public class UpdateTemplateMetricDefinitionRequest {
+
+    @NotNull
+    private UUID id;
+
     @NotBlank
-    @Size(min = MetricDefinitionConstants.NAME_MIN_LENGTH, max = MetricDefinitionConstants.NAME_MAX_LENGTH)
     private String name;
 
     @NotBlank
-    @Size(min = MetricDefinitionConstants.INCOMING_FIELD_NAME_MIN_LENGTH, max = MetricDefinitionConstants.INCOMING_FIELD_NAME_MAX_LENGTH)
     private String incomingFieldName;
 
     @NotNull
@@ -25,25 +26,24 @@ public class CreateMetricDefinitionRequest {
 
     private String unit;
 
-    @NotNull
-    private UUID deviceTemplateId;
-
-    public CreateMetricDefinitionRequest() {
-    }
-
-    public CreateMetricDefinitionRequest(
+    public UpdateTemplateMetricDefinitionRequest(
+            UUID id,
             String name,
             String incomingFieldName,
             MetricDataType dataType,
             String description,
-            String unit,
-            UUID deviceTemplateId) {
+            String unit) {
+        this.id = id;
         this.name = name;
         this.incomingFieldName = incomingFieldName;
         this.dataType = dataType;
         this.description = description;
         this.unit = unit;
-        this.deviceTemplateId = deviceTemplateId;
+
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
@@ -65,9 +65,4 @@ public class CreateMetricDefinitionRequest {
     public String getUnit() {
         return unit;
     }
-
-    public UUID getDeviceTemplateId() {
-        return deviceTemplateId;
-    }
-
 }

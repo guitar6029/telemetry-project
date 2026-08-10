@@ -109,4 +109,20 @@ public class MetricDefinition {
         return updatedAt;
     }
 
+    public void update(
+            String name,
+            String description,
+            String incomingFieldName,
+            MetricDataType dataType,
+            String unit,
+            Instant updatedAt) {
+
+        this.name = name;
+        this.description = description;
+        this.incomingFieldName = incomingFieldName;
+        this.dataType = dataType;
+        this.unit = unit;
+        this.updatedAt = updatedAt;
+    }
+
 }

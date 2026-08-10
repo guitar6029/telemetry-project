@@ -61,4 +61,6 @@ public interface OrganizationMembershipRepository extends JpaRepository<Organiza
                         """)
         Optional<UUID> findOrganizationIdByUserId(
                         @Param("userId") UUID userId);
+
+        Optional<OrganizationMembership> findByUserIdAndOrganizationId(UUID userId, UUID organizationId);
 }
