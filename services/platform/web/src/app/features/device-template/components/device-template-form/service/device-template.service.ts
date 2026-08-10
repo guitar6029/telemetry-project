@@ -6,6 +6,7 @@ import { ApiResponse } from "../../../../../common/dto/api-response.dto";
 import { DeviceTemplateResponse } from "../../../dto/device-template-response.dto";
 import { OrganizationContextStore } from "../../../../../core/stores/organization-context.store";
 import { ApiConstants } from "../../../../../constants/api.constants";
+import { DeviceTemplateUpdateRequest } from "../../../dto/device-template-update-request.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -27,6 +28,25 @@ export class DeviceTemplateService {
     createDeviceTemplate(request: DeviceTemplateRequest): Observable<ApiResponse<DeviceTemplateResponse>> {
         return this.http.post<ApiResponse<DeviceTemplateResponse>>(
             `${this.deviceTemplateUrl}/${this.organizationId}/device-templates`,
+            request,
+            {
+                withCredentials: true
+            }
+        )
+    }
+
+    getDeviceTemplate(deviceTemplateId: string): Observable<ApiResponse<DeviceTemplateResponse>> {
+        return this.http.get<ApiResponse<DeviceTemplateResponse>>(
+            `${this.deviceTemplateUrl}/${this.organizationId}/device-templates/${deviceTemplateId}`,
+            {
+                withCredentials: true
+            }
+        )
+    }
+
+    updateDeviceTemplate(request: DeviceTemplateUpdateRequest, deviceTemplateId: string): Observable<ApiResponse<DeviceTemplateResponse>> {
+        return this.http.put<ApiResponse<DeviceTemplateResponse>>(
+            `${this.deviceTemplateUrl}/${this.organizationId}/device-templates/${deviceTemplateId}`,
             request,
             {
                 withCredentials: true
