@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,25 +25,20 @@ import com.joshsoll.telemetry.platform.metricdefinition.dto.MetricDefinitionResp
 import com.joshsoll.telemetry.platform.metricdefinition.entity.MetricDefinition;
 import com.joshsoll.telemetry.platform.metricdefinition.repository.MetricDefinitionRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
-import com.joshsoll.telemetry.platform.organization.exception.OrganizationNotFoundException;
-import com.joshsoll.telemetry.platform.organization.repository.OrganizationRepository;
 
 import jakarta.transaction.Transactional;
 
 @Service
 public class DeviceTemplateService {
         private final DeviceTemplateRepository deviceTemplateRepository;
-        private final OrganizationRepository organizationRepository;
         private final AuthorizationService authorizationService;
         private final MetricDefinitionRepository metricDefinitionRepository;
 
         public DeviceTemplateService(
                         DeviceTemplateRepository deviceTemplateRepository,
-                        OrganizationRepository organizationRepository,
                         AuthorizationService authorizationService,
                         MetricDefinitionRepository metricDefinitionRepository) {
                 this.deviceTemplateRepository = deviceTemplateRepository;
-                this.organizationRepository = organizationRepository;
                 this.authorizationService = authorizationService;
                 this.metricDefinitionRepository = metricDefinitionRepository;
         }
@@ -102,9 +98,18 @@ public class DeviceTemplateService {
                                 savedDeviceTemplate.getUpdatedAt());
         }
 
-        public DeviceTemplateResponse getDeviceTemplateById(UUID deviceTemplateId) {
-                DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+        public DeviceTemplateResponse getDeviceTemplateById(
+                        User authenticatedUser,
+                        UUID organizationId,
+                        UUID deviceTemplateId) {
+
+                Organization organization = authorizationService.requireOrganizationAdmin(authenticatedUser,
+                                organizationId);
+
+                DeviceTemplate deviceTemplate = deviceTemplateRepository
+                                .findByOrganization_IdAndId(organization.getId(), deviceTemplateId)
                                 .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
+
                 return toResponse(deviceTemplate);
         }
 
@@ -129,15 +134,20 @@ public class DeviceTemplateService {
 
         }
 
+        @Transactional
         public DeviceTemplateResponse updateDeviceTemplate(
-                        UpdateDeviceTemplateRequest request,
-                        UUID deviceTemplateId) {
+                        User authenticatedUser,
+                        UUID organizationId,
+                        UUID deviceTemplateId,
+                        UpdateDeviceTemplateRequest request) {
 
-                DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(deviceTemplateId)
+                Organization organization = authorizationService.requireOrganizationAdmin(
+                                authenticatedUser,
+                                organizationId);
+
+                DeviceTemplate deviceTemplate = deviceTemplateRepository
+                                .findByOrganization_IdAndId(organization.getId(), deviceTemplateId)
                                 .orElseThrow(() -> new DeviceTemplateNotFoundException(deviceTemplateId));
-
-                Organization organization = organizationRepository.findById(request.getOrganizationId())
-                                .orElseThrow(() -> new OrganizationNotFoundException(request.getOrganizationId()));
 
                 boolean nameChanged = !deviceTemplate.getName().equals(request.getName());
 
@@ -158,6 +168,42 @@ public class DeviceTemplateService {
                 deviceTemplate.setOrganization(organization);
 
                 DeviceTemplate savedDeviceTemplate = deviceTemplateRepository.save(deviceTemplate);
+
+                Instant now = Instant.now();
+
+                // now convert the response to metrics then save
+                List<MetricDefinition> metricDefinitions = IntStream.range(0, request.getMetricDefinitions().size())
+                                .mapToObj(i -> {
+                                        var metricDefinitionRequest = request.getMetricDefinitions().get(i);
+
+                                        MetricDefinition metricDefinition = metricDefinitionRepository
+                                                        .findById(metricDefinitionRequest.getId())
+                                                        .orElseGet(() -> new MetricDefinition(
+                                                                        metricDefinitionRequest.getName(),
+                                                                        metricDefinitionRequest
+                                                                                        .getDescription(),
+                                                                        metricDefinitionRequest
+                                                                                        .getIncomingFieldName(),
+                                                                        metricDefinitionRequest.getDataType(),
+                                                                        metricDefinitionRequest.getUnit(),
+                                                                        savedDeviceTemplate,
+                                                                        now,
+                                                                        now));
+
+                                        metricDefinition.update(
+                                                        metricDefinitionRequest.getName(),
+                                                        metricDefinitionRequest.getDescription(),
+                                                        metricDefinitionRequest.getIncomingFieldName(),
+                                                        metricDefinitionRequest.getDataType(),
+                                                        metricDefinitionRequest.getUnit(),
+                                                        now);
+
+                                        return metricDefinition;
+
+                                })
+                                .toList();
+
+                metricDefinitionRepository.saveAll(metricDefinitions);
 
                 return toResponse(savedDeviceTemplate);
         }

@@ -51,8 +51,11 @@ public class DeviceTemplateController {
 
     @GetMapping("/{deviceTemplateId}")
     public ResponseEntity<ApiResponse<DeviceTemplateResponse>> getDeviceTemplateById(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId,
             @PathVariable UUID deviceTemplateId) {
-        DeviceTemplateResponse deviceTemplateResponse = deviceTemplateService.getDeviceTemplateById(deviceTemplateId);
+        DeviceTemplateResponse deviceTemplateResponse = deviceTemplateService.getDeviceTemplateById(user,
+                organizationId, deviceTemplateId);
 
         return ResponseFactory.ok(deviceTemplateResponse, null);
     }
@@ -68,10 +71,15 @@ public class DeviceTemplateController {
 
     @PutMapping("/{deviceTemplateId}")
     public ResponseEntity<ApiResponse<DeviceTemplateResponse>> updateDeviceTemplate(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId,
             @PathVariable UUID deviceTemplateId,
             @Valid @RequestBody UpdateDeviceTemplateRequest request) {
-        DeviceTemplateResponse deviceTemplateResponse = deviceTemplateService.updateDeviceTemplate(request,
-                deviceTemplateId);
+        DeviceTemplateResponse deviceTemplateResponse = deviceTemplateService.updateDeviceTemplate(
+                user,
+                organizationId,
+                deviceTemplateId,
+                request);
 
         return ResponseFactory.updated(deviceTemplateResponse, DOMAIN_NAME);
     }
