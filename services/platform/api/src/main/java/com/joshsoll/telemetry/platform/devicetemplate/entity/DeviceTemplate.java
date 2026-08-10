@@ -103,5 +103,4 @@ public class DeviceTemplate {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
-
 }

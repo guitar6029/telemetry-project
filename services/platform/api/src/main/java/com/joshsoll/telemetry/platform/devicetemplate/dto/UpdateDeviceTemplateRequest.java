@@ -1,11 +1,13 @@
 package com.joshsoll.telemetry.platform.devicetemplate.dto;
 
-import java.util.UUID;
+import java.util.List;
 
 import com.joshsoll.telemetry.platform.devicetemplate.constants.DeviceTemplateConstants;
+import com.joshsoll.telemetry.platform.metricdefinition.dto.UpdateTemplateMetricDefinitionRequest;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 public class UpdateDeviceTemplateRequest {
@@ -15,8 +17,8 @@ public class UpdateDeviceTemplateRequest {
 
     private String description;
 
-    @NotNull
-    private UUID organizationId;
+    @NotEmpty
+    private List<@Valid UpdateTemplateMetricDefinitionRequest> metricDefinitions;
 
     public UpdateDeviceTemplateRequest() {
     }
@@ -24,10 +26,11 @@ public class UpdateDeviceTemplateRequest {
     public UpdateDeviceTemplateRequest(
             String name,
             String description,
-            UUID organizationId) {
+            List<UpdateTemplateMetricDefinitionRequest> metricDefinitions) {
         this.name = name;
         this.description = description;
-        this.organizationId = organizationId;
+        this.metricDefinitions = metricDefinitions;
+
     }
 
     public String getName() {
@@ -38,7 +41,8 @@ public class UpdateDeviceTemplateRequest {
         return description;
     }
 
-    public UUID getOrganizationId() {
-        return organizationId;
+    public List<UpdateTemplateMetricDefinitionRequest> getMetricDefinitions() {
+        return this.metricDefinitions;
     }
+
 }

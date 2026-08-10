@@ -1,21 +1,16 @@
 package com.joshsoll.telemetry.platform.metricdefinition.dto;
 
-import java.util.UUID;
-
 import com.joshsoll.telemetry.platform.metricdefinition.MetricDataType;
-import com.joshsoll.telemetry.platform.metricdefinition.constants.MetricDefinitionConstants;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
-public class CreateMetricDefinitionRequest {
+public class CreateTemplateMetricDefinitionRequest {
+
     @NotBlank
-    @Size(min = MetricDefinitionConstants.NAME_MIN_LENGTH, max = MetricDefinitionConstants.NAME_MAX_LENGTH)
     private String name;
 
     @NotBlank
-    @Size(min = MetricDefinitionConstants.INCOMING_FIELD_NAME_MIN_LENGTH, max = MetricDefinitionConstants.INCOMING_FIELD_NAME_MAX_LENGTH)
     private String incomingFieldName;
 
     @NotNull
@@ -25,25 +20,18 @@ public class CreateMetricDefinitionRequest {
 
     private String unit;
 
-    @NotNull
-    private UUID deviceTemplateId;
-
-    public CreateMetricDefinitionRequest() {
-    }
-
-    public CreateMetricDefinitionRequest(
+    public CreateTemplateMetricDefinitionRequest(
             String name,
             String incomingFieldName,
             MetricDataType dataType,
             String description,
-            String unit,
-            UUID deviceTemplateId) {
+            String unit) {
         this.name = name;
         this.incomingFieldName = incomingFieldName;
         this.dataType = dataType;
         this.description = description;
         this.unit = unit;
-        this.deviceTemplateId = deviceTemplateId;
+
     }
 
     public String getName() {
@@ -65,9 +53,4 @@ public class CreateMetricDefinitionRequest {
     public String getUnit() {
         return unit;
     }
-
-    public UUID getDeviceTemplateId() {
-        return deviceTemplateId;
-    }
-
 }
