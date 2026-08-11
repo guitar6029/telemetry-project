@@ -1,12 +1,4 @@
-<label for="organization">Organizations</label>
-
-<select id="organization" [value]="currentOrganization()?.id ?? ''"
-    (change)="changeOrganization($any($event.target).value)">
-
-    @for (organization of organizations(); track organization.id) {
-    <option [value]="organization.id">
-        {{ organization.name }}
-    </option>
-    }
-
-</select>
+@if (organizations().length > 0) {
+<telemetry-select [options]="organizationOptions()" [value]="currentOrganizationOption()?.value ?? ''"
+    (valueChange)="changeOrganization($event)" />
+}
