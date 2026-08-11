@@ -7,16 +7,10 @@ import { DeviceTemplateConstants } from "../../../constants/device-template.cons
 import { DeviceTemplateRequest } from "../../../dto/device-template-request.dto";
 import { MetricDataType } from "../../../../metric-definition/enums/metric-data-type.enum";
 import { MetricDefinitionConstants } from "../../../../metric-definition/constants/metric-definition.constants";
-import { MatInputModule } from "@angular/material/input";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import { MatSelectModule } from "@angular/material/select";
+
 import { EmptyStateComponent } from "../../../../../common/components/empty-state/empty-state.component";
 import { MetricDefinitionRequest } from "../../../../metric-definition/dto/metric-definition-request.dto";
-import { Observable } from "rxjs";
-import { ApiResponse } from "../../../../../common/dto/api-response.dto";
+
 import { DeviceTemplateResponse } from "../../../dto/device-template-response.dto";
 import { MetricDefinitionUpdateRequest } from "../../../../metric-definition/dto/metric-definition-update-request.dto";
 import { DeviceTemplateUpdateRequest } from "../../../dto/device-template-update-request.dto";
@@ -27,12 +21,7 @@ import { DeviceTemplateUpdateRequest } from "../../../dto/device-template-update
     imports: [
         ReactiveFormsModule,
         RouterLink,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSelectModule,
-        MatProgressSpinner,
+
         EmptyStateComponent,
     ],
     templateUrl: './device-template-form.component.html',

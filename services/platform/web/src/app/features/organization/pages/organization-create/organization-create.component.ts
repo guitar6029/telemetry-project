@@ -4,10 +4,6 @@ import { Router } from "@angular/router";
 import { OrganizationCreateConstants } from "../../constants/organization-create.constants";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { OrganizationCreateRequest } from "../../dto/organization-create-request.dto";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
 
@@ -15,10 +11,7 @@ import { MessageDefaultConstants } from "../../../../constants/message.constants
     selector: 'telemetry-organization-create',
     imports: [
         ReactiveFormsModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule
+
     ],
     templateUrl: './organization-create.component.html',
     styleUrl: './organization-create.component.scss'

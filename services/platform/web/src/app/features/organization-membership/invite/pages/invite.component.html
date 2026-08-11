@@ -1,69 +1,58 @@
 <div class="invite-container">
 
-    <mat-card>
-
-        <mat-card-header>
-            <mat-card-title>Invite Member</mat-card-title>
-            <mat-card-subtitle>
+    <div>
+        <header>
+            <h2>Invite Member</h2>
+            <p>
                 Send an invitation to join your organization.
-            </mat-card-subtitle>
-        </mat-card-header>
+            </p>
+        </header>
 
-        <mat-card-content>
+        <form [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
 
-            <form [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
+            <div>
+                <label>Email</label>
 
-                <mat-form-field appearance="outline">
-                    <mat-label>Email</mat-label>
+                <input type="email" formControlName="email">
 
-                    <input matInput type="email" formControlName="email">
+                @if (inviteForm.controls.email.hasError('required')) {
+                <span>
+                    Email is required.
+                </span>
+                }
 
-                    @if (inviteForm.controls.email.hasError('required')){
-                    <mat-error>
-                        Email is required.
-                    </mat-error>
-                    }
+                @if (inviteForm.controls.email.hasError('email')) {
+                <span>
+                    Enter a valid email.
+                </span>
+                }
+            </div>
 
-                    @if (inviteForm.controls.email.hasError('email')){
+            <div>
+                <label>Role</label>
 
-                    <mat-error>
-                        Enter a valid email.
-                    </mat-error>
-                    }
+                <select formControlName="role">
+                    <option [value]="OrganizationRole.ADMIN">
+                        Administrator
+                    </option>
 
-                </mat-form-field>
+                    <option [value]="OrganizationRole.PROJECT_MANAGER">
+                        Project Manager
+                    </option>
 
-                <mat-form-field appearance="outline">
-                    <mat-label>Role</mat-label>
+                    <option [value]="OrganizationRole.MEMBER">
+                        Member
+                    </option>
+                </select>
+            </div>
 
-                    <mat-select formControlName="role">
+            <button type="submit" [disabled]="inviteForm.invalid || loading()">
 
-                        <mat-option [value]="OrganizationRole.ADMIN">
-                            Administrator
-                        </mat-option>
+                Send Invitation
 
-                        <mat-option [value]="OrganizationRole.PROJECT_MANAGER">
-                            Project Manager
-                        </mat-option>
+            </button>
 
-                        <mat-option [value]="OrganizationRole.MEMBER">
-                            Member
-                        </mat-option>
-
-                    </mat-select>
-
-                </mat-form-field>
-
-                <button mat-flat-button color="primary" type="submit" [disabled]="inviteForm.invalid || loading()">
-
-                    Send Invitation
-
-                </button>
-
-            </form>
-
-        </mat-card-content>
-
-    </mat-card>
+        </form>
+    </div>
 
 </div>

@@ -3,18 +3,13 @@
 }
 
 @if (organization(); as org) {
-<mat-card>
-    <mat-card-header>
-        <mat-card-title>
-            {{ org.name }}
-        </mat-card-title>
+<div>
+    <header>
+        <h2>{{ org.name }}</h2>
+        <p>{{ org.slug }}</p>
+    </header>
 
-        <mat-card-subtitle>
-            {{ org.slug }}
-        </mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
+    <div>
         <p>
             <strong>Organization ID:</strong>
             {{ org.id }}
@@ -29,6 +24,6 @@
             <strong>Updated:</strong>
             {{ org.updatedAt }}
         </p>
-    </mat-card-content>
-</mat-card>
+    </div>
+</div>
 }

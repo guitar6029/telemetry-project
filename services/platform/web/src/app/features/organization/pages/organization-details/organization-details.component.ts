@@ -2,15 +2,12 @@ import { Component, inject, OnInit, signal } from "@angular/core";
 import { OrganizationService } from "../../service/organization.service";
 import { ActivatedRoute } from "@angular/router";
 import { OrganizationResponse } from "../../dto/organization-response.dto";
-import { MatCardModule } from "@angular/material/card";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
 
 @Component({
     selector: 'telemetry-organization-details',
-    imports: [
-        MatCardModule
-    ],
+
     templateUrl: './organization-details.component.html',
     styleUrl: './organization-details.component.scss'
 })

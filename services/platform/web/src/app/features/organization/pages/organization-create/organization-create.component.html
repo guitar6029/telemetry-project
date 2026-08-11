@@ -2,57 +2,57 @@
 
 <form [formGroup]="organizationForm" (ngSubmit)="create()">
 
-    <mat-form-field>
-        <mat-label>Name</mat-label>
-        <input matInput type="text" formControlName="name">
+    <div>
+        <label>Name</label>
+        <input type="text" formControlName="name">
 
         @if (organizationForm.controls.name.hasError('required')) {
-        <mat-error>
+        <span>
             Organization name is required
-        </mat-error>
+        </span>
         }
 
         @if (organizationForm.controls.name.hasError('minlength')) {
-        <mat-error>
+        <span>
             Organization name must be at least
             {{ OrganizationConstants.NAME_MIN_LENGTH }} characters
-        </mat-error>
+        </span>
         }
 
         @if (organizationForm.controls.name.hasError('maxlength')) {
-        <mat-error>
+        <span>
             Organization name cannot exceed
             {{ OrganizationConstants.NAME_MAX_LENGTH }} characters
-        </mat-error>
+        </span>
         }
-    </mat-form-field>
+    </div>
 
-    <mat-form-field>
-        <mat-label>Slug</mat-label>
-        <input matInput type="text" formControlName="slug">
+    <div>
+        <label>Slug</label>
+        <input type="text" formControlName="slug">
 
         @if (organizationForm.controls.slug.hasError('required')) {
-        <mat-error>
+        <span>
             Organization slug is required
-        </mat-error>
+        </span>
         }
 
         @if (organizationForm.controls.slug.hasError('minlength')) {
-        <mat-error>
+        <span>
             Organization slug must be at least
             {{ OrganizationConstants.SLUG_MIN_LENGTH }} characters
-        </mat-error>
+        </span>
         }
 
         @if (organizationForm.controls.slug.hasError('maxlength')) {
-        <mat-error>
+        <span>
             Organization slug cannot exceed
             {{ OrganizationConstants.SLUG_MAX_LENGTH }} characters
-        </mat-error>
+        </span>
         }
-    </mat-form-field>
+    </div>
 
-    <button matButton="filled" type="submit" [disabled]="organizationForm.invalid">
+    <button type="submit" [disabled]="organizationForm.invalid">
         Create organization
     </button>
 

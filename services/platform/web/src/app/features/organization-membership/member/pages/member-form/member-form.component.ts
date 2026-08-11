@@ -3,15 +3,11 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { MemberService } from "../../service/member.service";
 import { OrganizationMembershipResponse } from "../../../dto/organization-membership-response.dto";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
 import { OrganizationRole } from "../../../enum/organization-role.enum";
 import { MembershipStatus } from "../../../enum/membership-status.enum";
-import { MatIconModule } from "@angular/material/icon";
+
 import { EmptyStateComponent } from "../../../../../common/components/empty-state/empty-state.component";
-import { MatSelectModule } from "@angular/material/select";
-import { MatProgressSpinner } from "@angular/material/progress-spinner";
+
 import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership-request.dto";
 import { MessageDefaultConstants } from "../../../../../constants/message.constants";
 import { NotificationService } from "../../../../../common/notification/service/notification.service";
@@ -21,12 +17,6 @@ import { NotificationService } from "../../../../../common/notification/service/
     imports: [
         ReactiveFormsModule,
         RouterLink,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSelectModule,
-        MatProgressSpinner,
         EmptyStateComponent,
     ],
     templateUrl: './member-form.component.html',

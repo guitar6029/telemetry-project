@@ -2,36 +2,15 @@ import { Component, inject, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UserConstants } from "../../../auth/constants/user.constants";
 import { OrganizationRole } from "../../enum/organization-role.enum";
-import { MembershipStatus } from "../../enum/membership-status.enum";
 import { InviteRequest } from "../dto/invite-request.dto";
 import { InviteService } from "../service/invite.service";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-//import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import { MatSelectModule } from "@angular/material/select";
-//import { RouterLink } from "@angular/router";
-import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent } from "@angular/material/card";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
-import { NotificationSettingsConstants } from "../../../../common/notification/constants/notification-settings.constants";
+
 
 @Component({
     selector: 'telemetry-invite',
     imports: [
         ReactiveFormsModule,
-        // RouterLink,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSelectModule,
-        // MatProgressSpinner,
-        MatCard,
-        MatCardHeader,
-        MatCardTitle,
-        MatCardSubtitle,
-        MatCardContent
     ],
     templateUrl: './invite.component.html',
     styleUrl: './invite.component.scss'

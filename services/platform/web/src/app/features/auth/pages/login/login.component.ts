@@ -4,9 +4,7 @@ import { AuthService } from "../../service/auth.service";
 import { UserConstants } from "../../constants/user.constants";
 import { LoginRequest } from "../../dto/login-request.dto";
 import { Router } from "@angular/router";
-import { MatAnchor, MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
+
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
 import { switchMap } from "rxjs";
@@ -17,10 +15,6 @@ import { SessionService } from "../../service/session.service";
     selector: 'telemetry-login',
     imports: [
         ReactiveFormsModule,
-        MatAnchor,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule
     ],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'

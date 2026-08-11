@@ -1,12 +1,11 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
-import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
-import { MatTableModule } from "@angular/material/table";
+
 import { RouterLink } from "@angular/router";
 import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
 import { OrganizationMembershipService } from "../../service/organization-membership.service";
 
 import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
-import { MatIcon } from "@angular/material/icon";
+
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { ProfileStore } from "../../../../core/stores/profile.store";
 
@@ -14,11 +13,10 @@ import { ProfileStore } from "../../../../core/stores/profile.store";
 @Component({
     selector: 'telemetry-organization-membership-list',
     imports: [
-        MatTableModule,
-        MatPaginatorModule,
+
         EmptyStateComponent,
         RouterLink,
-        MatIcon
+
     ],
     templateUrl: './organization-membership-list.component.html',
     styleUrl: './organization-membership-list.component.scss'
@@ -90,7 +88,8 @@ export class OrganizationMembershipListComponent implements OnInit {
         })
     }
 
-    onPageChange(event: PageEvent): void {
+    //TODO
+    onPageChange(event: any): void {
         this.loadUsers(
             event.pageIndex,
             event.pageSize

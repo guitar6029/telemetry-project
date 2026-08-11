@@ -1,70 +1,67 @@
 <h1>Member</h1>
 
 @if (loading()) {
-<mat-spinner />
+<span>Loading</span>
 } @else if (error()) {
 <telemetry-empty-state message="No member data"></telemetry-empty-state>
 } @else {
+
 @if (!editMode()) {
-<button matButton routerLink="edit">
-    <mat-icon>edit</mat-icon>
+<button routerLink="edit">
     Edit
 </button>
 }
 
 <form [formGroup]="memberForm">
 
-    <mat-form-field appearance="outline">
-        <mat-label>First Name</mat-label>
-        <input matInput formControlName="firstName">
-    </mat-form-field>
+    <div>
+        <label>First Name</label>
+        <input formControlName="firstName">
+    </div>
 
-    <mat-form-field appearance="outline">
-        <mat-label>Last Name</mat-label>
-        <input matInput formControlName="lastName">
-    </mat-form-field>
+    <div>
+        <label>Last Name</label>
+        <input formControlName="lastName">
+    </div>
 
-    <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email">
-    </mat-form-field>
+    <div>
+        <label>Email</label>
+        <input formControlName="email">
+    </div>
 
-    <mat-form-field appearance="outline">
-        <mat-label>Role</mat-label>
+    <div>
+        <label>Role</label>
 
-        <mat-select formControlName="role">
+        <select formControlName="role">
             @for (role of roleSelections; track role) {
-            <mat-option [value]="role">
+            <option [value]="role">
                 {{ role }}
-            </mat-option>
+            </option>
             }
-        </mat-select>
+        </select>
+    </div>
 
-    </mat-form-field>
+    <div>
+        <label>Status</label>
 
-    <mat-form-field appearance="outline">
-        <mat-label>Status</mat-label>
-
-        <mat-select formControlName="status">
+        <select formControlName="status">
             @for (status of statusSelections; track status) {
-            <mat-option [value]="status">
+            <option [value]="status">
                 {{ status }}
-            </mat-option>
+            </option>
             }
-        </mat-select>
+        </select>
+    </div>
 
-    </mat-form-field>
-
-    @if (editMode()){
-    <button mat-flat-button [disabled]="memberForm.invalid || !hasChanges() || saving()" (click)="updateMembership()">
+    @if (editMode()) {
+    <button type="button" [disabled]="memberForm.invalid || !hasChanges() || saving()" (click)="updateMembership()">
 
         @if (saving()) {
-        <mat-spinner diameter="18" />
+        <span>Loading</span>
         } @else {
-        <mat-icon>save</mat-icon>
+        <span>Save</span>
         }
 
-        Save
     </button>
     }
 

@@ -3,10 +3,7 @@ import { OrganizationService } from "../../service/organization.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import { OrganizationCreateConstants } from "../../constants/organization-create.constants";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
+
 import { OrganizationUpdateRequest } from "../../dto/organization-update-request.dto";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
@@ -15,10 +12,7 @@ import { NotificationService } from "../../../../common/notification/service/not
     selector: 'telemetry-organization-update',
     imports: [
         ReactiveFormsModule,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule
+
     ],
     templateUrl: './organization-update.component.html',
     styleUrl: './organization-update.component.scss'

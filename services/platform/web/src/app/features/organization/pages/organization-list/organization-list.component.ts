@@ -1,8 +1,6 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { OrganizationResponse } from "../../dto/organization-response.dto";
 import { OrganizationService } from "../../service/organization.service";
-import { MatTableModule } from "@angular/material/table";
-import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
 import { RouterLink } from "@angular/router";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
@@ -11,8 +9,7 @@ import { MessageDefaultConstants } from "../../../../constants/message.constants
 @Component({
     selector: 'telemetry-organization-list',
     imports: [
-        MatTableModule,
-        MatPaginatorModule,
+
         EmptyStateComponent,
         RouterLink
     ],
@@ -66,7 +63,8 @@ export class OrganizationListComponent implements OnInit {
         })
     }
 
-    onPageChange(event: PageEvent): void {
+    // TODO PAGE onPageChange
+    onPageChange(event: any): void {
         this.loadOrganizations(
             event.pageIndex,
             event.pageSize
