@@ -1,0 +1,11 @@
+<!-- <h4>Basic mat-select</h4> -->
+<mat-form-field>
+    <mat-label>Organizations</mat-label>
+    <mat-select [value]="currentOrganization()?.id ?? ''" (selectionChange)="changeOrganization($event.value)">
+        @for (organization of organizations(); track organization.id) {
+        <mat-option [value]="organization.id">
+            {{ organization.name }}
+        </mat-option>
+        }
+    </mat-select>
+</mat-form-field>

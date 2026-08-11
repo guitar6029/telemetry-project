@@ -8,11 +8,10 @@ import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.profile.dto.MeResponse;
+import com.joshsoll.telemetry.platform.profile.dto.UpdateLastOrganizationUsed;
 import com.joshsoll.telemetry.platform.profile.service.ProfileService;
 
 import jakarta.validation.Valid;
-
-import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,8 +40,8 @@ public class ProfileController {
     @PatchMapping("/last-organization-used")
     public ResponseEntity<ApiResponse<MeResponse>> updateLastOrganizationUsed(
             @AuthenticationPrincipal User authenticatedUser,
-            @Valid @RequestBody UUID lastOrganizationUsed) {
-        MeResponse response = profileService.updateLastOrganizationUsed(authenticatedUser, lastOrganizationUsed);
+            @Valid @RequestBody UpdateLastOrganizationUsed request) {
+        MeResponse response = profileService.updateLastOrganizationUsed(authenticatedUser, request.id());
 
         return ResponseFactory.updated(response, null);
     }

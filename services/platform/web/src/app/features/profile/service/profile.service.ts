@@ -4,6 +4,7 @@ import { ApiConstants } from "../../../constants/api.constants";
 import { Observable } from "rxjs";
 import { ApiResponse } from "../../../common/dto/api-response.dto";
 import { MeResponse } from "../dto/me-response.dto";
+import { UpdateLastOrganizationUsed } from "../../../dto/profile-last-organization-used.dto";
 
 
 @Injectable({
@@ -26,12 +27,13 @@ export class ProfileService {
         )
     }
 
-    updateLastOrganizationUsed(lastOrganizationUsed: string): Observable<ApiResponse<MeResponse>> {
+    updateLastOrganizationUsed(request: UpdateLastOrganizationUsed): Observable<ApiResponse<MeResponse>> {
         return this.http.patch<ApiResponse<MeResponse>>(
-            `${this.url}//last-organization-used`,
-            lastOrganizationUsed,
+            `${this.url}/last-organization-used`,
+            request,
             {
-                withCredentials: true
+                withCredentials: true,
+
             }
 
         )
