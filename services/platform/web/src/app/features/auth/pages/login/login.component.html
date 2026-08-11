@@ -16,7 +16,7 @@
     </p>
     }
 
-    <button class="btn btn-primary" type="submit" [disabled]="loginForm.invalid">
-        Login
-    </button>
+    <telemetry-button text="Login" [type]="ButtonType.SUBMIT" [disabled]="loginForm.invalid" />
+
+
 </form>

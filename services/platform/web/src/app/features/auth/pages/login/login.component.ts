@@ -12,6 +12,8 @@ import { SessionService } from "../../service/session.service";
 import { InputComponent } from "../../../../components/input/input.component";
 import { InputType } from "../../../../components/input/types/input-type.types";
 import { LabelComponent } from "../../../../components/label/label.component";
+import { ButtonComponent } from "../../../../components/button/button.component";
+import { ButtonType } from "../../../../components/button/types/button-type.types";
 
 
 @Component({
@@ -19,7 +21,8 @@ import { LabelComponent } from "../../../../components/label/label.component";
     imports: [
         ReactiveFormsModule,
         InputComponent,
-        LabelComponent
+        LabelComponent,
+        ButtonComponent
     ],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
@@ -35,6 +38,7 @@ export class LoginComponent {
     private readonly notificationService = inject(NotificationService);
     private readonly sessionService = inject(SessionService);
     protected readonly InputType = InputType;
+    protected readonly ButtonType = ButtonType;
 
 
 
