@@ -1,5 +1,7 @@
-import { computed, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { OrganizationResponse } from "../../features/organization/dto/organization-response.dto";
+import { ProfileService } from "../../features/profile/service/profile.service";
+import { UpdateLastOrganizationUsed } from "../../dto/profile-last-organization-used.dto";
 
 
 
@@ -10,6 +12,7 @@ import { OrganizationResponse } from "../../features/organization/dto/organizati
 export class OrganizationContextStore {
 
     private readonly _organizations = signal<OrganizationResponse[]>([]);
+    private readonly profileService = inject(ProfileService);
 
     readonly organizations = this._organizations.asReadonly();
 
@@ -73,5 +76,30 @@ export class OrganizationContextStore {
         }
 
         return organizationId;
+    }
+
+    private findOranizationByIdOrThrow(organizationId: string): OrganizationResponse {
+        if (!organizationId) {
+            throw new Error("Organization id is missing");
+        }
+
+        const organization = this.organizations().find((organization) => organization.id === organizationId)
+
+        if (!organization) {
+            throw new Error("Organization cannot be found");
+        }
+
+        return organization;
+
+    }
+
+    changeCurrentOrganization(organizationId: string): void {
+        const organization: OrganizationResponse = this.findOranizationByIdOrThrow(organizationId);
+        this.setCurrentOrganization(organization.id);
+
+        const request: UpdateLastOrganizationUsed = {
+            id: organizationId
+        }
+        this.profileService.updateLastOrganizationUsed(request).subscribe();
     }
 }
