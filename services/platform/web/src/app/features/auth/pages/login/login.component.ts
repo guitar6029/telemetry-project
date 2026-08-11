@@ -9,12 +9,15 @@ import { NotificationService } from "../../../../common/notification/service/not
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
 import { switchMap } from "rxjs";
 import { SessionService } from "../../service/session.service";
+import { InputComponent } from "../../../../components/input/input.component";
+import { InputType } from "../../../../components/input/types/input-type.types";
 
 
 @Component({
     selector: 'telemetry-login',
     imports: [
         ReactiveFormsModule,
+        InputComponent
     ],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
@@ -29,6 +32,7 @@ export class LoginComponent {
     private readonly router = inject(Router);
     private readonly notificationService = inject(NotificationService);
     private readonly sessionService = inject(SessionService);
+    protected readonly InputType = InputType;
 
 
 

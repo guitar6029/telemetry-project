@@ -1,10 +1,8 @@
-<h1>Login</h1>
+<form [formGroup]="loginForm" (ngSubmit)="login()" class="w-xs">
 
-<form [formGroup]="loginForm" (ngSubmit)="login()">
-    <input type="email" class="input" formControlName="email" />
-    <input type="password" class="input" formControlName="password" />
+    <telemetry-input [type]="InputType.EMAIL" [control]="loginForm.controls.email" />
 
-
+    <telemetry-input [type]="InputType.PASSWORD" [control]="loginForm.controls.password" />
 
     @if (loginError) {
     <p class="login-error">
@@ -12,9 +10,7 @@
     </p>
     }
 
-    <button class="btn btn-primary">
-        DaisyUI Test
+    <button class="btn btn-primary" type="submit" [disabled]="loginForm.invalid">
+        Login
     </button>
-
-    <button matButton="filled" type="submit" [disabled]="loginForm.invalid">Login</button>
 </form>
