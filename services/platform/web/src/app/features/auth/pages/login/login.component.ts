@@ -11,13 +11,15 @@ import { switchMap } from "rxjs";
 import { SessionService } from "../../service/session.service";
 import { InputComponent } from "../../../../components/input/input.component";
 import { InputType } from "../../../../components/input/types/input-type.types";
+import { LabelComponent } from "../../../../components/label/label.component";
 
 
 @Component({
     selector: 'telemetry-login',
     imports: [
         ReactiveFormsModule,
-        InputComponent
+        InputComponent,
+        LabelComponent
     ],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'

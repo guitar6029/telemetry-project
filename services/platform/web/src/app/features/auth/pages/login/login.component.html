@@ -1,8 +1,14 @@
 <form [formGroup]="loginForm" (ngSubmit)="login()" class="w-xs">
 
-    <telemetry-input [type]="InputType.EMAIL" [control]="loginForm.controls.email" />
+    <div class="flex flex-col gap-1">
+        <telemetry-label text="Email" />
+        <telemetry-input [type]="InputType.EMAIL" [control]="loginForm.controls.email" />
+    </div>
 
-    <telemetry-input [type]="InputType.PASSWORD" [control]="loginForm.controls.password" />
+    <div class="flex flex-col gap-1">
+        <telemetry-label text="Password" />
+        <telemetry-input [type]="InputType.PASSWORD" [control]="loginForm.controls.password" />
+    </div>
 
     @if (loginError) {
     <p class="login-error">
