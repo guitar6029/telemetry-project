@@ -11,6 +11,15 @@ import { EmptyStateComponent } from "../../../../../common/components/empty-stat
 import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership-request.dto";
 import { MessageDefaultConstants } from "../../../../../constants/message.constants";
 import { NotificationService } from "../../../../../common/notification/service/notification.service";
+import { LoadingSpinnerComponent } from "../../../../../components/loading/loading-spinner/loading-spinner.component";
+import { PageComponent } from "../../../../../components/page/page.component";
+import { ButtonComponent } from "../../../../../components/button/button.component";
+import { LabelComponent } from "../../../../../components/label/label.component";
+import { InputComponent } from "../../../../../components/input/input.component";
+import { InputType } from "../../../../../components/input/types/input-type.types";
+import { ButtonType } from "../../../../../components/button/types/button-type.types";
+import { capitalize } from "../../../../../utils/string.utils";
+import { ButtonStyle } from "../../../../../components/button/types/button-style.types";
 
 @Component({
     selector: 'telemetry-member-form',
@@ -18,6 +27,11 @@ import { NotificationService } from "../../../../../common/notification/service/
         ReactiveFormsModule,
         RouterLink,
         EmptyStateComponent,
+        LoadingSpinnerComponent,
+        PageComponent,
+        ButtonComponent,
+        LabelComponent,
+        InputComponent
     ],
     templateUrl: './member-form.component.html',
     styleUrl: './member-form.component.scss'
@@ -26,6 +40,11 @@ export class MemberFormComponent implements OnInit {
 
     readonly roleSelections = Object.values(OrganizationRole);
     readonly statusSelections = Object.values(MembershipStatus);
+    protected readonly InputType = InputType;
+    protected readonly OrganizationRole = OrganizationRole;
+    protected readonly ButtonType = ButtonType
+    protected readonly ButtonStyle = ButtonStyle;
+    protected readonly capitalize = capitalize;
 
     member = signal<OrganizationMembershipResponse | null>(null);
     error = signal<string | null>(null);

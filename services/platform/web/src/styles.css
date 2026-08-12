@@ -9,3 +9,11 @@
 .form-default {
     @apply flex flex-col gap-4;
 }
+
+.fieldset-legend-title {
+    @apply text-xl;
+}
+
+.label-default {
+    @apply text-lg;
+}

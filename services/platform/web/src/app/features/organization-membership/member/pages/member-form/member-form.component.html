@@ -1,70 +1,69 @@
-<h1>Member</h1>
+<telemetry-page>
+    @if (loading()) {
+    <telemetry-loading-spinner />
+    } @else if (error()) {
+    <telemetry-empty-state message="No member data"></telemetry-empty-state>
+    } @else {
 
-@if (loading()) {
-<span>Loading</span>
-} @else if (error()) {
-<telemetry-empty-state message="No member data"></telemetry-empty-state>
-} @else {
+    <form class="form-default" [formGroup]="memberForm">
 
-@if (!editMode()) {
-<button routerLink="edit">
-    Edit
-</button>
-}
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend fieldset-legend-title">Member Details</legend>
 
-<form [formGroup]="memberForm">
+            <telemetry-label text="Name" />
+            <telemetry-input [control]="memberForm.controls.firstName" />
 
-    <div>
-        <label>First Name</label>
-        <input formControlName="firstName">
-    </div>
+            <telemetry-label text="Description" />
+            <telemetry-input [control]="memberForm.controls.lastName" />
 
-    <div>
-        <label>Last Name</label>
-        <input formControlName="lastName">
-    </div>
+            <telemetry-label text="Email" />
+            <telemetry-input [type]="InputType.EMAIL" [control]="memberForm.controls.email" />
 
-    <div>
-        <label>Email</label>
-        <input formControlName="email">
-    </div>
+            <telemetry-label text="Role" />
+            <select class="select" formControlName="role">
+                <option [value]="OrganizationRole.ADMIN">
+                    Administrator
+                </option>
 
-    <div>
-        <label>Role</label>
+                <option [value]="OrganizationRole.PROJECT_MANAGER">
+                    Project Manager
+                </option>
 
-        <select formControlName="role">
-            @for (role of roleSelections; track role) {
-            <option [value]="role">
-                {{ role }}
-            </option>
-            }
-        </select>
-    </div>
+                <option [value]="OrganizationRole.MEMBER">
+                    Member
+                </option>
+            </select>
 
-    <div>
-        <label>Status</label>
+            <telemetry-label text="Status" />
+            <select class="select" formControlName="status">
+                @for (status of statusSelections; track status) {
+                <option [value]="status">
+                    {{ capitalize(status) }}
+                </option>
+                }
+            </select>
 
-        <select formControlName="status">
-            @for (status of statusSelections; track status) {
-            <option [value]="status">
-                {{ status }}
-            </option>
-            }
-        </select>
-    </div>
+        </fieldset>
 
-    @if (editMode()) {
-    <button type="button" [disabled]="memberForm.invalid || !hasChanges() || saving()" (click)="updateMembership()">
 
-        @if (saving()) {
-        <span>Loading</span>
-        } @else {
-        <span>Save</span>
+        @if (editMode()) {
+        <div class="flex items-center gap-2">
+
+            <telemetry-button [style]="ButtonStyle.SECONDARY" text="Cancel" [routerLink]="['/app/manage/members']" />
+
+            <telemetry-button [type]="ButtonType.SUBMIT" [disabled]="memberForm.invalid || !hasChanges() || saving()"
+                [text]="saving() ? 'Loading': 'Save'" (clicked)="updateMembership()" />
+
+        </div>
         }
 
-    </button>
+    </form>
+
+    @if (!editMode()) {
+    <telemetry-button text="Edit" routerLink="edit" />
     }
 
-</form>
 
-}
+    }
+
+</telemetry-page>
