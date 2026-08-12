@@ -4,3 +4,8 @@
 @plugin "daisyui" {
     themes: dark --default, synthwave;
 }
+
+
+.form-default {
+    @apply flex flex-col gap-4;
+}

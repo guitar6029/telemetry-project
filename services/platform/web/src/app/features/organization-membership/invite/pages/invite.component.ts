@@ -5,12 +5,27 @@ import { OrganizationRole } from "../../enum/organization-role.enum";
 import { InviteRequest } from "../dto/invite-request.dto";
 import { InviteService } from "../service/invite.service";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
+import { PageComponent } from "../../../../components/page/page.component";
+import { PageHeaderComponent } from "../../../../components/page/page-header/page-header.component";
+import { ButtonType } from "../../../../components/button/types/button-type.types";
+import { ButtonStyle } from "../../../../components/button/types/button-style.types";
+import { InputType } from "../../../../components/input/types/input-type.types";
+import { LabelComponent } from "../../../../components/label/label.component";
+import { InputComponent } from "../../../../components/input/input.component";
+import { ErrorComponent } from "../../../../components/error/error.component";
+import { ButtonComponent } from "../../../../components/button/button.component";
 
 
 @Component({
     selector: 'telemetry-invite',
     imports: [
         ReactiveFormsModule,
+        PageComponent,
+        PageHeaderComponent,
+        LabelComponent,
+        InputComponent,
+        ErrorComponent,
+        ButtonComponent
     ],
     templateUrl: './invite.component.html',
     styleUrl: './invite.component.scss'
@@ -24,6 +39,9 @@ export class InviteFormComponent {
     protected readonly OrganizationRole = OrganizationRole;
     private readonly inviteService = inject(InviteService);
     private readonly notificationService = inject(NotificationService);
+    protected readonly ButtonType = ButtonType
+    protected readonly ButtonStyle = ButtonStyle
+    protected readonly InputType = InputType
 
 
 
