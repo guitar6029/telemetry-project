@@ -6,12 +6,23 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 import { OrganizationCreateRequest } from "../../dto/organization-create-request.dto";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
+import { PageComponent } from "../../../../components/page/page.component";
+import { LabelComponent } from "../../../../components/label/label.component";
+import { InputComponent } from "../../../../components/input/input.component";
+import { ErrorComponent } from "../../../../components/error/error.component";
+import { ButtonComponent } from "../../../../components/button/button.component";
+import { ButtonType } from "../../../../components/button/types/button-type.types";
+import { ButtonStyle } from "../../../../components/button/types/button-style.types";
 
 @Component({
     selector: 'telemetry-organization-create',
     imports: [
         ReactiveFormsModule,
-
+        PageComponent,
+        LabelComponent,
+        InputComponent,
+        ErrorComponent,
+        ButtonComponent
     ],
     templateUrl: './organization-create.component.html',
     styleUrl: './organization-create.component.scss'
@@ -24,6 +35,8 @@ export class OrganizationCreateComponent {
     private readonly organizationService = inject(OrganizationService);
     private readonly router = inject(Router)
     private readonly notificationService = inject(NotificationService);
+    protected readonly ButtonType = ButtonType;
+    protected readonly ButtonStyle = ButtonStyle;
 
     organizationForm = new FormGroup(
         {
