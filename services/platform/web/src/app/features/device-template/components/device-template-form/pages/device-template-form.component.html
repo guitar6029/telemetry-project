@@ -21,7 +21,7 @@
 
 
         <fieldset class="fieldset">
-            <legend class="fieldset-legend">Template Details</legend>
+            <legend class="fieldset-legend fieldset-legend-title">Template Details</legend>
 
             <telemetry-label text="Name" />
             <telemetry-input [control]="deviceTemplateForm.controls.name" />
@@ -38,7 +38,7 @@
         <div class="flex gap-2" [formGroup]="metricDefinition">
 
             <fieldset class="fieldset">
-                <legend class="fieldset-legend">Metric Details</legend>
+                <legend class="fieldset-legend fieldset-legend-title">Metric Details</legend>
                 <telemetry-label text="Name" />
                 <telemetry-input [control]="metricDefinition.controls.name" />
 
@@ -48,7 +48,7 @@
                 <telemetry-label text="Field Description" />
                 <telemetry-input [control]="metricDefinition.controls.description" />
 
-                <telemetry-label text="Data Type" />
+                <telemetry-label text="Field Data Type" />
                 <select class="select" formControlName="dataType">
                     @for (dataType of dataTypes; track dataType) {
                     <option [value]="dataType">
@@ -73,7 +73,12 @@
         <telemetry-empty-state message="No Metric Definitions to display" />
         }
 
-        <telemetry-button [text]="editMode() ? 'Update' : 'Save'" [type]="ButtonType.SUBMIT" (clicked)="submitForm()" />
+        <div class="form-buttons-container">
+            <telemetry-button text="Cancel" [style]="ButtonStyle.SECONDARY" [type]="ButtonType.BUTTON"
+                [routerLink]="['/app/device-templates']" />
+            <telemetry-button [text]="editMode() ? 'Update' : 'Save'" [type]="ButtonType.SUBMIT"
+                (clicked)="submitForm()" />
+        </div>
 
     </form>
     }
