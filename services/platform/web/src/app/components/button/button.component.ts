@@ -1,10 +1,12 @@
 import { Component, input, output } from "@angular/core";
 import { ButtonType } from "./types/button-type.types";
 import { ButtonStyle } from "./types/button-style.types";
+import { RouterLink } from "@angular/router";
 
 @Component({
     selector: 'telemetry-button',
-    templateUrl: './button.component.html'
+    templateUrl: './button.component.html',
+    imports: [RouterLink]
 })
 
 export class ButtonComponent {
@@ -16,4 +18,5 @@ export class ButtonComponent {
     disabled = input(false);
     style = input<ButtonStyle>(ButtonStyle.PRIMARY);
     clicked = output<MouseEvent>();
+    routerLink = input<string | string[] | null>(null);
 }

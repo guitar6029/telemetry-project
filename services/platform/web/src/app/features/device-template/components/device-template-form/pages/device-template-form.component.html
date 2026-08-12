@@ -1,70 +1,81 @@
-<h1>Device Template</h1>
+<telemetry-page>
 
-@if (loading()) {
-<span>loading</span>
-} @else if (error()) {
-<telemetry-empty-state message="No device template data"></telemetry-empty-state>
-} @else {
-@if (!editMode()) {
-<button matButton routerLink="edit">
-    Edit
-</button>
-}
-
-<button class="self-end" type="button" (click)="addMetricDefinition()">Add Metric Definition</button>
-
-<form class="flex flex-col gap-2 p-2" [formGroup]="deviceTemplateForm">
-
-    <input type="text" class="input" formControlName="name">
-
-    <input type="text" class="input" formControlName="description">
-
-    @if (metricDefinitions.controls.length > 0) {
-
-    @for (metricDefinition of metricDefinitions.controls; track metricDefinition; let i = $index;) {
-
-    <div class="flex gap-2" [formGroup]="metricDefinition">
-
-        <label>Metric Name</label>
-        <input type="text" class="input" formControlName="name">
-
-        <label>Metric Field Name</label>
-        <input matInput formControlName="incomingFieldName">
+    <telemetry-page-header headerTitle="Device Template" />
 
 
-        <label>Data Type</label>
-
-        <select formControlName="dataType">
-            @for (dataType of dataTypes; track dataType) {
-            <option [value]="dataType">
-                {{ dataType }}
-            </option>
-            }
-        </select>
-
-        <label>Metric Field Description</label>
-        <input type="text" class="input" formControlName="description">
-
-        <label>Metric Field Unit</label>
-        <input type="text" formControlName="unit">
-
-        <button class="flex flex-col items-center gap-2" (click)="removeMetricDefinition(i)">
-            <span>Delete</span>
-        </button>
-
-    </div>
-
-
-    }
+    @if (loading()) {
+    <telemetry-loading-spinner />
+    } @else if (error()) {
+    <telemetry-empty-state message="No device template data"></telemetry-empty-state>
     } @else {
-    <span>No Metric Definitions to display</span>
+    @if (!editMode()) {
+    <telemetry-button text="Edit" routerLink="edit" />
     }
 
-    <button class="flex flex-col items-center gap-2" type="submit" [disabled]="deviceTemplateForm.invalid || saving()"
-        (click)="submitForm()">
 
-        <span>{{editMode() ? "Update" : "Save"}}</span>
-    </button>
+    <telemetry-button text="Add Metric" [style]="ButtonStyle.SECONDARY" (clicked)="addMetricDefinition()" />
 
-</form>
-}
+
+    <form class="flex flex-col gap-2 p-2" [formGroup]="deviceTemplateForm">
+
+
+
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">Template Details</legend>
+
+            <telemetry-label text="Name" />
+            <telemetry-input [control]="deviceTemplateForm.controls.name" />
+
+            <telemetry-label text="Description" />
+            <telemetry-input [control]="deviceTemplateForm.controls.description" />
+        </fieldset>
+
+
+        @if (metricDefinitions.controls.length > 0) {
+
+        @for (metricDefinition of metricDefinitions.controls; track metricDefinition; let i = $index;) {
+
+        <div class="flex gap-2" [formGroup]="metricDefinition">
+
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Metric Details</legend>
+                <telemetry-label text="Name" />
+                <telemetry-input [control]="metricDefinition.controls.name" />
+
+                <telemetry-label text="Field Name" />
+                <telemetry-input [control]="metricDefinition.controls.incomingFieldName" />
+
+                <telemetry-label text="Field Description" />
+                <telemetry-input [control]="metricDefinition.controls.description" />
+
+                <telemetry-label text="Data Type" />
+                <select class="select" formControlName="dataType">
+                    @for (dataType of dataTypes; track dataType) {
+                    <option [value]="dataType">
+                        {{ dataType }}
+                    </option>
+                    }
+                </select>
+                <telemetry-label text="Field Unit" />
+                <telemetry-input [control]="metricDefinition.controls.unit" />
+
+
+
+            </fieldset>
+
+            <telemetry-button text="Delete" (clicked)="removeMetricDefinition(i)" />
+
+        </div>
+
+
+        }
+        } @else {
+        <span>No Metric Definitions to display</span>
+        }
+
+        <telemetry-button [text]="editMode() ? 'Update' : 'Save'" [type]="ButtonType.SUBMIT" (clicked)="submitForm()" />
+
+    </form>
+    }
+
+</telemetry-page>
