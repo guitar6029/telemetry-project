@@ -14,10 +14,6 @@ export const ORGANIZATION_MEMBERSHIP_ROUTES: Routes = [
         component: InviteFormComponent
     },
     {
-        path: 'new',
-        component: MemberFormComponent
-    },
-    {
         path: ':membershipId',
         component: MemberFormComponent
     },

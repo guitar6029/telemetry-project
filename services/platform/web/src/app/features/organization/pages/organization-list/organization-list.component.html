@@ -4,6 +4,9 @@
 <telemetry-empty-state message="No organizations found"></telemetry-empty-state>
 }
 
+
+<telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
+
 <table>
     <thead>
         <tr>
@@ -18,7 +21,7 @@
         @for (organization of organizations(); track organization.id) {
         <tr>
             <td>
-                <a [routerLink]="['/organizations', organization.id]">
+                <a [routerLink]="['/app/organizations', organization.id]">
                     {{ organization.name }}
                 </a>
             </td>

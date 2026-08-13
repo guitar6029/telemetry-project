@@ -1,14 +1,19 @@
 <telemetry-page>
+
     @if (loading()) {
     <telemetry-loading-spinner />
     } @else if (error()) {
     <telemetry-empty-state message="No member data"></telemetry-empty-state>
     } @else {
 
-    <form class="form-default" [formGroup]="memberForm">
+    @if(mode() === 'view'){
+    <telemetry-button text="Edit" [routerLink]="['edit']" />
+    }
+
+    <form class="form-default" [formGroup]="memberForm" (ngSubmit)="update()">
 
         <fieldset class="fieldset">
-            <legend class="fieldset-legend fieldset-legend-title">Member Details</legend>
+            <legend class="fieldset-legend fieldset-legend-title">{{fieldsetTitle()}}</legend>
 
             <telemetry-label text="Name" />
             <telemetry-input [control]="memberForm.controls.firstName" />
@@ -46,24 +51,13 @@
         </fieldset>
 
 
-        @if (editMode()) {
-        <div class="flex items-center gap-2">
-
-            <telemetry-button [style]="ButtonStyle.SECONDARY" text="Cancel" [routerLink]="['/app/manage/members']" />
-
-            <telemetry-button [type]="ButtonType.SUBMIT" [disabled]="memberForm.invalid || !hasChanges() || saving()"
-                [text]="saving() ? 'Loading': 'Save'" (clicked)="updateMembership()" />
-
+        <div class="form-buttons-container">
+            <telemetry-button [type]="ButtonType.BUTTON" [style]="ButtonStyle.SECONDARY" text="Cancel"
+                [routerLink]="['/app/manage/members']" />
+            @if (mode() === 'edit'){
+            <telemetry-button [type]="ButtonType.SUBMIT" [text]="formSubmitButtonText()" [disabled]="formDisabled()" />
+            }
         </div>
-        }
-
     </form>
-
-    @if (!editMode()) {
-    <telemetry-button text="Edit" routerLink="edit" />
     }
-
-
-    }
-
 </telemetry-page>

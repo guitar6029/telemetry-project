@@ -4,7 +4,7 @@
 
     <form class="form-default" [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
         <fieldset class="fieldset">
-            <legend class="fieldset-legend">Member Details</legend>
+            <legend class="fieldset-legend">Invite</legend>
 
             <telemetry-label text="Email" />
             <telemetry-input [type]="InputType.EMAIL" [control]="inviteForm.controls.email" />

@@ -1,9 +1,19 @@
 <telemetry-page>
 
-    <form class="form-default" [formGroup]="organizationForm" (ngSubmit)="create()">
+    @if (loading()) {
+    <telemetry-loading-spinner />
+    } @else if (error()) {
+    <telemetry-empty-state message="No organization data"></telemetry-empty-state>
+    } @else {
+
+    @if(mode() === 'view'){
+    <telemetry-button text="Edit" [routerLink]="['edit']" />
+    }
+
+    <form class="form-default" [formGroup]="organizationForm" (ngSubmit)="mode() === 'create' ? create() : update()">
 
         <fieldset class="fieldset">
-            <legend class="fieldset-legend fieldset-legend-title">Create Organization</legend>
+            <legend class="fieldset-legend fieldset-legend-title">{{fieldsetTitle()}}</legend>
             <telemetry-label text="Name" />
             <telemetry-input [control]="organizationForm.controls.name" />
             @if (organizationForm.controls.name.invalid && organizationForm.controls.name.touched) {
@@ -49,11 +59,12 @@
 
 
         <div class="form-buttons-container">
-            <telemetry-button [style]="ButtonStyle.SECONDARY" text="Cancel" [routerLink]="['/app/organziations']" />
-            <telemetry-button [type]="ButtonType.SUBMIT" text="Create" [disabled]="organizationForm.invalid" />
+            <telemetry-button [type]="ButtonType.BUTTON" [style]="ButtonStyle.SECONDARY" text="Cancel"
+                [routerLink]="['/app/organizations']" />
+            @if (onlyCreateOrEditMode()){
+            <telemetry-button [type]="ButtonType.SUBMIT" [text]="formSubmitButtonText()" [disabled]="formDisabled()" />
+            }
         </div>
-
-
     </form>
-
+    }
 </telemetry-page>

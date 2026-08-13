@@ -28,9 +28,6 @@ export class ProfileService {
     }
 
     updateLastOrganizationUsed(request: UpdateLastOrganizationUsed): Observable<ApiResponse<MeResponse>> {
-
-        console.log("request : ", request)
-
         return this.http.patch<ApiResponse<MeResponse>>(
             `${this.url}/last-organization-used`,
             request,
@@ -38,7 +35,6 @@ export class ProfileService {
                 withCredentials: true,
 
             }
-
         )
     }
 }

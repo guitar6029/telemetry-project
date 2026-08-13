@@ -5,11 +5,12 @@ import { EmptyStateComponent } from "../../../../common/components/empty-state/e
 import { RouterLink } from "@angular/router";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
+import { ButtonComponent } from "../../../../components/button/button.component";
 
 @Component({
     selector: 'telemetry-organization-list',
     imports: [
-
+        ButtonComponent,
         EmptyStateComponent,
         RouterLink
     ],
