@@ -19,5 +19,5 @@
 }
 
 .label-default {
-    @apply text-lg;
+    @apply text-[1rem];
 }

@@ -1,15 +1,14 @@
 <form class="form-default" [formGroup]="loginForm" (ngSubmit)="login()" class="w-xs">
 
-    <fieldset class="fieldset">
+    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-2">
         <legend class="fieldset-legend fieldset-legend-title">Login</legend>
         <telemetry-label text="Email" />
         <telemetry-input [type]="InputType.EMAIL" [control]="loginForm.controls.email" />
         <telemetry-label text="Password" />
         <telemetry-input [type]="InputType.PASSWORD" [control]="loginForm.controls.password" />
+        <telemetry-button text="Login" [type]="ButtonType.SUBMIT" [disabled]="loginForm.invalid" />
     </fieldset>
 
-    <div class="flex flex-col gap-1">
-    </div>
 
     @if (loginError) {
     <p class="login-error">
@@ -17,7 +16,6 @@
     </p>
     }
 
-    <telemetry-button text="Login" [type]="ButtonType.SUBMIT" [disabled]="loginForm.invalid" />
 
 
 </form>
