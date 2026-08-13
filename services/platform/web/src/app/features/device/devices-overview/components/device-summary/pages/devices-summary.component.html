@@ -1,25 +1,8 @@
 <div class="devices-summary">
-    <mat-card>
-        <mat-card-header>
-            <mat-card-title>Devices</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-            <span class="count">
-                {{ summary()?.deviceCount ?? 0 }}
-            </span>
-        </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-        <mat-card-header>
-            <mat-card-title>Device Templates</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-            <span class="count">
-                {{ summary()?.templateCount ?? 0 }}
-            </span>
-        </mat-card-content>
-    </mat-card>
+    <span class="count">
+        {{ summary()?.deviceCount ?? 0 }}
+    </span>
+    <span class="count">
+        {{ summary()?.templateCount ?? 0 }}
+    </span>
 </div>

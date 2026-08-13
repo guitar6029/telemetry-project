@@ -6,7 +6,7 @@ import { SessionService } from '../../../auth/service/session.service';
 
 @Component({
     selector: 'telemetry-dashboard',
-    imports: [RouterLink],
+    // imports: [RouterLink],
     templateUrl: './dashboard.component.html',
     styleUrl: './dashboard.component.scss'
 })

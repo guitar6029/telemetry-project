@@ -1,2 +1,23 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+
+@plugin "daisyui" {
+    themes: dark --default, synthwave;
+}
+
+
+.form-default {
+    @apply flex flex-col gap-4 w-2xl;
+}
+
+.form-buttons-container {
+    @apply flex flex-row items-center gap-2
+}
+
+.fieldset-legend-title {
+    @apply text-xl;
+}
+
+.label-default {
+    @apply text-[1rem];
+}

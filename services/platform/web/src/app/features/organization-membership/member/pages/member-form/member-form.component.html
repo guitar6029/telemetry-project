@@ -1,73 +1,63 @@
-<h1>Member</h1>
+<telemetry-page>
 
-@if (loading()) {
-<mat-spinner />
-} @else if (error()) {
-<telemetry-empty-state message="No member data"></telemetry-empty-state>
-} @else {
-@if (!editMode()) {
-<button matButton routerLink="edit">
-    <mat-icon>edit</mat-icon>
-    Edit
-</button>
-}
+    @if (loading()) {
+    <telemetry-loading-spinner />
+    } @else if (error()) {
+    <telemetry-empty-state message="No member data"></telemetry-empty-state>
+    } @else {
 
-<form [formGroup]="memberForm">
-
-    <mat-form-field appearance="outline">
-        <mat-label>First Name</mat-label>
-        <input matInput formControlName="firstName">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label>Last Name</mat-label>
-        <input matInput formControlName="lastName">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput formControlName="email">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label>Role</mat-label>
-
-        <mat-select formControlName="role">
-            @for (role of roleSelections; track role) {
-            <mat-option [value]="role">
-                {{ role }}
-            </mat-option>
-            }
-        </mat-select>
-
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label>Status</mat-label>
-
-        <mat-select formControlName="status">
-            @for (status of statusSelections; track status) {
-            <mat-option [value]="status">
-                {{ status }}
-            </mat-option>
-            }
-        </mat-select>
-
-    </mat-form-field>
-
-    @if (editMode()){
-    <button mat-flat-button [disabled]="memberForm.invalid || !hasChanges() || saving()" (click)="updateMembership()">
-
-        @if (saving()) {
-        <mat-spinner diameter="18" />
-        } @else {
-        <mat-icon>save</mat-icon>
-        }
-
-        Save
-    </button>
+    @if(mode() === 'view'){
+    <telemetry-button text="Edit" [routerLink]="['edit']" />
     }
 
-</form>
+    <form class="form-default" [formGroup]="memberForm" (ngSubmit)="update()">
 
-}
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend fieldset-legend-title">{{fieldsetTitle()}}</legend>
+
+            <telemetry-label text="Name" />
+            <telemetry-input [control]="memberForm.controls.firstName" />
+
+            <telemetry-label text="Description" />
+            <telemetry-input [control]="memberForm.controls.lastName" />
+
+            <telemetry-label text="Email" />
+            <telemetry-input [type]="InputType.EMAIL" [control]="memberForm.controls.email" />
+
+            <telemetry-label text="Role" />
+            <select class="select" formControlName="role">
+                <option [value]="OrganizationRole.ADMIN">
+                    Administrator
+                </option>
+
+                <option [value]="OrganizationRole.PROJECT_MANAGER">
+                    Project Manager
+                </option>
+
+                <option [value]="OrganizationRole.MEMBER">
+                    Member
+                </option>
+            </select>
+
+            <telemetry-label text="Status" />
+            <select class="select" formControlName="status">
+                @for (status of statusSelections; track status) {
+                <option [value]="status">
+                    {{ capitalize(status) }}
+                </option>
+                }
+            </select>
+
+        </fieldset>
+
+
+        <div class="form-buttons-container">
+            <telemetry-button [type]="ButtonType.BUTTON" [style]="ButtonStyle.SECONDARY" text="Cancel"
+                [routerLink]="['/app/manage/members']" />
+            @if (mode() === 'edit'){
+            <telemetry-button [type]="ButtonType.SUBMIT" [text]="formSubmitButtonText()" [disabled]="formDisabled()" />
+            }
+        </div>
+    </form>
+    }
+</telemetry-page>

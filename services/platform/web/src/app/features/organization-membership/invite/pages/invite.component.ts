@@ -1,37 +1,31 @@
+import { ButtonComponent } from "../../../../components/button/button.component";
+import { ButtonStyle } from "../../../../components/button/types/button-style.types";
+import { ButtonType } from "../../../../components/button/types/button-type.types";
 import { Component, inject, signal } from "@angular/core";
+import { ErrorComponent } from "../../../../components/error/error.component";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { UserConstants } from "../../../auth/constants/user.constants";
-import { OrganizationRole } from "../../enum/organization-role.enum";
-import { MembershipStatus } from "../../enum/membership-status.enum";
+import { InputComponent } from "../../../../components/input/input.component";
+import { InputType } from "../../../../components/input/types/input-type.types";
 import { InviteRequest } from "../dto/invite-request.dto";
 import { InviteService } from "../service/invite.service";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-//import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import { MatSelectModule } from "@angular/material/select";
-//import { RouterLink } from "@angular/router";
-import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent } from "@angular/material/card";
+import { LabelComponent } from "../../../../components/label/label.component";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
-import { NotificationSettingsConstants } from "../../../../common/notification/constants/notification-settings.constants";
+import { OrganizationRole } from "../../enum/organization-role.enum";
+import { PageComponent } from "../../../../components/page/page.component";
+import { PageHeaderComponent } from "../../../../components/page/page-header/page-header.component";
+import { UserConstants } from "../../../auth/constants/user.constants";
+
 
 @Component({
     selector: 'telemetry-invite',
     imports: [
         ReactiveFormsModule,
-        // RouterLink,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSelectModule,
-        // MatProgressSpinner,
-        MatCard,
-        MatCardHeader,
-        MatCardTitle,
-        MatCardSubtitle,
-        MatCardContent
+        PageComponent,
+        PageHeaderComponent,
+        LabelComponent,
+        InputComponent,
+        ErrorComponent,
+        ButtonComponent
     ],
     templateUrl: './invite.component.html',
     styleUrl: './invite.component.scss'
@@ -45,6 +39,9 @@ export class InviteFormComponent {
     protected readonly OrganizationRole = OrganizationRole;
     private readonly inviteService = inject(InviteService);
     private readonly notificationService = inject(NotificationService);
+    protected readonly ButtonType = ButtonType
+    protected readonly ButtonStyle = ButtonStyle
+    protected readonly InputType = InputType
 
 
 

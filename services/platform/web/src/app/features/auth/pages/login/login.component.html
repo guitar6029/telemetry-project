@@ -1,15 +1,14 @@
-<h1>Login</h1>
+<form class="form-default" [formGroup]="loginForm" (ngSubmit)="login()" class="w-xs">
 
-<form [formGroup]="loginForm" (ngSubmit)="login()">
-    <mat-form-field>
-        <mat-label>Email</mat-label>
-        <input matInput type="email" formControlName="email">
-    </mat-form-field>
+    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-2">
+        <legend class="fieldset-legend fieldset-legend-title">Login</legend>
+        <telemetry-label text="Email" />
+        <telemetry-input [type]="InputType.EMAIL" [control]="loginForm.controls.email" />
+        <telemetry-label text="Password" />
+        <telemetry-input [type]="InputType.PASSWORD" [control]="loginForm.controls.password" />
+        <telemetry-button text="Login" [type]="ButtonType.SUBMIT" [disabled]="loginForm.invalid" />
+    </fieldset>
 
-    <mat-form-field>
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password">
-    </mat-form-field>
 
     @if (loginError) {
     <p class="login-error">
@@ -17,5 +16,6 @@
     </p>
     }
 
-    <button matButton="filled" type="submit" [disabled]="loginForm.invalid">Login</button>
+
+
 </form>

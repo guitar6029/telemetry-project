@@ -1,0 +1,70 @@
+<telemetry-page>
+
+    @if (loading()) {
+    <telemetry-loading-spinner />
+    } @else if (error()) {
+    <telemetry-empty-state message="No organization data"></telemetry-empty-state>
+    } @else {
+
+    @if(mode() === 'view'){
+    <telemetry-button text="Edit" [routerLink]="['edit']" />
+    }
+
+    <form class="form-default" [formGroup]="organizationForm" (ngSubmit)="mode() === 'create' ? create() : update()">
+
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend fieldset-legend-title">{{fieldsetTitle()}}</legend>
+            <telemetry-label text="Name" />
+            <telemetry-input [control]="organizationForm.controls.name" />
+            @if (organizationForm.controls.name.invalid && organizationForm.controls.name.touched) {
+            <telemetry-error text="Organization name is required" />
+            }
+
+            @if (organizationForm.controls.name.hasError('minlength')) {
+            <telemetry-error [text]="`Organization name must be at least
+                ${ OrganizationConstants.NAME_MIN_LENGTH} characters`" />
+
+            }
+
+            @if (organizationForm.controls.name.hasError('maxlength')) {
+            <span>
+                <telemetry-error [text]="`Organization name cannot exceed
+                ${ OrganizationConstants.NAME_MAX_LENGTH } characters`" />
+            </span>
+            }
+
+
+            <telemetry-label text="Slug" />
+            <telemetry-input [control]="organizationForm.controls.slug" />
+
+
+            @if ( organizationForm.controls.slug.invalid &&
+            organizationForm.controls.slug.touched) {
+            <telemetry-error text="Organization slug is required" />
+
+            }
+
+            @if (organizationForm.controls.slug.hasError('minlength')) {
+            <telemetry-error [text]="`Organization slug must be at least
+                ${ OrganizationConstants.SLUG_MIN_LENGTH } characters`" />
+
+            }
+
+            @if (organizationForm.controls.slug.hasError('maxlength')) {
+            <telemetry-error [text]="`Organization slug cannot exceed
+                            ${ OrganizationConstants.SLUG_MAX_LENGTH } characters`" />
+
+            }
+        </fieldset>
+
+
+        <div class="form-buttons-container">
+            <telemetry-button [type]="ButtonType.BUTTON" [style]="ButtonStyle.SECONDARY" text="Cancel"
+                [routerLink]="['/app/organizations']" />
+            @if (onlyCreateOrEditMode()){
+            <telemetry-button [type]="ButtonType.SUBMIT" [text]="formSubmitButtonText()" [disabled]="formDisabled()" />
+            }
+        </div>
+    </form>
+    }
+</telemetry-page>

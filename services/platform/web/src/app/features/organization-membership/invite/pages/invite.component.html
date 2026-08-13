@@ -1,69 +1,46 @@
-<div class="invite-container">
+<telemetry-page>
+    <telemetry-page-header headerTitle="Invite Member" description="Send an invitation to join your organization." />
 
-    <mat-card>
 
-        <mat-card-header>
-            <mat-card-title>Invite Member</mat-card-title>
-            <mat-card-subtitle>
-                Send an invitation to join your organization.
-            </mat-card-subtitle>
-        </mat-card-header>
+    <form class="form-default" [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
+        <fieldset class="fieldset">
+            <legend class="fieldset-legend">Invite</legend>
 
-        <mat-card-content>
+            <telemetry-label text="Email" />
+            <telemetry-input [type]="InputType.EMAIL" [control]="inviteForm.controls.email" />
+            <div class="flex flex-col gap-1">
+                @if (inviteForm.controls.email.invalid &&
+                inviteForm.controls.email.touched) {
+                <telemetry-error text="Email is required" />
 
-            <form [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
+                }
 
-                <mat-form-field appearance="outline">
-                    <mat-label>Email</mat-label>
+                @if (inviteForm.controls.email.hasError('email')) {
+                <span>
+                    <telemetry-error text="Enter a valid email." />
+                </span>
+                }
+            </div>
 
-                    <input matInput type="email" formControlName="email">
+            <telemetry-label text="Role" />
+            <select class="select" formControlName="role">
+                <option [value]="OrganizationRole.ADMIN">
+                    Administrator
+                </option>
 
-                    @if (inviteForm.controls.email.hasError('required')){
-                    <mat-error>
-                        Email is required.
-                    </mat-error>
-                    }
+                <option [value]="OrganizationRole.PROJECT_MANAGER">
+                    Project Manager
+                </option>
 
-                    @if (inviteForm.controls.email.hasError('email')){
+                <option [value]="OrganizationRole.MEMBER">
+                    Member
+                </option>
+            </select>
+        </fieldset>
 
-                    <mat-error>
-                        Enter a valid email.
-                    </mat-error>
-                    }
+        <telemetry-button text="Invite" [type]="ButtonType.SUBMIT" [disabled]="inviteForm.invalid || loading()" />
 
-                </mat-form-field>
+    </form>
 
-                <mat-form-field appearance="outline">
-                    <mat-label>Role</mat-label>
 
-                    <mat-select formControlName="role">
-
-                        <mat-option [value]="OrganizationRole.ADMIN">
-                            Administrator
-                        </mat-option>
-
-                        <mat-option [value]="OrganizationRole.PROJECT_MANAGER">
-                            Project Manager
-                        </mat-option>
-
-                        <mat-option [value]="OrganizationRole.MEMBER">
-                            Member
-                        </mat-option>
-
-                    </mat-select>
-
-                </mat-form-field>
-
-                <button mat-flat-button color="primary" type="submit" [disabled]="inviteForm.invalid || loading()">
-
-                    Send Invitation
-
-                </button>
-
-            </form>
-
-        </mat-card-content>
-
-    </mat-card>
-
-</div>
+</telemetry-page>

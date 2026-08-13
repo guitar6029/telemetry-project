@@ -35,7 +35,6 @@ export class ProfileService {
                 withCredentials: true,
 
             }
-
         )
     }
 }

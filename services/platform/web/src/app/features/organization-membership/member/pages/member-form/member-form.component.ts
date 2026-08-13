@@ -1,33 +1,37 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { MemberService } from "../../service/member.service";
-import { OrganizationMembershipResponse } from "../../../dto/organization-membership-response.dto";
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatInputModule } from "@angular/material/input";
-import { OrganizationRole } from "../../../enum/organization-role.enum";
-import { MembershipStatus } from "../../../enum/membership-status.enum";
-import { MatIconModule } from "@angular/material/icon";
+import { ButtonComponent } from "../../../../../components/button/button.component";
+import { ButtonStyle } from "../../../../../components/button/types/button-style.types";
+import { ButtonType } from "../../../../../components/button/types/button-type.types";
+import { capitalize } from "../../../../../utils/string.utils";
+import { Component, computed, inject, OnInit, signal } from "@angular/core";
 import { EmptyStateComponent } from "../../../../../common/components/empty-state/empty-state.component";
-import { MatSelectModule } from "@angular/material/select";
-import { MatProgressSpinner } from "@angular/material/progress-spinner";
-import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership-request.dto";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { InputComponent } from "../../../../../components/input/input.component";
+import { InputType } from "../../../../../components/input/types/input-type.types";
+import { LabelComponent } from "../../../../../components/label/label.component";
+import { LoadingSpinnerComponent } from "../../../../../components/loading/loading-spinner/loading-spinner.component";
+import { MemberFormMode } from "../../types/member-form-mode.types";
+import { MemberService } from "../../service/member.service";
+import { MembershipStatus } from "../../../enum/membership-status.enum";
 import { MessageDefaultConstants } from "../../../../../constants/message.constants";
 import { NotificationService } from "../../../../../common/notification/service/notification.service";
+import { OrganizationMembershipResponse } from "../../../dto/organization-membership-response.dto";
+import { OrganizationRole } from "../../../enum/organization-role.enum";
+import { PageComponent } from "../../../../../components/page/page.component";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { UpdateOrganizationMembershipRequest } from "../../dto/update-organization-membership-request.dto";
 
 @Component({
     selector: 'telemetry-member-form',
     imports: [
         ReactiveFormsModule,
         RouterLink,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSelectModule,
-        MatProgressSpinner,
         EmptyStateComponent,
+        LoadingSpinnerComponent,
+        PageComponent,
+        ButtonComponent,
+        LabelComponent,
+        InputComponent
     ],
     templateUrl: './member-form.component.html',
     styleUrl: './member-form.component.scss'
@@ -36,13 +40,19 @@ export class MemberFormComponent implements OnInit {
 
     readonly roleSelections = Object.values(OrganizationRole);
     readonly statusSelections = Object.values(MembershipStatus);
+    protected readonly InputType = InputType;
+    protected readonly OrganizationRole = OrganizationRole;
+    protected readonly ButtonType = ButtonType
+    protected readonly ButtonStyle = ButtonStyle;
+    protected readonly capitalize = capitalize;
 
     member = signal<OrganizationMembershipResponse | null>(null);
+    membershipId: string | null = null;
     error = signal<string | null>(null);
     saving = signal(false);
     loading = signal(true);
     editMode = signal<boolean>(false);
-
+    mode = signal<MemberFormMode>('view');
 
 
     private readonly route = inject(ActivatedRoute);
@@ -53,20 +63,31 @@ export class MemberFormComponent implements OnInit {
 
 
     ngOnInit(): void {
-        //get member id
-        const membershipId = this.route.snapshot.paramMap.get("membershipId")
-        // check if editing
-        this.editMode.set(this.route.snapshot.routeConfig?.path === ':membershipId/edit');
+
+        const path = this.route.snapshot.routeConfig?.path;
+
+
+        if (path === ':membershipId') {
+            this.mode.set('view');
+        }
+
+        if (path === ':membershipId/edit') {
+            this.mode.set('edit');
+            this.memberForm.controls.role.enable();
+            this.memberForm.controls.status.enable();
+        }
+
+        const membershipId =
+            this.route.snapshot.paramMap.get('membershipId');
 
         if (membershipId) {
+            this.membershipId = membershipId;
+
+            if (this.mode() === 'view') {
+                this.memberForm.disable();
+            }
+
             this.loadMembership(membershipId);
-        } else {
-            console.error("Failed to load member - missing member id");
-            this.error.set("Unable to load member - missing member id");
-            this.loading.set(false);
-            this.notificationService.error({
-                message: "Unable to load member - missing member id"
-            })
         }
     }
 
@@ -142,20 +163,29 @@ export class MemberFormComponent implements OnInit {
         })
     }
 
+    readonly formValue = toSignal(
+        this.memberForm.valueChanges,
+        { initialValue: this.memberForm.getRawValue() }
+    );
+
+
     hasChanges(): boolean {
         const member = this.member();
+        const formValue = this.formValue();
 
         if (!member) {
             return false;
         }
 
         return (
-            this.memberForm.controls.role.value !== member.role ||
-            this.memberForm.controls.status.value !== member.status
+            formValue.role !== member.role ||
+            formValue.status !== member.status
         );
     }
 
-    updateMembership(): void {
+
+
+    update(): void {
 
         const membershipId = this.member()?.id;
 
@@ -188,5 +218,32 @@ export class MemberFormComponent implements OnInit {
 
             });
     }
+
+    readonly fieldsetTitle = computed(() => {
+        switch (this.mode()) {
+            case 'edit':
+                return "Edit Membership";
+            case 'view':
+                return "Details"
+        }
+
+    })
+
+    readonly formDisabled = computed(() => {
+        return (
+            this.memberForm.invalid ||
+            this.saving() ||
+            (this.mode() === 'edit' && !this.hasChanges())
+        );
+    });
+
+    readonly formSubmitButtonText = computed(() => {
+        switch (this.mode()) {
+            case 'edit':
+                return 'Update'
+            case 'view':
+                return '';
+        }
+    })
 
 }

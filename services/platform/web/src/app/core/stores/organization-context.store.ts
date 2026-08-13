@@ -96,7 +96,6 @@ export class OrganizationContextStore {
     changeCurrentOrganization(organizationId: string): void {
         const organization: OrganizationResponse = this.findOranizationByIdOrThrow(organizationId);
         this.setCurrentOrganization(organization.id);
-
         const request: UpdateLastOrganizationUsed = {
             id: organizationId
         }
