@@ -15,7 +15,7 @@
 
                     <ng-container *ngComponentOutlet="
                                 ColumnComponentMap[column.type];
-                                inputs: { value: row[column.field] }
+                               inputs: getColumnInputs(row, column)
                             ">
                     </ng-container>
                 </td>

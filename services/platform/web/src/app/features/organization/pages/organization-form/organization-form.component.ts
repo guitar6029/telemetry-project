@@ -153,11 +153,13 @@ export class OrganizationFormComponent implements OnInit {
                         slug: response.data.slug
                     });
                     this.organization.set(response.data);
+                    this.loading.set(false);
                 },
                 error: (httpError) => {
                     this.notificationService.error({
                         message: httpError.error?.message ?? MessageDefaultConstants.organization.update.error
                     });
+                    this.loading.set(false);
                 }
             });
     }

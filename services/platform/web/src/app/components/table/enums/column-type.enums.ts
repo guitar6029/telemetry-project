@@ -1,4 +1,5 @@
 export enum ColumnType {
     TEXT = 'text',
-    DATE = 'date'
+    DATE = 'date',
+    LINK = 'link'
 }

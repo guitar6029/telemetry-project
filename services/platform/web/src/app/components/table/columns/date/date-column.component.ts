@@ -1,5 +1,5 @@
 import { Component, input } from "@angular/core";
-import { formatRelativeDate } from "../../../../../utils/date.utils";
+import { formatRelativeDate } from "../../../../utils/date.utils";
 
 @Component({
     selector: 'telemetry-date-column',

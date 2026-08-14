@@ -8,6 +8,7 @@ import { MessageDefaultConstants } from "../../../../constants/message.constants
 import { ButtonComponent } from "../../../../components/button/button.component";
 import { TableComponent } from "../../../../components/table/table.component";
 import { OrganizationColumnDefinitions } from "../../columns/organization-column-definitions";
+import { PageComponent } from "../../../../components/page/page.component";
 
 @Component({
     selector: 'telemetry-organization-list',
@@ -15,7 +16,8 @@ import { OrganizationColumnDefinitions } from "../../columns/organization-column
         ButtonComponent,
         EmptyStateComponent,
         RouterLink,
-        TableComponent
+        TableComponent,
+        PageComponent
     ],
     templateUrl: './organization-list.component.html',
     styleUrl: './organization-list.component.scss'
