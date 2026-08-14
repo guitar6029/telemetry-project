@@ -6,13 +6,16 @@ import { RouterLink } from "@angular/router";
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
 import { ButtonComponent } from "../../../../components/button/button.component";
+import { TableComponent } from "../../../../components/table/table.component";
+import { OrganizationColumns } from "../../../../components/table/columns/organization/organization";
 
 @Component({
     selector: 'telemetry-organization-list',
     imports: [
         ButtonComponent,
         EmptyStateComponent,
-        RouterLink
+        RouterLink,
+        TableComponent
     ],
     templateUrl: './organization-list.component.html',
     styleUrl: './organization-list.component.scss'
@@ -20,7 +23,7 @@ import { ButtonComponent } from "../../../../components/button/button.component"
 
 export class OrganizationListComponent implements OnInit {
     organizations = signal<OrganizationResponse[]>([]);
-
+    protected readonly organizationColumns = OrganizationColumns;
     page = signal(0);
     pageSize = signal(10);
     total = signal(0);
