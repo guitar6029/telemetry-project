@@ -1,4 +1,5 @@
 import { Component, input } from "@angular/core";
+import { formatRelativeDate } from "../../../../../utils/date.utils";
 
 @Component({
     selector: 'telemetry-date-column',
@@ -8,6 +9,7 @@ import { Component, input } from "@angular/core";
 export class DateColumnComponent {
 
     value = input.required<unknown>();
-    // probably do a check if string or Date ?
-    // also do a helper for a human readable method ie 2 mins ago, 4 hours, 2 weeks ago.etc..
+    protected formatDate(value: unknown): string {
+        return formatRelativeDate(value);
+    }
 }
