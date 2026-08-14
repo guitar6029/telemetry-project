@@ -7,7 +7,7 @@ import { NotificationService } from "../../../../common/notification/service/not
 import { MessageDefaultConstants } from "../../../../constants/message.constants";
 import { ButtonComponent } from "../../../../components/button/button.component";
 import { TableComponent } from "../../../../components/table/table.component";
-import { OrganizationColumns } from "../../../../components/table/columns/organization/organization";
+import { OrganizationColumnDefinitions } from "../../columns/organization-column-definitions";
 
 @Component({
     selector: 'telemetry-organization-list',
@@ -23,7 +23,7 @@ import { OrganizationColumns } from "../../../../components/table/columns/organi
 
 export class OrganizationListComponent implements OnInit {
     organizations = signal<OrganizationResponse[]>([]);
-    protected readonly organizationColumns = OrganizationColumns;
+    protected readonly organizationColumns = OrganizationColumnDefinitions;
     page = signal(0);
     pageSize = signal(10);
     total = signal(0);

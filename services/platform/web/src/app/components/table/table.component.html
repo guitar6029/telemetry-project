@@ -11,7 +11,14 @@
             @for (row of data(); track row) {
             <tr>
                 @for (column of columns(); track column.field) {
-                <td>{{ row[column.field] }}</td>
+                <td>
+
+                    <ng-container *ngComponentOutlet="
+                                ColumnComponentMap[column.type];
+                                inputs: { value: row[column.field] }
+                            ">
+                    </ng-container>
+                </td>
                 }
             </tr>
             }
