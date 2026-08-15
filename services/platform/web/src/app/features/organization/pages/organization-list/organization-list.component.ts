@@ -1,14 +1,17 @@
+import { ButtonComponent } from "../../../../components/button/button.component";
 import { Component, inject, OnInit, signal } from "@angular/core";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../../../../components/pagination/constants/pagination.constants";
+import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
+import { MessageDefaultConstants } from "../../../../constants/message.constants";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
+import { OrganizationColumnDefinitions } from "../../columns/organization-column-definitions";
 import { OrganizationResponse } from "../../dto/organization-response.dto";
 import { OrganizationService } from "../../service/organization.service";
-import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
-import { RouterLink } from "@angular/router";
-import { NotificationService } from "../../../../common/notification/service/notification.service";
-import { MessageDefaultConstants } from "../../../../constants/message.constants";
-import { ButtonComponent } from "../../../../components/button/button.component";
-import { TableComponent } from "../../../../components/table/table.component";
-import { OrganizationColumnDefinitions } from "../../columns/organization-column-definitions";
 import { PageComponent } from "../../../../components/page/page.component";
+import { PaginationComponent } from "../../../../components/pagination/pagination.component";
+import { PaginationState } from "../../../../components/pagination/types/pagination.types";
+import { RouterLink } from "@angular/router";
+import { TableComponent } from "../../../../components/table/table.component";
 
 @Component({
     selector: 'telemetry-organization-list',
@@ -17,7 +20,8 @@ import { PageComponent } from "../../../../components/page/page.component";
         EmptyStateComponent,
         RouterLink,
         TableComponent,
-        PageComponent
+        PageComponent,
+        PaginationComponent
     ],
     templateUrl: './organization-list.component.html',
     styleUrl: './organization-list.component.scss'
@@ -26,18 +30,14 @@ import { PageComponent } from "../../../../components/page/page.component";
 export class OrganizationListComponent implements OnInit {
     organizations = signal<OrganizationResponse[]>([]);
     protected readonly organizationColumns = OrganizationColumnDefinitions;
-    page = signal(0);
-    pageSize = signal(10);
-    total = signal(0);
+    pagination = signal<PaginationState>({
+        page: DEFAULT_PAGE,
+        size: DEFAULT_PAGE_SIZE,
+        total: 0,
+        totalPages: 0
+    });
 
     error = signal<string | null>(null);
-
-    displayedColumns: string[] = [
-        'name',
-        'slug',
-        'createdAt',
-        'updatedAt'
-    ]
 
 
     private readonly organizationService = inject(OrganizationService)
@@ -48,16 +48,21 @@ export class OrganizationListComponent implements OnInit {
     }
 
     loadOrganizations(
-        page = this.page(),
-        size = this.pageSize()
+        page = this.pagination().page,
+        size = this.pagination().size
     ): void {
         this.error.set(null);
         this.organizationService.getOrganizations(page, size).subscribe({
             next: (response) => {
                 this.organizations.set(response.data);
-                this.page.set(response.page);
-                this.pageSize.set(response.size);
-                this.total.set(response.total);
+                this.pagination.set({
+                    page: response.page,
+                    size: response.size,
+                    total: response.total,
+                    totalPages: response.totalPages
+                });
+
+
 
             },
             error: (httpError) => {
@@ -69,13 +74,24 @@ export class OrganizationListComponent implements OnInit {
         })
     }
 
-    // TODO PAGE onPageChange
-    onPageChange(event: any): void {
-        this.loadOrganizations(
-            event.pageIndex,
-            event.pageSize
-        )
+
+
+    protected onPageChange(page: number) {
+        this.pagination.update(state => ({
+            ...state,
+            page
+        }))
+        this.loadOrganizations();
+
     }
 
+    protected onSizeChange(size: number) {
+        this.pagination.update(state => ({
+            ...state,
+            size,
+            page: 0
+        }))
 
+        this.loadOrganizations();
+    }
 }

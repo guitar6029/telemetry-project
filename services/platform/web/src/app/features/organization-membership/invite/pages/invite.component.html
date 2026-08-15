@@ -12,13 +12,10 @@
                 @if (inviteForm.controls.email.invalid &&
                 inviteForm.controls.email.touched) {
                 <telemetry-error text="Email is required" />
-
                 }
 
                 @if (inviteForm.controls.email.hasError('email')) {
-                <span>
-                    <telemetry-error text="Enter a valid email." />
-                </span>
+                <telemetry-error text="Enter a valid email." />
                 }
             </div>
 

@@ -1,0 +1,51 @@
+<div class="flex items-center justify-between w-full">
+
+    <div class="grow flex justify-center">
+        <div class="join">
+
+            <!-- Previous -->
+            <button class="join-item btn" [disabled]="!hasPrevious()" (click)="pageChange.emit(page() - 1)">
+                ←
+            </button>
+
+            <!-- Pages -->
+            @for (item of visiblePages(); track $index) {
+
+            @if (item === 'ellipsis') {
+
+            <button class="join-item btn btn-disabled">
+                ...
+            </button>
+
+            } @else {
+
+            <button class="join-item btn" [class.btn-active]="item === page()" (click)="pageChange.emit(item)">
+                {{ item + 1 }}
+            </button>
+
+            }
+
+            }
+
+            <!-- Next -->
+            <button class="join-item btn" [disabled]="!hasNext()" (click)="pageChange.emit(page() + 1)">
+                →
+            </button>
+
+        </div>
+    </div>
+
+    <!-- Page size -->
+    <div class="flex items-center gap-2">
+        <telemetry-label text="Rows:" />
+
+        <select class="select" [value]="size()" (change)="changePageSize($event)">
+            @for (pageOption of PAGE_SIZE_OPTIONS; track pageOption) {
+            <option [value]="pageOption" [selected]="pageOption === size()">
+                {{ pageOption }}
+            </option>
+            }
+        </select>
+    </div>
+
+</div>

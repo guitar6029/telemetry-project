@@ -3,11 +3,16 @@
     @if (error()) {
     <p>{{ error() }}</p>
     } @else if (users().length === 0) {
+    <telemetry-button [routerLink]="['/app/manage/invite']" text="Invite" />
     <telemetry-empty-state message="No users found"></telemetry-empty-state>
     } @else {
     <telemetry-button [routerLink]="['/app/manage/invite']" text="Invite" />
     <telemetry-table [data]="users()" [columns]="userColumns" />
     }
+
+    <telemetry-pagination [page]="pagination().page" [size]="pagination().size" [total]="pagination().total"
+        [totalPages]="pagination().totalPages" (pageChange)="onPageChange($event)"
+        (sizeChange)="onSizeChange($event)" />
 
 
 </telemetry-page>

@@ -23,10 +23,9 @@
             }
 
             @if (organizationForm.controls.name.hasError('maxlength')) {
-            <span>
-                <telemetry-error [text]="`Organization name cannot exceed
+
+            <telemetry-error [text]="`Organization name cannot exceed
                 ${ OrganizationConstants.NAME_MAX_LENGTH } characters`" />
-            </span>
             }
 
 

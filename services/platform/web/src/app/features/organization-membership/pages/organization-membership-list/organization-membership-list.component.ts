@@ -1,16 +1,15 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
-
-import { RouterLink } from "@angular/router";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../../../../components/pagination/constants/pagination.constants";
 import { EmptyStateComponent } from "../../../../common/components/empty-state/empty-state.component";
-import { OrganizationMembershipService } from "../../service/organization-membership.service";
-
-import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
-
 import { NotificationService } from "../../../../common/notification/service/notification.service";
-import { ProfileStore } from "../../../../core/stores/profile.store";
-import { PageComponent } from "../../../../components/page/page.component";
-import { TableComponent } from "../../../../components/table/table.component";
 import { OrganizationMembershipColumnDefinitions } from "../../../organization/columns/user-column-definitions";
+import { OrganizationMembershipResponse } from "../../dto/organization-membership-response.dto";
+import { OrganizationMembershipService } from "../../service/organization-membership.service";
+import { PageComponent } from "../../../../components/page/page.component";
+import { PaginationComponent } from "../../../../components/pagination/pagination.component";
+import { PaginationState } from "../../../../components/pagination/types/pagination.types";
+import { RouterLink } from "@angular/router";
+import { TableComponent } from "../../../../components/table/table.component";
 
 
 @Component({
@@ -19,7 +18,8 @@ import { OrganizationMembershipColumnDefinitions } from "../../../organization/c
         EmptyStateComponent,
         RouterLink,
         PageComponent,
-        TableComponent
+        TableComponent,
+        PaginationComponent
     ],
     templateUrl: './organization-membership-list.component.html',
     styleUrl: './organization-membership-list.component.scss'
@@ -29,37 +29,16 @@ import { OrganizationMembershipColumnDefinitions } from "../../../organization/c
 export class OrganizationMembershipListComponent implements OnInit {
 
     protected readonly userColumns = OrganizationMembershipColumnDefinitions;
-    /**
-     * if user is part of multiple memberships under given organizations
-     * they will see a select dropdown to switch between organizations
-     * if only under one , then no UI for this is provided
-    */
-
     organizationName = signal<string | null>(null);
     users = signal<OrganizationMembershipResponse[]>([]);
-    //something like this
-    //organizations = signal<OrganizationResponse[]>([]);
-    page = signal(0);
-    pageSize = signal(10);
-    total = signal(0);
+    pagination = signal<PaginationState>({
+        page: DEFAULT_PAGE,
+        size: DEFAULT_PAGE_SIZE,
+        total: 0,
+        totalPages: 0
+    });
 
     error = signal<string | null>(null);
-
-
-
-    displayedColumns: string[] = [
-        'id',
-        'organizationId',
-        'userId',
-        'firstName',
-        'lastName',
-        'email',
-        'role',
-        'status',
-        'createdAt',
-        'updatedAt'
-    ]
-
 
     private readonly organizationMembershipService = inject(OrganizationMembershipService)
     private readonly notificationService = inject(NotificationService)
@@ -70,8 +49,8 @@ export class OrganizationMembershipListComponent implements OnInit {
     }
 
     loadUsers(
-        page = this.page(),
-        size = this.pageSize()
+        page = this.pagination().page,
+        size = this.pagination().size
     ) {
 
         this.organizationMembershipService.getOrganizationMemberships(
@@ -80,6 +59,14 @@ export class OrganizationMembershipListComponent implements OnInit {
         ).subscribe({
             next: (response) => {
                 this.users.set(response.data);
+
+
+                this.pagination.set({
+                    page: response.page,
+                    size: response.size,
+                    total: response.total,
+                    totalPages: response.totalPages
+                });
             },
             error: (httpError) => {
                 this.error.set("Unable to load organization membership");
@@ -90,13 +77,25 @@ export class OrganizationMembershipListComponent implements OnInit {
         })
     }
 
-    //TODO
-    onPageChange(event: any): void {
-        this.loadUsers(
-            event.pageIndex,
-            event.pageSize
-        )
+
+    protected onPageChange(page: number) {
+        this.pagination.update(state => ({
+            ...state,
+            page
+        }))
+        this.loadUsers()
     }
+
+    protected onSizeChange(size: number) {
+        this.pagination.update(state => ({
+            ...state,
+            size,
+            page: 0
+        }))
+
+        this.loadUsers()
+    }
+
 
 
 }
