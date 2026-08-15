@@ -3,13 +3,16 @@
     @if (error()) {
     <p>{{ error() }}</p>
     } @else if (organizations().length === 0) {
+    <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
     <telemetry-empty-state message="No organizations found"></telemetry-empty-state>
     } @else {
     <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
     <telemetry-table [data]="organizations()" [columns]="organizationColumns" />
     }
 
-    <telemetry-pagination [page]="page()" [size]="size()" [total]="total()" [totalPages]="totalPages()"
-        (pageChange)="onPageChange($event)" (sizeChange)="onSizeChange($event)" />
+    <telemetry-pagination [page]="pagination().page" [size]="pagination().size" [total]="pagination().total"
+        [totalPages]="pagination().totalPages" (pageChange)="onPageChange($event)"
+        (sizeChange)="onSizeChange($event)" />
+
 
 </telemetry-page>
