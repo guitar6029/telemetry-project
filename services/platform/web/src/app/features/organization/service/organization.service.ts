@@ -7,6 +7,7 @@ import { OrganizationResponse } from "../dto/organization-response.dto";
 import { ApiResponse } from "../../../common/dto/api-response.dto";
 import { OrganizationCreateRequest } from "../dto/organization-create-request.dto";
 import { OrganizationUpdateRequest } from "../dto/organization-update-request.dto";
+import { DEFAULT_PAGE_SIZE } from "../../../components/pagination/constants/pagination.constants";
 
 
 @Injectable({
@@ -19,7 +20,7 @@ export class OrganizationService {
         `${ApiConstants.API_V1}/organizations`;
 
     private readonly DEFAULT_PAGE = 0;
-    private readonly DEFAULT_PAGE_SIZE = 10;
+    private readonly DEFAULT_PAGE_SIZE = DEFAULT_PAGE_SIZE;
     private readonly http = inject(HttpClient)
 
     getOrganizations(

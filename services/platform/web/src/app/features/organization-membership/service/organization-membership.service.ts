@@ -5,6 +5,7 @@ import { Observable } from "rxjs";
 import { PagedApiResponse } from "../../../common/dto/paged-api-response.dto";
 import { OrganizationMembershipResponse } from "../dto/organization-membership-response.dto";
 import { OrganizationContextStore } from "../../../core/stores/organization-context.store";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../../../components/pagination/constants/pagination.constants";
 
 
 @Injectable({
@@ -15,8 +16,8 @@ export class OrganizationMembershipService {
     private readonly organizationMembershipUrl =
         `${ApiConstants.API_V1}/organizations`;
 
-    private readonly DEFAULT_PAGE = 0;
-    private readonly DEFAULT_PAGE_SIZE = 10;
+    private readonly DEFAULT_PAGE = DEFAULT_PAGE;
+    private readonly DEFAULT_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
     private readonly http = inject(HttpClient)
     private readonly organizationContext = inject(OrganizationContextStore);

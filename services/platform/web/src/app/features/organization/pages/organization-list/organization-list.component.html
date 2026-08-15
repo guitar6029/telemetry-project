@@ -9,10 +9,7 @@
     <telemetry-table [data]="organizations()" [columns]="organizationColumns" />
     }
 
-    <!-- TODO PAGINATOR -->
-    <!--
-        <mat-paginator [length]="total()" [pageIndex]="page()" [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
-        (page)="onPageChange($event)">
-    </mat-paginator> -->
+    <telemetry-pagination [page]="page()" [size]="size()" [total]="total()" [totalPages]="totalPages()"
+        (pageChange)="onPageChange($event)" (sizeChange)="onSizeChange($event)" />
 
 </telemetry-page>

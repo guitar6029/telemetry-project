@@ -9,5 +9,8 @@
     <telemetry-table [data]="users()" [columns]="userColumns" />
     }
 
+    <telemetry-pagination [page]="page()" [size]="size()" [total]="total()" [totalPages]="totalPages()"
+        (pageChange)="onPageChange($event)" (sizeChange)="onSizeChange($event)" />
+
 
 </telemetry-page>

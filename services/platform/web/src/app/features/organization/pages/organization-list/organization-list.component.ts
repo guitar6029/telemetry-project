@@ -9,6 +9,8 @@ import { ButtonComponent } from "../../../../components/button/button.component"
 import { TableComponent } from "../../../../components/table/table.component";
 import { OrganizationColumnDefinitions } from "../../columns/organization-column-definitions";
 import { PageComponent } from "../../../../components/page/page.component";
+import { PaginationComponent } from "../../../../components/pagination/pagination.component";
+import { DEFAULT_PAGE_SIZE } from "../../../../components/pagination/constants/pagination.constants";
 
 @Component({
     selector: 'telemetry-organization-list',
@@ -17,7 +19,8 @@ import { PageComponent } from "../../../../components/page/page.component";
         EmptyStateComponent,
         RouterLink,
         TableComponent,
-        PageComponent
+        PageComponent,
+        PaginationComponent
     ],
     templateUrl: './organization-list.component.html',
     styleUrl: './organization-list.component.scss'
@@ -27,17 +30,11 @@ export class OrganizationListComponent implements OnInit {
     organizations = signal<OrganizationResponse[]>([]);
     protected readonly organizationColumns = OrganizationColumnDefinitions;
     page = signal(0);
-    pageSize = signal(10);
+    size = signal(DEFAULT_PAGE_SIZE);
     total = signal(0);
+    totalPages = signal(0);
 
     error = signal<string | null>(null);
-
-    displayedColumns: string[] = [
-        'name',
-        'slug',
-        'createdAt',
-        'updatedAt'
-    ]
 
 
     private readonly organizationService = inject(OrganizationService)
@@ -49,15 +46,16 @@ export class OrganizationListComponent implements OnInit {
 
     loadOrganizations(
         page = this.page(),
-        size = this.pageSize()
+        size = this.size()
     ): void {
         this.error.set(null);
         this.organizationService.getOrganizations(page, size).subscribe({
             next: (response) => {
                 this.organizations.set(response.data);
                 this.page.set(response.page);
-                this.pageSize.set(response.size);
+                this.size.set(response.size);
                 this.total.set(response.total);
+                this.totalPages.set(response.totalPages);
 
             },
             error: (httpError) => {
@@ -69,13 +67,16 @@ export class OrganizationListComponent implements OnInit {
         })
     }
 
-    // TODO PAGE onPageChange
-    onPageChange(event: any): void {
-        this.loadOrganizations(
-            event.pageIndex,
-            event.pageSize
-        )
+
+    protected onPageChange(page: number) {
+        this.page.set(page);
+        this.loadOrganizations();
     }
 
+    protected onSizeChange(size: number) {
+        this.size.set(size);
+        this.page.set(0);
+        this.loadOrganizations();
+    }
 
 }
