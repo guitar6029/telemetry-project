@@ -59,6 +59,10 @@ export class OrganizationMembershipListComponent implements OnInit {
         ).subscribe({
             next: (response) => {
                 this.users.set(response.data);
+                this.page.set(response.page);
+                this.size.set(response.size);
+                this.total.set(response.total);
+                this.totalPages.set(response.totalPages);
             },
             error: (httpError) => {
                 this.error.set("Unable to load organization membership");
