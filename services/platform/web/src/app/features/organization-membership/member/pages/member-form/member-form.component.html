@@ -6,10 +6,6 @@
     <telemetry-empty-state message="No member data"></telemetry-empty-state>
     } @else {
 
-    @if(mode() === 'view'){
-    <telemetry-button text="Edit" [routerLink]="['edit']" />
-    }
-
     <form class="form-default" [formGroup]="memberForm" (ngSubmit)="update()">
 
         <fieldset class="fieldset">
@@ -52,6 +48,9 @@
 
 
         <div class="form-buttons-container">
+            @if(mode() === 'view'){
+            <telemetry-button text="Edit" [routerLink]="['edit']" />
+            }
             <telemetry-button [type]="ButtonType.BUTTON" [style]="ButtonStyle.SECONDARY" text="Cancel"
                 [routerLink]="['/app/manage/members']" />
             @if (mode() === 'edit'){

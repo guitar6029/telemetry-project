@@ -4,10 +4,10 @@
     <p>{{ error() }}</p>
     } @else if (organizations().length === 0) {
     <telemetry-empty-state message="No organizations found"></telemetry-empty-state>
-    }
-
+    } @else {
     <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
     <telemetry-table [data]="organizations()" [columns]="organizationColumns" />
+    }
 
     <!-- TODO PAGINATOR -->
     <!--
