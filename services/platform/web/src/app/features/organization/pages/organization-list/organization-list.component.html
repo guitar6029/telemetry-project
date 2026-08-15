@@ -1,49 +1,18 @@
-@if (error()) {
-<p>{{ error() }}</p>
-} @else if (organizations().length === 0) {
-<telemetry-empty-state message="No organizations found"></telemetry-empty-state>
-}
+<telemetry-page>
 
+    @if (error()) {
+    <p>{{ error() }}</p>
+    } @else if (organizations().length === 0) {
+    <telemetry-empty-state message="No organizations found"></telemetry-empty-state>
+    } @else {
+    <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
+    <telemetry-table [data]="organizations()" [columns]="organizationColumns" />
+    }
 
-<telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
+    <!-- TODO PAGINATOR -->
+    <!--
+        <mat-paginator [length]="total()" [pageIndex]="page()" [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)">
+    </mat-paginator> -->
 
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Slug</th>
-            <th>Created At</th>
-            <th>Updated At</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @for (organization of organizations(); track organization.id) {
-        <tr>
-            <td>
-                <a [routerLink]="['/app/organizations', organization.id]">
-                    {{ organization.name }}
-                </a>
-            </td>
-
-            <td>
-                {{ organization.slug }}
-            </td>
-
-            <td>
-                {{ organization.createdAt }}
-            </td>
-
-            <td>
-                {{ organization.updatedAt }}
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
-
-<!-- TODO PAGINATOR -->
-<!--
-<mat-paginator [length]="total()" [pageIndex]="page()" [pageSize]="pageSize()" [pageSizeOptions]="[5, 10, 25, 50]"
-    (page)="onPageChange($event)">
-</mat-paginator> -->
+</telemetry-page>

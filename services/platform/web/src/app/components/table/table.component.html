@@ -1,0 +1,27 @@
+<div class="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+    <table class="table">
+        <thead>
+            <tr>
+                @for (column of columns(); track column.header) {
+                <th>{{column.header}}</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (row of data(); track row) {
+            <tr class="interactive-hover">
+                @for (column of columns(); track column.field) {
+                <td>
+
+                    <ng-container *ngComponentOutlet="
+                                ColumnComponentMap[column.type];
+                               inputs: getColumnInputs(row, column)
+                            ">
+                    </ng-container>
+                </td>
+                }
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>

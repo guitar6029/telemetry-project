@@ -8,25 +8,27 @@ import { OrganizationMembershipResponse } from "../../dto/organization-membershi
 
 import { NotificationService } from "../../../../common/notification/service/notification.service";
 import { ProfileStore } from "../../../../core/stores/profile.store";
+import { PageComponent } from "../../../../components/page/page.component";
+import { TableComponent } from "../../../../components/table/table.component";
+import { OrganizationMembershipColumnDefinitions } from "../../../organization/columns/user-column-definitions";
 
 
 @Component({
     selector: 'telemetry-organization-membership-list',
     imports: [
-
         EmptyStateComponent,
         RouterLink,
-
+        PageComponent,
+        TableComponent
     ],
     templateUrl: './organization-membership-list.component.html',
     styleUrl: './organization-membership-list.component.scss'
 })
-// // later
-// // type Role =
 
 
 export class OrganizationMembershipListComponent implements OnInit {
 
+    protected readonly userColumns = OrganizationMembershipColumnDefinitions;
     /**
      * if user is part of multiple memberships under given organizations
      * they will see a select dropdown to switch between organizations
