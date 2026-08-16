@@ -1,12 +1,12 @@
 <telemetry-page>
 
     @if (error()) {
-    <p>{{ error() }}</p>
+    <telemetry-error [text]="error() ?? 'Error'" />
     } @else if (organizations().length === 0) {
-    <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
+    <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" [icon]="IconName.PLUS" />
     <telemetry-empty-state message="No organizations found"></telemetry-empty-state>
     } @else {
-    <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" />
+    <telemetry-button [routerLink]="['/app/organizations/new']" text="New Organization" [icon]="IconName.PLUS" />
     <telemetry-table [data]="organizations()" [columns]="organizationColumns" />
     }
 

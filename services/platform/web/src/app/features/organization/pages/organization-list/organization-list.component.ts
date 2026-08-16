@@ -12,6 +12,8 @@ import { PaginationComponent } from "../../../../components/pagination/paginatio
 import { PaginationState } from "../../../../components/pagination/types/pagination.types";
 import { RouterLink } from "@angular/router";
 import { TableComponent } from "../../../../components/table/table.component";
+import { IconName } from "../../../../components/icon/icon.enums";
+import { ErrorComponent } from "../../../../components/error/error.component";
 
 @Component({
     selector: 'telemetry-organization-list',
@@ -21,7 +23,8 @@ import { TableComponent } from "../../../../components/table/table.component";
         RouterLink,
         TableComponent,
         PageComponent,
-        PaginationComponent
+        PaginationComponent,
+        ErrorComponent
     ],
     templateUrl: './organization-list.component.html',
     styleUrl: './organization-list.component.scss'
@@ -29,6 +32,7 @@ import { TableComponent } from "../../../../components/table/table.component";
 
 export class OrganizationListComponent implements OnInit {
     organizations = signal<OrganizationResponse[]>([]);
+    protected readonly IconName = IconName;
     protected readonly organizationColumns = OrganizationColumnDefinitions;
     pagination = signal<PaginationState>({
         page: DEFAULT_PAGE,

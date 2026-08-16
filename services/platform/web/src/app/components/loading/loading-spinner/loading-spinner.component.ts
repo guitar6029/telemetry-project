@@ -1,4 +1,5 @@
-import { Component } from "@angular/core";
+import { Component, input } from "@angular/core";
+import { SpinnerSize } from "./enums/spinner-size.enums";
 
 @Component({
     selector: 'telemetry-loading-spinner',
@@ -6,5 +7,5 @@ import { Component } from "@angular/core";
 })
 
 export class LoadingSpinnerComponent {
-
+    size = input<SpinnerSize>(SpinnerSize.LOADING_XL);
 }

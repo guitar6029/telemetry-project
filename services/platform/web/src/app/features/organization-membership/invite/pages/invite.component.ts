@@ -14,6 +14,7 @@ import { OrganizationRole } from "../../enum/organization-role.enum";
 import { PageComponent } from "../../../../components/page/page.component";
 import { PageHeaderComponent } from "../../../../components/page/page-header/page-header.component";
 import { UserConstants } from "../../../auth/constants/user.constants";
+import { IconName } from "../../../../components/icon/icon.enums";
 
 
 @Component({
@@ -42,6 +43,7 @@ export class InviteFormComponent {
     protected readonly ButtonType = ButtonType
     protected readonly ButtonStyle = ButtonStyle
     protected readonly InputType = InputType
+    protected readonly IconName = IconName;
 
 
 

@@ -1,4 +1,10 @@
-<button [class]="'btn ' + style()" [type]="type()" [disabled]="disabled()" (click)="clicked.emit($event)"
+<button [class]="'btn ' + style()" [type]="type()" [disabled]="disabled() || loading()" (click)="clicked.emit($event)"
     [routerLink]="routerLink()">
+    @if (icon(); as iconName) {
+    <telemetry-icon [name]="iconName" />
+    }
     {{text()}}
+    @if (loading()){
+    <telemetry-loading-spinner [size]="LoadingSpinnerSize.LOADING_XS" />
+    }
 </button>

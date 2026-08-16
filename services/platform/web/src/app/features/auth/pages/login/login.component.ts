@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { AuthService } from "../../service/auth.service";
 import { UserConstants } from "../../constants/user.constants";
@@ -31,14 +31,13 @@ import { ButtonType } from "../../../../components/button/types/button-type.type
 export class LoginComponent {
 
     loginError = false;
-
-
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
     private readonly notificationService = inject(NotificationService);
     private readonly sessionService = inject(SessionService);
     protected readonly InputType = InputType;
     protected readonly ButtonType = ButtonType;
+    loading = signal(false);
 
 
 
@@ -65,6 +64,7 @@ export class LoginComponent {
             return;
         }
 
+        this.loading.set(true);
         this.loginError = false;
 
         const request: LoginRequest = this.loginForm.getRawValue();
@@ -84,6 +84,8 @@ export class LoginComponent {
                     message: MessageDefaultConstants.auth.login.success,
                 });
 
+                this.loading.set(false);
+
 
             },
             error: (httpError) => {
@@ -91,6 +93,7 @@ export class LoginComponent {
                 this.notificationService.error({
                     message: httpError.error?.message ?? MessageDefaultConstants.auth.login.error,
                 });
+                this.loading.set(false);
             }
         })
     }

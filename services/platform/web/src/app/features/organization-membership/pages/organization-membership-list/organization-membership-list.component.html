@@ -3,10 +3,10 @@
     @if (error()) {
     <p>{{ error() }}</p>
     } @else if (users().length === 0) {
-    <telemetry-button [routerLink]="['/app/manage/invite']" text="Invite" />
+    <telemetry-button [routerLink]="['/app/manage/members/invite']" text="Invite" [icon]="IconName.ADD_USER" />
     <telemetry-empty-state message="No users found"></telemetry-empty-state>
     } @else {
-    <telemetry-button [routerLink]="['/app/manage/invite']" text="Invite" />
+    <telemetry-button [routerLink]="['/app/manage/members/invite']" text="Invite" [icon]="IconName.ADD_USER" />
     <telemetry-table [data]="users()" [columns]="userColumns" />
     }
 

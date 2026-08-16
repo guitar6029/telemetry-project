@@ -54,7 +54,8 @@
             <telemetry-button [type]="ButtonType.BUTTON" [style]="ButtonStyle.SECONDARY" text="Cancel"
                 [routerLink]="['/app/manage/members']" />
             @if (mode() === 'edit'){
-            <telemetry-button [type]="ButtonType.SUBMIT" [text]="formSubmitButtonText()" [disabled]="formDisabled()" />
+            <telemetry-button [type]="ButtonType.SUBMIT" [text]="formSubmitButtonText()" [disabled]="formDisabled()"
+                [loading]="loading()" />
             }
         </div>
     </form>
