@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.joshsoll.telemetry.platform.common.api.ApiRoutes;
 import com.joshsoll.telemetry.platform.common.response.ApiResponse;
@@ -20,6 +21,7 @@ import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
+import com.joshsoll.telemetry.platform.device.service.DeviceImportService;
 import com.joshsoll.telemetry.platform.device.service.DeviceService;
 
 import jakarta.validation.Valid;
@@ -29,9 +31,13 @@ import jakarta.validation.Valid;
 public class DeviceController {
     private final DeviceService deviceService;
     private final String DOMAIN_NAME = DeviceConstants.DOMAIN_NAME;
+    private final DeviceImportService deviceImportService;
 
-    public DeviceController(DeviceService deviceService) {
+    public DeviceController(
+            DeviceService deviceService,
+            DeviceImportService deviceImportService) {
         this.deviceService = deviceService;
+        this.deviceImportService = deviceImportService;
     }
 
     @GetMapping
@@ -60,5 +66,13 @@ public class DeviceController {
             @PathVariable UUID id) {
         deviceService.deleteDevice(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<Void> importDevices(
+            @RequestParam MultipartFile file) {
+        deviceImportService.importDevices(file);
+
+        return ResponseFactory.noContent();
     }
 }
