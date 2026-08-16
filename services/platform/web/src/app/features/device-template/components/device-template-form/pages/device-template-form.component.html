@@ -9,11 +9,12 @@
     <telemetry-empty-state message="No device template data"></telemetry-empty-state>
     } @else {
     @if (!editMode()) {
-    <telemetry-button text="Edit" routerLink="edit" />
+    <telemetry-button text="Edit" routerLink="edit" [icon]="IconName.EDIT" />
     }
 
 
-    <telemetry-button text="Add Metric" [style]="ButtonStyle.SECONDARY" (clicked)="addMetricDefinition()" />
+    <telemetry-button text="Add Metric" [style]="ButtonStyle.SECONDARY" (clicked)="addMetricDefinition()"
+        [icon]="IconName.PLUS" />
 
 
     <form class="flex flex-col gap-2 p-2" [formGroup]="deviceTemplateForm">
@@ -63,7 +64,7 @@
 
             </fieldset>
 
-            <telemetry-button text="Delete" (clicked)="removeMetricDefinition(i)" />
+            <telemetry-button text="Delete" (clicked)="removeMetricDefinition(i)" [icon]="IconName.TRASH" />
 
         </div>
 
@@ -77,7 +78,7 @@
             <telemetry-button text="Cancel" [style]="ButtonStyle.SECONDARY" [type]="ButtonType.BUTTON"
                 [routerLink]="['/app/device-templates']" />
             <telemetry-button [text]="editMode() ? 'Update' : 'Save'" [type]="ButtonType.SUBMIT"
-                (clicked)="submitForm()" />
+                (clicked)="submitForm()" [loading]="loading()" />
         </div>
 
     </form>

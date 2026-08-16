@@ -28,6 +28,8 @@ import { ButtonType } from "../../../../../components/button/types/button-type.t
 import { ButtonStyle } from "../../../../../components/button/types/button-style.types";
 import { LoadingSpinnerComponent } from "../../../../../components/loading/loading-spinner/loading-spinner.component";
 import { PageHeaderComponent } from "../../../../../components/page/page-header/page-header.component";
+import { IconName } from "../../../../../components/icon/icon.enums";
+import { SpinnerSize } from "../../../../../components/loading/loading-spinner/enums/spinner-size.enums";
 
 @Component({
     selector: 'telemetry-device-template-create',
@@ -53,6 +55,8 @@ export class DeviceTemplateFormComponent implements OnInit {
     private readonly notificationService = inject(NotificationService);
     protected readonly ButtonType = ButtonType
     protected readonly ButtonStyle = ButtonStyle
+    protected readonly IconName = IconName;
+    protected readonly LoadingSpinnerSize = SpinnerSize;
 
     protected readonly InputType = InputType;
 

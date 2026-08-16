@@ -10,6 +10,8 @@ import { PaginationComponent } from "../../../../components/pagination/paginatio
 import { PaginationState } from "../../../../components/pagination/types/pagination.types";
 import { RouterLink } from "@angular/router";
 import { TableComponent } from "../../../../components/table/table.component";
+import { ButtonComponent } from "../../../../components/button/button.component";
+import { IconName } from "../../../../components/icon/icon.enums";
 
 
 @Component({
@@ -19,7 +21,8 @@ import { TableComponent } from "../../../../components/table/table.component";
         RouterLink,
         PageComponent,
         TableComponent,
-        PaginationComponent
+        PaginationComponent,
+        ButtonComponent
     ],
     templateUrl: './organization-membership-list.component.html',
     styleUrl: './organization-membership-list.component.scss'
@@ -29,6 +32,7 @@ import { TableComponent } from "../../../../components/table/table.component";
 export class OrganizationMembershipListComponent implements OnInit {
 
     protected readonly userColumns = OrganizationMembershipColumnDefinitions;
+    protected readonly IconName = IconName;
     organizationName = signal<string | null>(null);
     users = signal<OrganizationMembershipResponse[]>([]);
     pagination = signal<PaginationState>({

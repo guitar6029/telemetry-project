@@ -6,7 +6,8 @@
         <telemetry-input [type]="InputType.EMAIL" [control]="loginForm.controls.email" />
         <telemetry-label text="Password" />
         <telemetry-input [type]="InputType.PASSWORD" [control]="loginForm.controls.password" />
-        <telemetry-button text="Login" [type]="ButtonType.SUBMIT" [disabled]="loginForm.invalid" />
+        <telemetry-button text="Login" [type]="ButtonType.SUBMIT" [disabled]="loginForm.invalid"
+            [loading]="loading()" />
     </fieldset>
 
 
