@@ -70,12 +70,19 @@ public class DeviceController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{organizationId}/import")
+    @PostMapping("/{organizationId}/{templateId}/{hierarchyNodeId}/import")
     public ResponseEntity<Void> importDevices(
             @AuthenticationPrincipal User user,
             @PathVariable UUID organizationId,
+            @PathVariable UUID templateId,
+            @PathVariable UUID hierarchyNodeId,
             @RequestParam MultipartFile file) {
-        deviceImportService.importDevices(user, organizationId, file);
+        deviceImportService.importDevices(
+                user,
+                organizationId,
+                templateId,
+                hierarchyNodeId,
+                file);
 
         return ResponseFactory.noContent();
     }
