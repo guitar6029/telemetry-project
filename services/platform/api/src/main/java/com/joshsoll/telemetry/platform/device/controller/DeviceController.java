@@ -23,7 +23,7 @@ import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
-import com.joshsoll.telemetry.platform.device.service.DeviceImportService;
+import com.joshsoll.telemetry.platform.device.importer.service.DeviceImportService;
 import com.joshsoll.telemetry.platform.device.service.DeviceService;
 
 import jakarta.validation.Valid;
