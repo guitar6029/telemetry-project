@@ -1,4 +1,4 @@
-package com.joshsoll.telemetry.platform.device.importer.dto;
+package com.joshsoll.telemetry.platform.device.importer.enums;
 
 public enum DeviceImportMode {
     SKIP_EXISTING,
