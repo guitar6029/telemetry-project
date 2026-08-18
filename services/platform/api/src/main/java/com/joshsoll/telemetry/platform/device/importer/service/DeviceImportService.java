@@ -27,6 +27,7 @@ import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
+import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportError;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportPreview;
@@ -142,7 +143,7 @@ public class DeviceImportService {
                 savedImport.getValidRows(),
                 savedImport.getInvalidRows(),
                 parsedResults.validRows().stream()
-                        .limit(10)
+                        .limit(DeviceImportConstants.PREVIEW_LIMIT)
                         .toList(),
                 parsedResults.errors());
     }

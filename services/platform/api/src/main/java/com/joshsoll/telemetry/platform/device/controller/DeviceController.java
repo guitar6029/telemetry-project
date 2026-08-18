@@ -23,6 +23,7 @@ import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportPreview;
 import com.joshsoll.telemetry.platform.device.importer.service.DeviceImportService;
 import com.joshsoll.telemetry.platform.device.service.DeviceService;
 
@@ -85,5 +86,22 @@ public class DeviceController {
                 file);
 
         return ResponseFactory.noContent();
+    }
+
+    @PostMapping("/{organizationId}/{templateId}/{hierarchyNodeId}/preview-import")
+    public ResponseEntity<ApiResponse<DeviceImportPreview>> setupPreviewImport(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId,
+            @PathVariable UUID templateId,
+            @PathVariable UUID hierarchyNodeId,
+            @RequestParam MultipartFile file) {
+        DeviceImportPreview preview = deviceImportService.setupPreviewImport(
+                user,
+                organizationId,
+                templateId,
+                hierarchyNodeId,
+                file);
+
+        return ResponseFactory.ok(preview, "Device Import created successfully");
     }
 }
