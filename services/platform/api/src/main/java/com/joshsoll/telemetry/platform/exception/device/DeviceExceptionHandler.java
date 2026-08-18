@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.exception.DeviceNotFoundException;
 import com.joshsoll.telemetry.platform.device.exception.DuplicateDeviceSerialNumberException;
+import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportArtifactException;
 import com.joshsoll.telemetry.platform.exception.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,6 +54,20 @@ public class DeviceExceptionHandler {
                                                 Instant.now(),
                                                 HttpStatus.BAD_REQUEST.value(),
                                                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
+
+        @ExceptionHandler(DeviceImportArtifactException.class)
+        public ResponseEntity<ErrorResponse> handleDeviceImportArtifact(
+                        DeviceImportArtifactException ex,
+                        HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                                                 ex.getMessage(),
                                                 request.getRequestURI()));
         }

@@ -3,6 +3,7 @@ package com.joshsoll.telemetry.platform.device.importer.service;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import java.io.Reader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -28,6 +29,12 @@ import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportError;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportPreview;
+import com.joshsoll.telemetry.platform.device.importer.dto.PreparedDeviceImportRow;
+import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
+import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
+import com.joshsoll.telemetry.platform.device.importer.storage.DeviceImportArtifactStorage;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
@@ -45,6 +52,9 @@ public class DeviceImportService {
     private final AuthorizationService authorizationService;
     private final DeviceTemplateRepository deviceTemplateRepository;
     private final HierarchyNodeRepository hierarchyNodeRepository;
+    private final DeviceImportRepository deviceImportRepository;
+    private final DeviceImportArtifactSerializer deviceImportArtifactSerializer;
+    private final DeviceImportArtifactStorage deviceImportArtifactStorage;
     private static final Set<String> REQUIRED_HEADERS = Set.of(
             "name",
             "manufacturer",
@@ -61,11 +71,119 @@ public class DeviceImportService {
     public DeviceImportService(
             AuthorizationService authorizationService,
             DeviceTemplateRepository deviceTemplateRepository,
-            HierarchyNodeRepository hierarchyNodeRepository, DeviceRepository deviceRepository) {
+            HierarchyNodeRepository hierarchyNodeRepository,
+            DeviceRepository deviceRepository,
+            DeviceImportRepository deviceImportRepository,
+            DeviceImportArtifactSerializer deviceImportArtifactSerializer,
+            DeviceImportArtifactStorage deviceImportArtifactStorage) {
         this.authorizationService = authorizationService;
         this.deviceTemplateRepository = deviceTemplateRepository;
         this.hierarchyNodeRepository = hierarchyNodeRepository;
         this.deviceRepository = deviceRepository;
+        this.deviceImportRepository = deviceImportRepository;
+        this.deviceImportArtifactSerializer = deviceImportArtifactSerializer;
+        this.deviceImportArtifactStorage = deviceImportArtifactStorage;
+    }
+
+    public DeviceImportPreview setupPreviewImport(
+            User authenticatedUser,
+            UUID organizationId,
+            UUID templateId,
+            UUID hierarchyNodeId,
+            MultipartFile file) {
+
+        DeviceImportContext deviceContext = validateImportContext(
+                authenticatedUser,
+                organizationId,
+                templateId,
+                hierarchyNodeId,
+                file);
+
+        DeviceImportParseResult parsedResults = parseCSVFile(file, deviceContext);
+
+        List<PreparedDeviceImportRow> preparedRows = parsedResults.validRows()
+                .stream()
+                .map(row -> new PreparedDeviceImportRow(
+                        row.getName(),
+                        row.getManufacturer(),
+                        row.getModel(),
+                        row.getSerialNumber(),
+                        row.getFirmwareVersion(),
+                        row.getStatus()))
+                .toList();
+
+        InputStream artifact = deviceImportArtifactSerializer.serialize(preparedRows);
+
+        UUID id = UUID.randomUUID();
+
+        String storageKey = deviceImportArtifactStorage.store(id, artifact);
+
+        DeviceImport deviceImport = new DeviceImport(
+                DeviceImportMode.SKIP_EXISTING,
+                deviceContext.organization(),
+                deviceContext.deviceTemplate(),
+                deviceContext.hierarchyNode(),
+                storageKey,
+                parsedResults.validRows().size() + parsedResults.errors().size(),
+                parsedResults.validRows().size(),
+                parsedResults.errors().size());
+
+        DeviceImport savedImport = deviceImportRepository.save(deviceImport);
+
+        return toResponsePreview(savedImport, parsedResults);
+    }
+
+    private DeviceImportPreview toResponsePreview(
+            DeviceImport savedImport,
+            DeviceImportParseResult parsedResults) {
+        return new DeviceImportPreview(
+                savedImport.getId(),
+                savedImport.getTotalRows(),
+                savedImport.getValidRows(),
+                savedImport.getInvalidRows(),
+                parsedResults.validRows().stream()
+                        .limit(10)
+                        .toList(),
+                parsedResults.errors());
+    }
+
+    public DeviceImportContext validateImportContext(
+            User authenticatedUser,
+            UUID organizationId,
+            UUID templateId,
+            UUID hierarchyNodeId,
+            MultipartFile file) {
+
+        Organization organization = authorizationService.requireOrganizationAccess(authenticatedUser, organizationId);
+
+        if (file == null || file.isEmpty()) {
+            throw new DeviceImportInvalidException("Import file is required.");
+        }
+
+        String contentType = file.getContentType();
+
+        if (!"text/csv".equalsIgnoreCase(contentType)) {
+            throw new DeviceImportInvalidException("Import file must be a CSV.");
+        }
+
+        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(templateId)
+                .orElseThrow(() -> new DeviceTemplateNotFoundException(templateId));
+
+        HierarchyNode hierarchyNode = hierarchyNodeRepository.findById(hierarchyNodeId)
+                .orElseThrow(() -> new HierarchyNodeNotFoundException(hierarchyNodeId));
+
+        if (!deviceTemplate.getOrganizationId().equals(organization.getId())) {
+            throw new DeviceTemplateOrganizationMismatchException();
+        }
+
+        if (!hierarchyNode.getOrganization().getId().equals(organization.getId())) {
+            throw new HierarchyNodeOrganizationMismatchException();
+        }
+
+        return new DeviceImportContext(
+                organization,
+                deviceTemplate,
+                hierarchyNode);
     }
 
     public void importDevices(
@@ -112,7 +230,7 @@ public class DeviceImportService {
 
     }
 
-    private void parseCSVFile(MultipartFile file, DeviceImportContext deviceContext) {
+    private DeviceImportParseResult parseCSVFile(MultipartFile file, DeviceImportContext deviceContext) {
         CSVFormat format = CSVFormat.DEFAULT.builder()
                 .setHeader()
                 .setSkipHeaderRecord(true)
@@ -127,9 +245,9 @@ public class DeviceImportService {
             verifyHeaders(parser);
             // parse rows , we get valid devices and error objects back
             DeviceImportParseResult parsedResults = parseRows(parser, deviceContext);
-            // save the devices
-            saveDevices(parsedResults.validRows(), deviceContext);
-
+            // // save the devices
+            // saveDevices(parsedResults.validRows(), deviceContext);
+            return parsedResults;
         } catch (IOException ex) {
             throw new DeviceImportInvalidException("Unable to read import file");
         }
