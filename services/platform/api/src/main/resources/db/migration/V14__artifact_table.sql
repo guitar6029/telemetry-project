@@ -1,4 +1,4 @@
-CREATE TABLE device_import_artifact (
+CREATE TABLE device_import_artifacts (
     id UUID PRIMARY KEY,
     device_import_id UUID NOT NULL UNIQUE,
     file_name VARCHAR(255) NOT NULL,
