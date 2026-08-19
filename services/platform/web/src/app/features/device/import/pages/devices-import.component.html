@@ -1,0 +1,23 @@
+<telemetry-page>
+    <ul class="steps w-full">
+        @for (step of deviceImportSteps; track step) {
+        <li class="step" [class.step-primary]="step <= currentStep()">
+            {{ stepLabels[step] }}
+        </li>
+        }
+    </ul>
+
+    <div class="form-buttons-container">
+
+        @if (showCancel()) {
+        <telemetry-button text="Cancel" (clicked)="cancelImport()" />
+        }
+
+        @if (showPrevious()) {
+        <telemetry-button text="Previous" (clicked)="previousStep()" />
+        }
+
+        <telemetry-button text="Next" [disabled]="!canGoNext()" (clicked)="nextStep()" />
+
+    </div>
+</telemetry-page>
