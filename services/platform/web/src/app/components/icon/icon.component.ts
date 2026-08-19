@@ -7,6 +7,7 @@ import { ChevronRightIconComponent } from "./svg/chevronRight.component";
 import { NgComponentOutlet } from "@angular/common";
 import { AddUserIconComponent } from "./svg/addUser.component";
 import { PlusIconComponent } from "./svg/plus.component";
+import { SearchIconComponent } from "./svg/search.component";
 
 @Component({
     selector: 'telemetry-icon',
@@ -22,7 +23,8 @@ export class IconComponent {
         [IconName.ARROW_LEFT]: ChevronLeftIconComponent,
         [IconName.ARROW_RIGHT]: ChevronRightIconComponent,
         [IconName.ADD_USER]: AddUserIconComponent,
-        [IconName.PLUS]: PlusIconComponent
+        [IconName.PLUS]: PlusIconComponent,
+        [IconName.SEARCH]: SearchIconComponent
     };
 
     name = input.required<IconName>();

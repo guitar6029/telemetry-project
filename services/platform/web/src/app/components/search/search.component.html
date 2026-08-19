@@ -1,0 +1,12 @@
+<!-- <label class="input">
+    class="h-[.5em] opacity-50 fill-amber-300"
+    <telemetry-search-icon />
+    <input type="search" required placeholder="Search" />
+</label> -->
+
+
+<label class="input">
+    <telemetry-search-icon />
+
+    <input type="search" [formControl]="searchControl" [placeholder]="placeholder()" />
+</label>
