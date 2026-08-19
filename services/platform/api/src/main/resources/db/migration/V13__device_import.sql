@@ -10,8 +10,6 @@ CREATE TABLE device_imports (
     template_id UUID NOT NULL,
     hierarchy_node_id UUID NOT NULL,
 
-    storage_key VARCHAR(500) NOT NULL,
-
     total_rows INTEGER NOT NULL DEFAULT 0,
     valid_rows INTEGER NOT NULL DEFAULT 0,
     invalid_rows INTEGER NOT NULL DEFAULT 0,

@@ -53,9 +53,6 @@ public class DeviceImport {
     @JoinColumn(name = "hierarchy_node_id", nullable = false)
     private HierarchyNode hierarchyNode;
 
-    @Column(nullable = false, length = 500)
-    private String storageKey;
-
     @Column(nullable = false)
     private Integer totalRows = 0;
 
@@ -77,7 +74,6 @@ public class DeviceImport {
             Organization organization,
             DeviceTemplate deviceTemplate,
             HierarchyNode hierarchyNode,
-            String storageKey,
             Integer totalRows,
             Integer validRows,
             Integer invalidRows) {
@@ -88,7 +84,6 @@ public class DeviceImport {
         this.organization = organization;
         this.deviceTemplate = deviceTemplate;
         this.hierarchyNode = hierarchyNode;
-        this.storageKey = storageKey;
         this.totalRows = totalRows;
         this.validRows = validRows;
         this.invalidRows = invalidRows;
@@ -120,10 +115,6 @@ public class DeviceImport {
 
     public HierarchyNode getHierarchyNode() {
         return hierarchyNode;
-    }
-
-    public String getStorageKey() {
-        return storageKey;
     }
 
     public Integer getTotalRows() {

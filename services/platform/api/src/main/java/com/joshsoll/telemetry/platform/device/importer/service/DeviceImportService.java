@@ -30,12 +30,12 @@ import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidExcep
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportError;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportParseResult;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportPreview;
 import com.joshsoll.telemetry.platform.device.importer.dto.PreparedDeviceImportRow;
 import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
-import com.joshsoll.telemetry.platform.device.importer.storage.DeviceImportArtifactStorage;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
@@ -55,19 +55,7 @@ public class DeviceImportService {
     private final HierarchyNodeRepository hierarchyNodeRepository;
     private final DeviceImportRepository deviceImportRepository;
     private final DeviceImportArtifactSerializer deviceImportArtifactSerializer;
-    private final DeviceImportArtifactStorage deviceImportArtifactStorage;
-    private static final Set<String> REQUIRED_HEADERS = Set.of(
-            "name",
-            "manufacturer",
-            "model",
-            "serialNumber",
-            "firmwareVersion",
-            "status");
-
-    public record DeviceImportParseResult(
-            List<CreateDeviceRequest> validRows,
-            List<DeviceImportError> errors) {
-    }
+    private final DeviceImportArtifactService deviceImportArtifactService;
 
     public DeviceImportService(
             AuthorizationService authorizationService,
@@ -76,14 +64,15 @@ public class DeviceImportService {
             DeviceRepository deviceRepository,
             DeviceImportRepository deviceImportRepository,
             DeviceImportArtifactSerializer deviceImportArtifactSerializer,
-            DeviceImportArtifactStorage deviceImportArtifactStorage) {
+            DeviceImportArtifactService deviceImportArtifactService) {
         this.authorizationService = authorizationService;
         this.deviceTemplateRepository = deviceTemplateRepository;
         this.hierarchyNodeRepository = hierarchyNodeRepository;
         this.deviceRepository = deviceRepository;
         this.deviceImportRepository = deviceImportRepository;
         this.deviceImportArtifactSerializer = deviceImportArtifactSerializer;
-        this.deviceImportArtifactStorage = deviceImportArtifactStorage;
+        this.deviceImportArtifactService = deviceImportArtifactService;
+
     }
 
     public DeviceImportPreview setupPreviewImport(
@@ -113,23 +102,24 @@ public class DeviceImportService {
                         row.getStatus()))
                 .toList();
 
-        InputStream artifact = deviceImportArtifactSerializer.serialize(preparedRows);
-
-        UUID id = UUID.randomUUID();
-
-        String storageKey = deviceImportArtifactStorage.store(id, artifact);
-
         DeviceImport deviceImport = new DeviceImport(
                 DeviceImportMode.SKIP_EXISTING,
                 deviceContext.organization(),
                 deviceContext.deviceTemplate(),
                 deviceContext.hierarchyNode(),
-                storageKey,
                 parsedResults.validRows().size() + parsedResults.errors().size(),
                 parsedResults.validRows().size(),
                 parsedResults.errors().size());
 
         DeviceImport savedImport = deviceImportRepository.save(deviceImport);
+
+        InputStream artifact = deviceImportArtifactSerializer.serialize(preparedRows);
+
+        deviceImportArtifactService.saveArtifact(
+                savedImport,
+                file.getOriginalFilename(),
+                file.getContentType(),
+                artifact);
 
         return toResponsePreview(savedImport, parsedResults);
     }
@@ -262,7 +252,7 @@ public class DeviceImportService {
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
 
-        if (!headers.equals(REQUIRED_HEADERS)) {
+        if (!headers.equals(DeviceImportConstants.REQUIRED_HEADERS)) {
             throw new DeviceImportInvalidException("Invalid CSV headers.");
         }
     }
