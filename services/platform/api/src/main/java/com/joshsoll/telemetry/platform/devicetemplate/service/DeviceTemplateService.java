@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
+import com.joshsoll.telemetry.platform.devicetemplate.constants.DeviceTemplateConstants;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.CreateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.UpdateDeviceTemplateRequest;
@@ -95,6 +96,29 @@ public class DeviceTemplateService {
                                 metricDefinitionResponses,
                                 savedDeviceTemplate.getCreatedAt(),
                                 savedDeviceTemplate.getUpdatedAt());
+        }
+
+        public List<DeviceTemplateResponse> searchDeviceTemplates(
+                        User authenticatedUser,
+                        UUID organizationId,
+                        String query) {
+
+                Organization organization = authorizationService.requireOrganizationAccess(
+                                authenticatedUser,
+                                organizationId);
+
+                Pageable pageable = PageRequest.of(
+                                0,
+                                DeviceTemplateConstants.SEARCH_LIMIT);
+
+                return deviceTemplateRepository
+                                .findByOrganization_IdAndNameContainingIgnoreCase(
+                                                organization.getId(),
+                                                query,
+                                                pageable)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
         }
 
         public DeviceTemplateResponse getDeviceTemplateById(

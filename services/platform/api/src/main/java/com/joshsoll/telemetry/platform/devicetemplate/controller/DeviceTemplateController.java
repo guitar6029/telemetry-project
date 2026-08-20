@@ -1,5 +1,6 @@
 package com.joshsoll.telemetry.platform.devicetemplate.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,16 @@ public class DeviceTemplateController {
                 organizationId, deviceTemplateId);
 
         return ResponseFactory.ok(deviceTemplateResponse, null);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<DeviceTemplateResponse>>> searchDeviceTemplates(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId,
+            @RequestParam String query) {
+        List<DeviceTemplateResponse> responses = deviceTemplateService.searchDeviceTemplates(user, organizationId,
+                query);
+        return ResponseFactory.ok(responses, query);
     }
 
     @GetMapping
