@@ -3,7 +3,6 @@ import { inject, Injectable } from "@angular/core";
 import { ApiConstants } from "../../../../../../constants/api.constants";
 import { OrganizationContextStore } from "../../../../../../core/stores/organization-context.store";
 import { Observable } from "rxjs";
-import { DeviceTemplateResponse } from "../../../../../device-template/dto/device-template-response.dto";
 import { ApiResponse } from "../../../../../../common/dto/api-response.dto";
 import { DeviceTemplateOptionResponse } from "../../../../../device-template/dto/device-template-option-response.dto";
 

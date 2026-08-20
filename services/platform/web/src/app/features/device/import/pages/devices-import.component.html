@@ -8,7 +8,8 @@
     </ul>
 
     @if (currentStep() === 1) {
-    <telemetry-device-template-selection />
+    <h1>selected template id : {{selectedTemplateId()}}</h1>
+    <telemetry-device-template-selection (selectedDeviceTemplate)="selectedDeviceTemplateUpdate($event)" />
     }
 
     <div class="form-buttons-container">

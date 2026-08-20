@@ -1,3 +1,21 @@
 <telemetry-page>
     <telemetry-search placeholder="Search device templates..." (searchChange)="searchDeviceTemplateByQuery($event)" />
+
+    @if (!hasDeviceTemplates()) {
+    <span>No device template matching the query</span>
+    } @else {
+    <div class="flex flex-row items-center flex-wrap gap-2">
+
+        @for (deviceTemplate of deviceTemplates(); track deviceTemplate.id){
+
+        <div class="w-sm h-sm border-2 rounded-2xl p-2 interactive-hover cursor-pointer"
+            [class.border-primary]="currentSelectedTemplate() === deviceTemplate.id"
+            (click)="selectTemplate(deviceTemplate.id)">
+            <span>{{ deviceTemplate.name }}</span>
+        </div>
+        }
+    </div>
+
+    }
+
 </telemetry-page>

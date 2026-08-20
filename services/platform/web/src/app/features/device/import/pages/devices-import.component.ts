@@ -89,4 +89,8 @@ export class DevicesImportComponent {
                 break;
         }
     }
+
+    selectedDeviceTemplateUpdate(deviceTemplateId: string) {
+        this.selectedTemplateId.set(deviceTemplateId);
+    }
 }
