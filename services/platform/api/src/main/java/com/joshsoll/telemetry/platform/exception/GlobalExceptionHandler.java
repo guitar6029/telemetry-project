@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
                                                 Instant.now(),
                                                 HttpStatus.BAD_REQUEST.value(),
                                                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                                                "Invalid organization ID format.",
+                                                "Invalid argument: " + ex.getName(),
                                                 request.getRequestURI()));
         }
 
