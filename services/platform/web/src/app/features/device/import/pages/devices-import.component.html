@@ -7,6 +7,10 @@
         }
     </ul>
 
+    @if (currentStep() === 1) {
+    <telemetry-device-template-selection />
+    }
+
     <div class="form-buttons-container">
 
         @if (showCancel()) {

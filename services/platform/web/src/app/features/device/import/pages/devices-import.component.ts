@@ -5,12 +5,13 @@ import { PageComponent } from "../../../../components/page/page.component";
 import { DEVICE_IMPORT_STEP_LABELS, DEVICE_IMPORT_STEPS } from "../constants/device-import.constants";
 import { ButtonComponent } from "../../../../components/button/button.component";
 import { Router } from "@angular/router";
+import { DeviceTemplateSelectionComponent } from "../steps/device-template-selection/pages/device-template-selection.component";
 
 
 @Component({
     selector: 'telemetry-devices-import',
     templateUrl: './devices-import.component.html',
-    imports: [PageComponent, ButtonComponent]
+    imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent]
 })
 
 export class DevicesImportComponent {
