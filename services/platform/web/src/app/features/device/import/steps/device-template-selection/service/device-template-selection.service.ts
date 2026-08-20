@@ -5,6 +5,7 @@ import { OrganizationContextStore } from "../../../../../../core/stores/organiza
 import { Observable } from "rxjs";
 import { DeviceTemplateResponse } from "../../../../../device-template/dto/device-template-response.dto";
 import { ApiResponse } from "../../../../../../common/dto/api-response.dto";
+import { DeviceTemplateOptionResponse } from "../../../../../device-template/dto/device-template-option-response.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -21,12 +22,12 @@ export class DeviceTemplateSelectionService {
         return this.organizationContext.requireCurrentOrganizationId();
     }
 
-    getDeviceTemplatesBySearchQuery(query: string): Observable<ApiResponse<DeviceTemplateResponse[]>> {
+    getDeviceTemplatesBySearchQuery(query: string): Observable<ApiResponse<DeviceTemplateOptionResponse[]>> {
 
         const params = new HttpParams()
             .set('query', query);
 
-        return this.http.get<ApiResponse<DeviceTemplateResponse[]>>(
+        return this.http.get<ApiResponse<DeviceTemplateOptionResponse[]>>(
             `${this.deviceTemplateUrl}/${this.organizationId}/device-templates/search`,
             {
                 params,

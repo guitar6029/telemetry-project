@@ -22,6 +22,7 @@ import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.devicetemplate.constants.DeviceTemplateConstants;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.CreateDeviceTemplateRequest;
+import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateOptionResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.UpdateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.devicetemplate.service.DeviceTemplateService;
@@ -62,11 +63,12 @@ public class DeviceTemplateController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<DeviceTemplateResponse>>> searchDeviceTemplates(
+    public ResponseEntity<ApiResponse<List<DeviceTemplateOptionResponse>>> searchDeviceTemplates(
             @AuthenticationPrincipal User user,
             @PathVariable UUID organizationId,
             @RequestParam String query) {
-        List<DeviceTemplateResponse> responses = deviceTemplateService.searchDeviceTemplates(user, organizationId,
+
+        List<DeviceTemplateOptionResponse> responses = deviceTemplateService.searchDeviceTemplates(user, organizationId,
                 query);
         return ResponseFactory.ok(responses, query);
     }

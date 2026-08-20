@@ -15,6 +15,7 @@ import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.constants.DeviceTemplateConstants;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.CreateDeviceTemplateRequest;
+import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateOptionResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.UpdateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
@@ -98,7 +99,7 @@ public class DeviceTemplateService {
                                 savedDeviceTemplate.getUpdatedAt());
         }
 
-        public List<DeviceTemplateResponse> searchDeviceTemplates(
+        public List<DeviceTemplateOptionResponse> searchDeviceTemplates(
                         User authenticatedUser,
                         UUID organizationId,
                         String query) {
@@ -111,14 +112,13 @@ public class DeviceTemplateService {
                                 0,
                                 DeviceTemplateConstants.SEARCH_LIMIT);
 
-                return deviceTemplateRepository
+                Page<DeviceTemplateOptionResponse> deviceTemplates = deviceTemplateRepository
                                 .findByOrganization_IdAndNameContainingIgnoreCase(
                                                 organization.getId(),
                                                 query,
-                                                pageable)
-                                .stream()
-                                .map(this::toResponse)
-                                .toList();
+                                                pageable);
+
+                return deviceTemplates.getContent();
         }
 
         public DeviceTemplateResponse getDeviceTemplateById(
