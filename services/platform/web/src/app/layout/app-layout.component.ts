@@ -8,7 +8,6 @@ import { SideNavComponent } from "../components/side-nav/pages/side-nav.componen
     selector: 'telemetry-app-layout',
     imports: [TopNavComponent, MainContentComponent, SideNavComponent],
     templateUrl: './app-layout.component.html',
-    styleUrl: './app-layout.component.scss'
 })
 
 export class AppLayoutComponent {

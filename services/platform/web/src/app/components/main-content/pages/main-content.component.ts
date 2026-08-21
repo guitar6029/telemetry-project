@@ -5,8 +5,10 @@ import { RouterOutlet } from "@angular/router";
 @Component({
     selector: 'telemetry-main-content',
     templateUrl: './main-content.component.html',
-    styleUrl: './main-content.component.scss',
-    imports: [RouterOutlet]
+    imports: [RouterOutlet],
+    host: {
+        class: 'flex min-h-0 flex-1 flex-col'
+    }
 })
 
 export class MainContentComponent {
