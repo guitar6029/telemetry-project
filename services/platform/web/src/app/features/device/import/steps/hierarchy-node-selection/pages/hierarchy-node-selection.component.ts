@@ -36,30 +36,52 @@ export class HierarchyNodeSelectionComponent implements OnInit {
         });
     }
 
-    getHierarchyChildrenNode(hierarchyNodeId: string) {
+    getHierarchyChildrenNode(hierarchyNodeId: string): void {
+
+        const node = this.findNode(
+            this.hierarchyNodes(),
+            hierarchyNodeId
+        );
+
+        if (!node || node.childrenLoaded || node.loadingChildren) {
+            return;
+        }
+
+        this.hierarchyNodes.update(nodes =>
+            this.updateNode(nodes, hierarchyNodeId, node => ({
+                ...node,
+                loadingChildren: true
+            }))
+        );
+
         this.hierarchyNodeService.getChildren(hierarchyNodeId).subscribe({
             next: (response) => {
-                const node = this.findNode(
-                    this.hierarchyNodes(),
-                    hierarchyNodeId
+
+                this.hierarchyNodes.update(nodes =>
+                    this.updateNode(nodes, hierarchyNodeId, node => ({
+                        ...node,
+                        children: response.data.map(child =>
+                            this.toHierarchyNode(child)
+                        ),
+                        childrenLoaded: true,
+                        loadingChildren: false,
+                        expanded: true
+                    }))
                 );
-
-                if (!node) {
-                    return;
-                }
-
-                node.children = response.data.map(
-                    (child: HierarchyNodeResponse) => this.toHierarchyNode(child)
-                );
-
-                node.childrenLoaded = true;
-                node.loadingChildren = false;
-                node.expanded = true;
             },
+
             error: (httpError) => {
+
+                this.hierarchyNodes.update(nodes =>
+                    this.updateNode(nodes, hierarchyNodeId, node => ({
+                        ...node,
+                        loadingChildren: false
+                    }))
+                );
+
                 console.error(httpError);
             }
-        })
+        });
     }
 
     selectNode(nodeId: string): void {
@@ -97,5 +119,33 @@ export class HierarchyNodeSelectionComponent implements OnInit {
         }
 
         return undefined;
+    }
+
+
+    private updateNode(
+        nodes: HierarchyNode[],
+        nodeId: string,
+        update: (node: HierarchyNode) => HierarchyNode
+    ): HierarchyNode[] {
+
+        return nodes.map(node => {
+
+            if (node.id === nodeId) {
+                return update(node);
+            }
+
+            if (node.children.length > 0) {
+                return {
+                    ...node,
+                    children: this.updateNode(
+                        node.children,
+                        nodeId,
+                        update
+                    )
+                };
+            }
+
+            return node;
+        });
     }
 }
