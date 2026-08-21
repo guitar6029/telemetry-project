@@ -1,0 +1,23 @@
+<li>
+    <div class="flex items-center cursor-pointer" (click)="selectNode()">
+
+        @if (node().hasChildren) {
+        <button type="button" (click)="toggleExpanded($event)">
+            <span class="text-2xl text-primary">+</span>
+            <!-- chevron -->
+
+        </button>
+        }
+
+        <span>{{ node().name }}</span>
+
+    </div>
+
+    @if (expanded()) {
+    <ul>
+        @for (child of node().children; track child.id) {
+        <telemetry-hierarchy-node [node]="child" (selected)="selected.emit($event)" />
+        }
+    </ul>
+    }
+</li>

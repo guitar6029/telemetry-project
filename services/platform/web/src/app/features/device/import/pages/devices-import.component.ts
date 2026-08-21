@@ -6,12 +6,13 @@ import { DEVICE_IMPORT_STEP_LABELS, DEVICE_IMPORT_STEPS } from "../constants/dev
 import { ButtonComponent } from "../../../../components/button/button.component";
 import { Router } from "@angular/router";
 import { DeviceTemplateSelectionComponent } from "../steps/device-template-selection/pages/device-template-selection.component";
+import { HierarchyNodeSelectionComponent } from "../steps/hierarchy-node-selection/pages/hierarchy-node-selection.component";
 
 
 @Component({
     selector: 'telemetry-devices-import',
     templateUrl: './devices-import.component.html',
-    imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent]
+    imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent, HierarchyNodeSelectionComponent]
 })
 
 export class DevicesImportComponent {
