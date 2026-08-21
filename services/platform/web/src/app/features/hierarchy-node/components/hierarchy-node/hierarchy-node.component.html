@@ -3,9 +3,13 @@
 
         @if (node().hasChildren) {
         <button type="button" (click)="toggleExpanded($event)">
-            <span class="text-2xl text-primary">+</span>
-            <!-- chevron -->
 
+            @if (expanded()){
+            <telemetry-chevron-up-icon />
+
+            } @else {
+            <telemetry-chevron-down-icon />
+            }
         </button>
         }
 

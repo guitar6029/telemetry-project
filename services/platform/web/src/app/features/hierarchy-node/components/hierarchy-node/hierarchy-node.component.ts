@@ -1,9 +1,12 @@
 import { Component, input, output, signal } from "@angular/core";
 import { HierarchyNode } from "../../../device/import/steps/hierarchy-node-selection/types/hierarchy-node.types";
+import { ChevronDownIconComponent } from "../../../../components/icon/svg/chevron-down.component";
+import { ChevronUpIconComponent } from "../../../../components/icon/svg/chevron-up.component";
 
 @Component({
     selector: 'telemetry-hierarchy-node',
-    templateUrl: './hierarchy-node.component.html'
+    templateUrl: './hierarchy-node.component.html',
+    imports: [ChevronDownIconComponent, ChevronUpIconComponent]
 })
 export class HierarchyNodeComponent {
 

@@ -5,5 +5,7 @@ export enum IconName {
     ARROW_RIGHT = 'arrow-right',
     ADD_USER = 'add-user',
     PLUS = 'plus',
-    SEARCH = 'search'
+    SEARCH = 'search',
+    CHEVRON_DOWN = 'chevron-down',
+    CHEVRON_UP = 'chevron-up'
 }
