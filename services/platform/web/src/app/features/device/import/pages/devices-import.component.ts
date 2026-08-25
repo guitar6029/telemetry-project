@@ -94,4 +94,8 @@ export class DevicesImportComponent {
     selectedDeviceTemplateUpdate(deviceTemplateId: string) {
         this.selectedTemplateId.set(deviceTemplateId);
     }
+
+    selectedHierarchyNodeUpdate(hierarchyNodeId: string) {
+        this.selectedHierarchyNodeId.set(hierarchyNodeId);
+    }
 }

@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, output, signal } from "@angular/core";
-
 import { HierarchyNodeSelectionService } from "../service/hierarchy-node-selection.service";
 import { HierarchyNodeResponse } from "../../../../../hierarchy-node/dto/hierarchy-node-response.dto";
 import { HierarchyNode } from "../types/hierarchy-node.types";

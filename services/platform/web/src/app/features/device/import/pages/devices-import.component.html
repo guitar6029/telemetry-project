@@ -11,8 +11,8 @@
     <h1>selected template id : {{selectedTemplateId()}}</h1>
     <telemetry-device-template-selection (selectedDeviceTemplate)="selectedDeviceTemplateUpdate($event)" />
     } @else if (currentStep() === 2) {
-    <h1>selected hiearchy node id : TODO</h1>
-    <telemetry-hierarchy-node-selection />
+    <h1>selected hiearchy node id : {{selectedHierarchyNodeId()}}</h1>
+    <telemetry-hierarchy-node-selection (selectedHierarchyNode)="selectedHierarchyNodeUpdate($event)" />
     }
 
     <div class="form-buttons-container">
