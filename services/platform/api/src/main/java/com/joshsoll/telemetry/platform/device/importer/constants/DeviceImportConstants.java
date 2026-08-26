@@ -14,6 +14,8 @@ public final class DeviceImportConstants {
             "firmwareVersion",
             "status");
 
+    public static final String DEVICE_IMPORT_QUEUE_NAME = "device.import";
+
     protected DeviceImportConstants() {
     }
 }

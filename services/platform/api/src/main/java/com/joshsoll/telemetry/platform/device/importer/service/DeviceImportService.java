@@ -1,12 +1,19 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
+import java.io.IOException;
 import java.util.UUID;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
+import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
+import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportFileReadException;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
@@ -23,14 +30,17 @@ public class DeviceImportService {
     private final AuthorizationService authorizationService;
     private final DeviceTemplateRepository deviceTemplateRepository;
     private final HierarchyNodeRepository hierarchyNodeRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     public DeviceImportService(
             AuthorizationService authorizationService,
             DeviceTemplateRepository deviceTemplateRepository,
-            HierarchyNodeRepository hierarchyNodeRepository) {
+            HierarchyNodeRepository hierarchyNodeRepository,
+            RabbitTemplate rabbitTemplate) {
         this.authorizationService = authorizationService;
         this.deviceTemplateRepository = deviceTemplateRepository;
         this.hierarchyNodeRepository = hierarchyNodeRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public DeviceImportContext validateImportContext(
@@ -74,7 +84,7 @@ public class DeviceImportService {
                 hierarchyNode);
     }
 
-    public void importDevices(
+    public DeviceImportResponse importDevices(
             User authenticatedUser,
             UUID organizationId,
             UUID templateId,
@@ -88,8 +98,24 @@ public class DeviceImportService {
                 hierarchyNodeId,
                 file);
 
-        // publish import job to RabbitMQ
+        try {
+            DeviceImportMessage message = new DeviceImportMessage(
+                    organizationId,
+                    templateId,
+                    hierarchyNodeId,
+                    file.getBytes());
 
-        // return job accepted
+            // Publish the import job to RabbitMQ.
+            rabbitTemplate.convertAndSend(message);
+
+            return new DeviceImportResponse(
+                    "Import job accepted",
+                    DeviceImportStatus.QUEUED);
+        } catch (IOException exception) {
+            throw new DeviceImportFileReadException(
+                    "Unable to read import file",
+                    exception);
+        }
+
     }
 }

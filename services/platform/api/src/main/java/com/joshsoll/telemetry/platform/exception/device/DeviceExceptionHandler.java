@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.exception.DeviceNotFoundException;
 import com.joshsoll.telemetry.platform.device.exception.DuplicateDeviceSerialNumberException;
-import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportArtifactException;
+import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportFileReadException;
 import com.joshsoll.telemetry.platform.exception.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,17 +58,17 @@ public class DeviceExceptionHandler {
                                                 request.getRequestURI()));
         }
 
-        @ExceptionHandler(DeviceImportArtifactException.class)
-        public ResponseEntity<ErrorResponse> handleDeviceImportArtifact(
-                        DeviceImportArtifactException ex,
+        @ExceptionHandler(DeviceImportFileReadException.class)
+        public ResponseEntity<ErrorResponse> handleDeviceImportFileRead(
+                        DeviceImportFileReadException ex,
                         HttpServletRequest request) {
-
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(new ErrorResponse(
                                                 Instant.now(),
-                                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                                                HttpStatus.BAD_REQUEST.value(),
+                                                HttpStatus.BAD_REQUEST.getReasonPhrase(),
                                                 ex.getMessage(),
                                                 request.getRequestURI()));
         }
+
 }

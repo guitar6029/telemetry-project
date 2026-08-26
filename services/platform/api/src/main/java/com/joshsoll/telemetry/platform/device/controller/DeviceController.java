@@ -23,6 +23,7 @@ import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
 import com.joshsoll.telemetry.platform.device.importer.service.DeviceImportService;
 import com.joshsoll.telemetry.platform.device.service.DeviceService;
 
@@ -71,19 +72,19 @@ public class DeviceController {
     }
 
     @PostMapping("/{organizationId}/{templateId}/{hierarchyNodeId}/import")
-    public ResponseEntity<Void> importDevices(
+    public ResponseEntity<ApiResponse<DeviceImportResponse>> importDevices(
             @AuthenticationPrincipal User user,
             @PathVariable UUID organizationId,
             @PathVariable UUID templateId,
             @PathVariable UUID hierarchyNodeId,
             @RequestParam MultipartFile file) {
-        deviceImportService.importDevices(
+        DeviceImportResponse response = deviceImportService.importDevices(
                 user,
                 organizationId,
                 templateId,
                 hierarchyNodeId,
                 file);
 
-        return ResponseFactory.noContent();
+        return ResponseFactory.accepted(response, DOMAIN_NAME);
     }
 }
