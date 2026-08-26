@@ -100,9 +100,9 @@ public class DeviceImportService {
 
         try {
             DeviceImportMessage message = new DeviceImportMessage(
-                    organizationId,
-                    templateId,
-                    hierarchyNodeId,
+                    context.organization().getId(),
+                    context.deviceTemplate().getId(),
+                    context.hierarchyNode().getId(),
                     file.getBytes());
 
             // Publish the import job to RabbitMQ.
