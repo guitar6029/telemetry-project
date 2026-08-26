@@ -56,6 +56,14 @@ services:
       timeout: 2s
       retries: 5
 
+
+  rabbitmq:
+    image: rabbitmq-4-management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 volumes:
   postgres_data:
   web_node_modules:
