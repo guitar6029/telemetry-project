@@ -1,5 +1,6 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,6 +30,7 @@ import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidExcep
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportError;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportParseResult;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 
@@ -37,8 +39,27 @@ public class DeviceImportProcessingService {
 
     private final DeviceRepository deviceRepository;
 
-    public DeviceImportProcessingService(DeviceRepository deviceRepository) {
+    private final DeviceImportContextService deviceImportContextService;
+
+    public DeviceImportProcessingService(
+            DeviceRepository deviceRepository,
+            DeviceImportContextService deviceImportContextService) {
         this.deviceRepository = deviceRepository;
+        this.deviceImportContextService = deviceImportContextService;
+    }
+
+    public void processImport(DeviceImportMessage message) {
+        DeviceImportContext context = deviceImportContextService.resolveImportContext(
+                message.organizationId(),
+                message.templateId(),
+                message.hierarchyNodeId());
+
+        InputStream inputStream = new ByteArrayInputStream(message.csvData());
+
+        DeviceImportParseResult parsedResults = parseCSVFile(inputStream, context);
+
+        saveDevices(parsedResults.validRows(), context);
+
     }
 
     private DeviceImportParseResult parseCSVFile(
@@ -61,9 +82,6 @@ public class DeviceImportProcessingService {
 
             // Parse rows; we get valid devices and error objects back
             DeviceImportParseResult parsedResults = parseRows(parser, deviceContext);
-
-            // Save the devices
-            // saveDevices(parsedResults.validRows(), deviceContext);
 
             return parsedResults;
 

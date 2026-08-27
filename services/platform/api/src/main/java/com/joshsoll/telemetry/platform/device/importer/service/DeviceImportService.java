@@ -14,33 +14,23 @@ import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
 import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportFileReadException;
-import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
-import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
-import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
-import com.joshsoll.telemetry.platform.devicetemplate.repository.DeviceTemplateRepository;
-import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
-import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeNotFoundException;
-import com.joshsoll.telemetry.platform.hierarchy.exception.HierarchyNodeOrganizationMismatchException;
-import com.joshsoll.telemetry.platform.hierarchy.repository.HierarchyNodeRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
 @Service
 public class DeviceImportService {
 
     private final AuthorizationService authorizationService;
-    private final DeviceTemplateRepository deviceTemplateRepository;
-    private final HierarchyNodeRepository hierarchyNodeRepository;
+
     private final RabbitTemplate rabbitTemplate;
+    private final DeviceImportContextService deviceImportContextService;
 
     public DeviceImportService(
             AuthorizationService authorizationService,
-            DeviceTemplateRepository deviceTemplateRepository,
-            HierarchyNodeRepository hierarchyNodeRepository,
-            RabbitTemplate rabbitTemplate) {
+            RabbitTemplate rabbitTemplate,
+            DeviceImportContextService deviceImportContextService) {
         this.authorizationService = authorizationService;
-        this.deviceTemplateRepository = deviceTemplateRepository;
-        this.hierarchyNodeRepository = hierarchyNodeRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.deviceImportContextService = deviceImportContextService;
     }
 
     public DeviceImportContext validateImportContext(
@@ -64,24 +54,11 @@ public class DeviceImportService {
             throw new DeviceImportInvalidException("Import file must be a CSV.");
         }
 
-        DeviceTemplate deviceTemplate = deviceTemplateRepository.findById(templateId)
-                .orElseThrow(() -> new DeviceTemplateNotFoundException(templateId));
+        return deviceImportContextService.resolveImportContext(
+                organization.getId(),
+                templateId,
+                hierarchyNodeId);
 
-        HierarchyNode hierarchyNode = hierarchyNodeRepository.findById(hierarchyNodeId)
-                .orElseThrow(() -> new HierarchyNodeNotFoundException(hierarchyNodeId));
-
-        if (!deviceTemplate.getOrganizationId().equals(organization.getId())) {
-            throw new DeviceTemplateOrganizationMismatchException();
-        }
-
-        if (!hierarchyNode.getOrganization().getId().equals(organization.getId())) {
-            throw new HierarchyNodeOrganizationMismatchException();
-        }
-
-        return new DeviceImportContext(
-                organization,
-                deviceTemplate,
-                hierarchyNode);
     }
 
     public DeviceImportResponse importDevices(
@@ -105,7 +82,6 @@ public class DeviceImportService {
                     context.hierarchyNode().getId(),
                     file.getBytes());
 
-            // Publish the import job to RabbitMQ.
             rabbitTemplate.convertAndSend(message);
 
             return new DeviceImportResponse(
