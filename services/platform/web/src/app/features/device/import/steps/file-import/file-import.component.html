@@ -1,0 +1,8 @@
+<telemetry-page>
+    <fieldset class="fieldset">
+        <legend class="fieldset-legend">Pick a file</legend>
+        <input type="file" class="file-input" (change)="handleFileChange($event)" />
+        <label class="label">Max row size <span class="font-bold">{{MAX_ROWS}}</span></label>
+        <label class="label">Max size <span class="font-bold">{{MAX_FILE_SIZE}}</span></label>
+    </fieldset>
+</telemetry-page>

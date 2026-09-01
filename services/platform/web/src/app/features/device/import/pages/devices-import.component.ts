@@ -7,12 +7,13 @@ import { ButtonComponent } from "../../../../components/button/button.component"
 import { Router } from "@angular/router";
 import { DeviceTemplateSelectionComponent } from "../steps/device-template-selection/pages/device-template-selection.component";
 import { HierarchyNodeSelectionComponent } from "../steps/hierarchy-node-selection/pages/hierarchy-node-selection.component";
+import { FileImportComponent } from "../steps/file-import/file-import.component";
 
 
 @Component({
     selector: 'telemetry-devices-import',
     templateUrl: './devices-import.component.html',
-    imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent, HierarchyNodeSelectionComponent]
+    imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent, HierarchyNodeSelectionComponent, FileImportComponent]
 })
 
 export class DevicesImportComponent {
@@ -97,5 +98,9 @@ export class DevicesImportComponent {
 
     selectedHierarchyNodeUpdate(hierarchyNodeId: string) {
         this.selectedHierarchyNodeId.set(hierarchyNodeId);
+    }
+
+    onFileSelected(file: File): void {
+        this.selectedFile.set(file);
     }
 }

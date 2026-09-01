@@ -13,6 +13,9 @@
     } @else if (currentStep() === 2) {
     <h1>selected hiearchy node id : {{selectedHierarchyNodeId()}}</h1>
     <telemetry-hierarchy-node-selection (selectedHierarchyNode)="selectedHierarchyNodeUpdate($event)" />
+    } @else if (currentStep() === 3) {
+    <h1>selected file : {{selectedFile()?.name}}</h1>
+    <telemetry-file-import (fileSelected)="onFileSelected($event)" />
     }
 
     <div class="form-buttons-container">

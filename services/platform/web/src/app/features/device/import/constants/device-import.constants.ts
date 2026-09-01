@@ -13,3 +13,7 @@ export const DEVICE_IMPORT_STEP_LABELS: Record<DeviceImportStep, string> = {
     3: 'CSV File',
     4: 'Review'
 };
+
+
+export const MAX_IMPORT_FILE_SIZE = "5MB";
+export const MAX_IMPORT_NUMBER_OF_ROWS = 10_000;
