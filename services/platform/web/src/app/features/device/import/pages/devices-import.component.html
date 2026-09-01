@@ -8,14 +8,14 @@
     </ul>
 
     @if (currentStep() === 1) {
-    <h1>selected template id : {{selectedTemplateId()}}</h1>
     <telemetry-device-template-selection (selectedDeviceTemplate)="selectedDeviceTemplateUpdate($event)" />
     } @else if (currentStep() === 2) {
-    <h1>selected hiearchy node id : {{selectedHierarchyNodeId()}}</h1>
     <telemetry-hierarchy-node-selection (selectedHierarchyNode)="selectedHierarchyNodeUpdate($event)" />
     } @else if (currentStep() === 3) {
-    <h1>selected file : {{selectedFile()?.name}}</h1>
     <telemetry-file-import (fileSelected)="onFileSelected($event)" />
+    } @else if (currentStep() === 4) {
+    <telemetry-review-step [selectedDeviceTemplate]="selectedTemplate()?.name"
+        [selectedHierarchyNode]="selectedHierarchyNode()?.name" [selectedFile]="selectedFile()?.name" />
     }
 
     <div class="form-buttons-container">
@@ -28,7 +28,7 @@
         <telemetry-button text="Previous" (clicked)="previousStep()" />
         }
 
-        <telemetry-button text="Next" [disabled]="!canGoNext()" (clicked)="nextStep()" />
+        <telemetry-button [text]="stepsLabelText()" [disabled]="!canGoNext()" (clicked)="nextStep()" />
 
     </div>
 </telemetry-page>

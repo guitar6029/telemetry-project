@@ -3,6 +3,7 @@ import { HierarchyNodeSelectionService } from "../service/hierarchy-node-selecti
 import { HierarchyNodeResponse } from "../../../../../hierarchy-node/dto/hierarchy-node-response.dto";
 import { HierarchyNode } from "../types/hierarchy-node.types";
 import { HierarchyNodeComponent } from "../../../../../hierarchy-node/components/hierarchy-node/hierarchy-node.component";
+import { HierarchyNodeSelection } from "../../../dto/device-import.dto";
 
 @Component({
     selector: 'telemetry-hierarchy-node-selection',
@@ -16,7 +17,7 @@ export class HierarchyNodeSelectionComponent implements OnInit {
 
     hierarchyNodes = signal<HierarchyNode[]>([]);
 
-    selectedHierarchyNode = output<string>();
+    selectedHierarchyNode = output<HierarchyNodeSelection>();
 
     ngOnInit(): void {
         this.getHierarchyNode();
@@ -83,8 +84,8 @@ export class HierarchyNodeSelectionComponent implements OnInit {
         });
     }
 
-    selectNode(nodeId: string): void {
-        this.selectedHierarchyNode.emit(nodeId);
+    selectNode(node: HierarchyNodeSelection): void {
+        this.selectedHierarchyNode.emit(node);
     }
 
     private toHierarchyNode(

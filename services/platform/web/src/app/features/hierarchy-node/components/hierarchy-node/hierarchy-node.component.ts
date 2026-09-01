@@ -4,6 +4,7 @@ import { ChevronDownIconComponent } from "../../../../components/icon/svg/chevro
 import { ChevronUpIconComponent } from "../../../../components/icon/svg/chevron-up.component";
 import { SKELETON_LOADING_TREE_NODE_CHILDREN_AMOUNT } from "../../constants/hierarchy-node.constants";
 import { NodeTreeSkeletonComponent } from "../../../../components/loading/loading-node-tree/loading-node-tree.component";
+import { HierarchyNodeSelection } from "../../../device/import/dto/device-import.dto";
 
 @Component({
     selector: 'telemetry-hierarchy-node',
@@ -23,12 +24,15 @@ export class HierarchyNodeComponent {
         (_, i) => i + 1
     );
 
-    selected = output<string>();
+    selected = output<HierarchyNodeSelection>();
 
     childrenRequested = output<string>();
 
     selectNode(): void {
-        this.selected.emit(this.node().id);
+        this.selected.emit({
+            id: this.node().id,
+            name: this.node().name
+        });
     }
 
     toggleExpanded(event: MouseEvent): void {

@@ -8,12 +8,14 @@ import { Router } from "@angular/router";
 import { DeviceTemplateSelectionComponent } from "../steps/device-template-selection/pages/device-template-selection.component";
 import { HierarchyNodeSelectionComponent } from "../steps/hierarchy-node-selection/pages/hierarchy-node-selection.component";
 import { FileImportComponent } from "../steps/file-import/file-import.component";
+import { DeviceTemplateSelection, HierarchyNodeSelection } from "../dto/device-import.dto";
+import { ReviewStep } from "../steps/review/review.component";
 
 
 @Component({
     selector: 'telemetry-devices-import',
     templateUrl: './devices-import.component.html',
-    imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent, HierarchyNodeSelectionComponent, FileImportComponent]
+    imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent, HierarchyNodeSelectionComponent, FileImportComponent, ReviewStep]
 })
 
 export class DevicesImportComponent {
@@ -25,8 +27,8 @@ export class DevicesImportComponent {
 
     currentStep = signal<DeviceImportStep>(1);
 
-    selectedTemplateId = signal<string | null>(null);
-    selectedHierarchyNodeId = signal<string | null>(null);
+    selectedTemplate = signal<DeviceTemplateSelection | null>(null);
+    selectedHierarchyNode = signal<HierarchyNodeSelection | null>(null);
     selectedFile = signal<File | null>(null);
     importMode = signal<DeviceImportMode>(DeviceImportMode.SKIP_EXISTING);
 
@@ -37,10 +39,10 @@ export class DevicesImportComponent {
     readonly canGoNext = computed(() => {
         switch (this.currentStep()) {
             case 1:
-                return this.selectedTemplateId() !== null;
+                return this.selectedTemplate() !== null;
 
             case 2:
-                return this.selectedHierarchyNodeId() !== null;
+                return this.selectedHierarchyNode() !== null;
 
             case 3:
                 return this.selectedFile() !== null;
@@ -63,7 +65,7 @@ export class DevicesImportComponent {
     nextStep(): void {
         switch (this.currentStep()) {
             case 1:
-                if (this.selectedTemplateId() === null) {
+                if (this.selectedTemplate() === null) {
                     return;
                 }
 
@@ -71,7 +73,7 @@ export class DevicesImportComponent {
                 break;
 
             case 2:
-                if (this.selectedHierarchyNodeId() === null) {
+                if (this.selectedHierarchyNode() === null) {
                     return;
                 }
 
@@ -92,12 +94,25 @@ export class DevicesImportComponent {
         }
     }
 
-    selectedDeviceTemplateUpdate(deviceTemplateId: string) {
-        this.selectedTemplateId.set(deviceTemplateId);
+    stepsLabelText = computed(() => {
+        switch (this.currentStep()) {
+            case 1:
+            case 2:
+            case 3:
+                return "Next";
+            case 4:
+                return "Submit";
+            default:
+                return "Next";
+        }
+    });
+
+    selectedDeviceTemplateUpdate(deviceTemplate: DeviceTemplateSelection) {
+        this.selectedTemplate.set(deviceTemplate);
     }
 
-    selectedHierarchyNodeUpdate(hierarchyNodeId: string) {
-        this.selectedHierarchyNodeId.set(hierarchyNodeId);
+    selectedHierarchyNodeUpdate(hierarchyNode: HierarchyNodeSelection) {
+        this.selectedHierarchyNode.set(hierarchyNode);
     }
 
     onFileSelected(file: File): void {

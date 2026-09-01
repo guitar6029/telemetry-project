@@ -9,8 +9,8 @@
         @for (deviceTemplate of deviceTemplates(); track deviceTemplate.id){
 
         <div class="w-sm h-sm border-2 rounded-2xl p-2 interactive-hover cursor-pointer"
-            [class.border-primary]="currentSelectedTemplate() === deviceTemplate.id"
-            (click)="selectTemplate(deviceTemplate.id)">
+            [class.border-primary]="currentSelectedTemplate()?.id === deviceTemplate.id"
+            (click)="selectTemplate(deviceTemplate)">
             <span>{{ deviceTemplate.name }}</span>
         </div>
         }

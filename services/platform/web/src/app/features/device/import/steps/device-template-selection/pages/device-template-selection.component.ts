@@ -3,6 +3,7 @@ import { SearchComponent } from "../../../../../../components/search/search.comp
 import { DeviceTemplateSelectionService } from "../service/device-template-selection.service";
 import { PageComponent } from "../../../../../../components/page/page.component";
 import { DeviceTemplateOptionResponse } from "../../../../../device-template/dto/device-template-option-response.dto";
+import { DeviceTemplateSelection } from "../../../dto/device-import.dto";
 
 @Component({
     selector: 'telemetry-device-template-selection',
@@ -16,9 +17,9 @@ export class DeviceTemplateSelectionComponent {
 
     deviceTemplates = signal<DeviceTemplateOptionResponse[]>([]);
 
-    currentSelectedTemplate = signal<string | null>(null);
+    currentSelectedTemplate = signal<DeviceTemplateSelection | null>(null);
 
-    selectedDeviceTemplate = output<string>();
+    selectedDeviceTemplate = output<DeviceTemplateSelection>();
 
 
     readonly hasDeviceTemplates = computed(() =>
@@ -38,9 +39,9 @@ export class DeviceTemplateSelectionComponent {
             });
     }
 
-    selectTemplate(deviceTemplateId: string): void {
-        this.currentSelectedTemplate.set(deviceTemplateId);
-        this.selectedDeviceTemplate.emit(deviceTemplateId);
+    selectTemplate(deviceTemplate: DeviceTemplateSelection): void {
+        this.currentSelectedTemplate.set(deviceTemplate);
+        this.selectedDeviceTemplate.emit(deviceTemplate);
     }
 
 
