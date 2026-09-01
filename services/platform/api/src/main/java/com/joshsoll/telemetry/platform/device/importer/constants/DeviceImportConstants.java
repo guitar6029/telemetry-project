@@ -5,7 +5,6 @@ import java.util.Set;
 public final class DeviceImportConstants {
 
     public static final long EXPIRATION_MINUTES = 20;
-    public static final long PREVIEW_LIMIT = 10;
     public static final Set<String> REQUIRED_HEADERS = Set.of(
             "name",
             "manufacturer",
