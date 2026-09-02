@@ -10,6 +10,8 @@ import { HierarchyNodeSelectionComponent } from "../steps/hierarchy-node-selecti
 import { FileImportComponent } from "../steps/file-import/file-import.component";
 import { DeviceTemplateSelection, HierarchyNodeSelection } from "../dto/device-import.dto";
 import { ReviewStep } from "../steps/review/review.component";
+import { DeviceImportService } from "../service/device-import.service";
+import { DeviceImport } from "../dto/device-import-request.dto";
 
 
 @Component({
@@ -22,13 +24,15 @@ export class DevicesImportComponent {
 
     readonly deviceImportSteps = DEVICE_IMPORT_STEPS;
     readonly stepLabels = DEVICE_IMPORT_STEP_LABELS;
+
     private readonly router = inject(Router);
+    private readonly deviceImportService = inject(DeviceImportService);
 
 
     currentStep = signal<DeviceImportStep>(1);
-
     selectedTemplate = signal<DeviceTemplateSelection | null>(null);
     selectedHierarchyNode = signal<HierarchyNodeSelection | null>(null);
+    selectedImportMode = signal<DeviceImportMode>(DeviceImportMode.SKIP_EXISTING);
     selectedFile = signal<File | null>(null);
     importMode = signal<DeviceImportMode>(DeviceImportMode.SKIP_EXISTING);
 
@@ -89,7 +93,7 @@ export class DevicesImportComponent {
                 break;
 
             case 4:
-                // Submit import
+                this.handleSubmit();
                 break;
         }
     }
@@ -117,5 +121,28 @@ export class DevicesImportComponent {
 
     onFileSelected(file: File): void {
         this.selectedFile.set(file);
+    }
+
+    handleImportMode(mode: DeviceImportMode): void {
+        this.selectedImportMode.set(mode);
+    }
+
+    handleSubmit(): void {
+        const template = this.selectedTemplate();
+        const hierarchyNode = this.selectedHierarchyNode();
+        const file = this.selectedFile();
+
+        if (template === null || hierarchyNode === null || file === null) {
+            return;
+        }
+
+        const request: DeviceImport = {
+            deviceTemplateId: template.id,
+            hierarchyNodeId: hierarchyNode.id,
+            file,
+            importMode: this.selectedImportMode()
+        };
+
+        this.deviceImportService.importDevices(request);
     }
 }

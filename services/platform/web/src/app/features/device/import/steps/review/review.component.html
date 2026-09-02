@@ -1,5 +1,19 @@
 <telemetry-page>
-    <h1>selected device template : {{selectedDeviceTemplate()}}</h1>
-    <h1>selected hierarchy node : {{selectedHierarchyNode()}}</h1>
-    <h1>selected file : {{selectedFile()}}</h1>
+
+    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+        <legend class="fieldset-legend fieldset-legend-title">Import Details</legend>
+
+        <telemetry-label text="Device Template" />
+        <span class="badge">{{selectedDeviceTemplate()}}</span>
+
+        <telemetry-label text="Hierarchy Node" />
+        <span class="badge">{{selectedHierarchyNode()}}</span>
+
+        <telemetry-label text="File" />
+        <span class="badge">{{selectedFile()}}</span>
+
+        <telemetry-label text="Import Mode" />
+        <span class="badge">{{importMode()}}</span>
+
+    </fieldset>
 </telemetry-page>

@@ -1,8 +1,17 @@
 <telemetry-page>
     <fieldset class="fieldset">
-        <legend class="fieldset-legend">Pick a file</legend>
+        <legend class="fieldset-legend fieldset-legend-title">Pick a file</legend>
         <input type="file" class="file-input" (change)="handleFileChange($event)" />
         <label class="label">Max row size <span class="font-bold">{{MAX_ROWS}}</span></label>
         <label class="label">Max size <span class="font-bold">{{MAX_FILE_SIZE}}</span></label>
+    </fieldset>
+
+
+    <fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+        <legend class="fieldset-legend fieldset-legend-title">Import options</legend>
+        <label class="label">
+            <input type="checkbox" class="toggle" (change)="handleImportModeChange($event)" />
+            Update existing devices
+        </label>
     </fieldset>
 </telemetry-page>

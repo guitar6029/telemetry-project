@@ -12,10 +12,11 @@
     } @else if (currentStep() === 2) {
     <telemetry-hierarchy-node-selection (selectedHierarchyNode)="selectedHierarchyNodeUpdate($event)" />
     } @else if (currentStep() === 3) {
-    <telemetry-file-import (fileSelected)="onFileSelected($event)" />
+    <telemetry-file-import (importModeSelected)="handleImportMode($event)" (fileSelected)="onFileSelected($event)" />
     } @else if (currentStep() === 4) {
     <telemetry-review-step [selectedDeviceTemplate]="selectedTemplate()?.name"
-        [selectedHierarchyNode]="selectedHierarchyNode()?.name" [selectedFile]="selectedFile()?.name" />
+        [selectedHierarchyNode]="selectedHierarchyNode()?.name" [selectedFile]="selectedFile()?.name"
+        [selectedImportMode]="selectedImportMode()" />
     }
 
     <div class="form-buttons-container">
