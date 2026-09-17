@@ -143,6 +143,13 @@ export class DevicesImportComponent {
             importMode: this.selectedImportMode()
         };
 
-        this.deviceImportService.importDevices(request);
+        this.deviceImportService.importDevices(request).subscribe({
+            next: response => {
+                console.log('Import queued:', response);
+            },
+            error: error => {
+                console.error('Import failed:', error);
+            }
+        });
     }
 }
