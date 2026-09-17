@@ -30,7 +30,7 @@ import com.joshsoll.telemetry.platform.device.service.DeviceService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(ApiRoutes.API_V1 + "devices")
+@RequestMapping(ApiRoutes.API_V1 + "/devices")
 public class DeviceController {
     private final DeviceService deviceService;
     private final String DOMAIN_NAME = DeviceConstants.DOMAIN_NAME;

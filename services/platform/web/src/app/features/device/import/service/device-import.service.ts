@@ -18,7 +18,7 @@ export class DeviceImportService {
 
 
     private readonly deviceImportUrl =
-        `${ApiConstants.API_V1}/organizations`;
+        `${ApiConstants.API_V1}/devices`;
 
 
     private get organizationId(): string {
