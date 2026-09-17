@@ -1,0 +1,6 @@
+name,manufacturer,model,serialNumber,firmwareVersion,status
+Temperature Sensor 001,Acme Sensors,TS-1000,TS1000001,1.0.0,ONLINE
+Temperature Sensor 002,Acme Sensors,TS-1000,TS1000002,1.0.0,OFFLINE
+Gateway 001,Telemetry Systems,GW-500,GW5000001,2.1.3,ONLINE
+Pressure Sensor 001,Acme Sensors,PS-200,PS2000001,1.4.2,MAINTENANCE
+Pressure Sensor 002,Acme Sensors,PS-200,PS2000002,1.4.2,RETIRED
