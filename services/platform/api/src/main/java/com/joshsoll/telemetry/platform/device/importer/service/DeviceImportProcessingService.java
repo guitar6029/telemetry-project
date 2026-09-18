@@ -117,8 +117,8 @@ public class DeviceImportProcessingService {
             String name = record.get("name");
             String manufacturer = record.get("manufacturer");
             String model = record.get("model");
-            String serialNumber = record.get("serialNumber");
-            String firmwareVersion = record.get("firmwareVersion");
+            String serialNumber = record.get("serialnumber");
+            String firmwareVersion = record.get("firmwareversion");
             String status = record.get("status");
 
             List<String> rowErrors = new ArrayList<>();
