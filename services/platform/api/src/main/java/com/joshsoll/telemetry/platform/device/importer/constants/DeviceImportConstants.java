@@ -9,8 +9,8 @@ public final class DeviceImportConstants {
             "name",
             "manufacturer",
             "model",
-            "serialNumber",
-            "firmwareVersion",
+            "serialnumber",
+            "firmwareversion",
             "status");
 
     public static final String DEVICE_IMPORT_QUEUE_NAME = "device.import";
