@@ -6,9 +6,11 @@ import java.util.UUID;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
+import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
@@ -82,7 +84,9 @@ public class DeviceImportService {
                     context.hierarchyNode().getId(),
                     file.getBytes());
 
-            rabbitTemplate.convertAndSend(message);
+            rabbitTemplate.convertAndSend(
+                    DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME,
+                    message);
 
             return new DeviceImportResponse(
                     "Import job accepted",
