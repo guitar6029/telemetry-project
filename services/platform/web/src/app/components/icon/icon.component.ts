@@ -2,11 +2,14 @@ import { Component, input } from "@angular/core";
 import { IconName } from "./icon.enums";
 import { TrashIconComponent } from "./svg/trash.component";
 import { EditIconComponent } from "./svg/edit.component";
-import { ChevronLeftIconComponent } from "./svg/chevronLeft.component";
-import { ChevronRightIconComponent } from "./svg/chevronRight.component";
+import { ChevronLeftIconComponent } from "./svg/chevron-left.component";
+import { ChevronRightIconComponent } from "./svg/chevron-right.component";
 import { NgComponentOutlet } from "@angular/common";
-import { AddUserIconComponent } from "./svg/addUser.component";
+import { AddUserIconComponent } from "./svg/add-user.component";
 import { PlusIconComponent } from "./svg/plus.component";
+import { SearchIconComponent } from "./svg/search.component";
+import { ChevronUpIconComponent } from "./svg/chevron-up.component";
+import { ChevronDownIconComponent } from "./svg/chevron-down.component";
 
 @Component({
     selector: 'telemetry-icon',
@@ -22,7 +25,10 @@ export class IconComponent {
         [IconName.ARROW_LEFT]: ChevronLeftIconComponent,
         [IconName.ARROW_RIGHT]: ChevronRightIconComponent,
         [IconName.ADD_USER]: AddUserIconComponent,
-        [IconName.PLUS]: PlusIconComponent
+        [IconName.PLUS]: PlusIconComponent,
+        [IconName.SEARCH]: SearchIconComponent,
+        [IconName.CHEVRON_UP]: ChevronUpIconComponent,
+        [IconName.CHEVRON_DOWN]: ChevronDownIconComponent
     };
 
     name = input.required<IconName>();

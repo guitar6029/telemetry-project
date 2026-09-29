@@ -1,0 +1,33 @@
+<li>
+    <div class="flex items-center cursor-pointer" (click)="selectNode()">
+
+        @if (node().hasChildren) {
+        <button type="button" (click)="toggleExpanded($event)">
+
+            @if (node().expanded) {
+            <telemetry-chevron-up-icon />
+            } @else {
+            <telemetry-chevron-down-icon />
+            }
+
+        </button>
+        }
+
+        <span>{{ node().name }}</span>
+    </div>
+
+    @if (node().loadingChildren) {
+    @for (item of skeletonRange; track item) {
+    <telemetry-node-tree-skeleton />
+    }
+    }
+
+    @if (node().expanded) {
+    <ul>
+        @for (child of node().children; track child.id) {
+        <telemetry-hierarchy-node [node]="child" (selected)="selected.emit($event)"
+            (childrenRequested)="childrenRequested.emit($event)" />
+        }
+    </ul>
+    }
+</li>

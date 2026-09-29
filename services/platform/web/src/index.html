@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Web</title>
+  <title>Telemetry App</title>
   <base href="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
@@ -13,33 +13,22 @@
 </head>
 
 
-<style>
-  #startup-loading {
-    position: fixed;
-    inset: 0;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background: #fff;
-    z-index: 9999;
-  }
-
-  .startup-loading__content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-  }
-</style>
 
 <body>
-  <div id="startup-loading">
-    <div class="startup-loading__content">
-      <h1>Telemetry Platform</h1>
-      <p>Loading...</p>
+  <div id="startup-loading" class="fixed inset-0 z-9999 flex items-center justify-center bg-base-100">
+
+    <div class="flex flex-col items-center gap-3">
+      <h1 class="text-xl font-semibold">
+        Telemetry Platform
+      </h1>
+
+      <span class="loading loading-spinner loading-lg"></span>
+
+      <p class="text-sm opacity-70">
+        Loading...
+      </p>
     </div>
+
   </div>
 
   <telemetry-root></telemetry-root>

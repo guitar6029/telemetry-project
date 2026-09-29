@@ -1,0 +1,35 @@
+<telemetry-page>
+    <ul class="steps w-full">
+        @for (step of deviceImportSteps; track step) {
+        <li class="step" [class.step-primary]="step <= currentStep()">
+            {{ stepLabels[step] }}
+        </li>
+        }
+    </ul>
+
+    @if (currentStep() === 1) {
+    <telemetry-device-template-selection (selectedDeviceTemplate)="selectedDeviceTemplateUpdate($event)" />
+    } @else if (currentStep() === 2) {
+    <telemetry-hierarchy-node-selection (selectedHierarchyNode)="selectedHierarchyNodeUpdate($event)" />
+    } @else if (currentStep() === 3) {
+    <telemetry-file-import (importModeSelected)="handleImportMode($event)" (fileSelected)="onFileSelected($event)" />
+    } @else if (currentStep() === 4) {
+    <telemetry-review-step [selectedDeviceTemplate]="selectedTemplate()?.name"
+        [selectedHierarchyNode]="selectedHierarchyNode()?.name" [selectedFile]="selectedFile()?.name"
+        [selectedImportMode]="selectedImportMode()" />
+    }
+
+    <div class="form-buttons-container">
+
+        @if (showCancel()) {
+        <telemetry-button text="Cancel" (clicked)="cancelImport()" />
+        }
+
+        @if (showPrevious()) {
+        <telemetry-button text="Previous" (clicked)="previousStep()" />
+        }
+
+        <telemetry-button [text]="stepsLabelText()" [disabled]="!canGoNext()" (clicked)="nextStep()" />
+
+    </div>
+</telemetry-page>

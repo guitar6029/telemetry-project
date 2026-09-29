@@ -15,9 +15,6 @@ public class CreateDeviceRequest {
     @Size(min = DeviceConstants.NAME_MIN_LENGTH, max = DeviceConstants.NAME_MAX_LENGTH)
     private String name;
 
-    // so optional ?
-    // @Size(min = DeviceConstants.MODEL_MIN_LENGTH, max =
-    // DeviceConstants.MODEL_MAX_LENGTH)
     private String model;
     private String serialNumber;
     private String manufacturer;

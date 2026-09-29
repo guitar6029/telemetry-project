@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
+import com.joshsoll.telemetry.platform.devicetemplate.constants.DeviceTemplateConstants;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.CreateDeviceTemplateRequest;
+import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateOptionResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.DeviceTemplateResponse;
 import com.joshsoll.telemetry.platform.devicetemplate.dto.UpdateDeviceTemplateRequest;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
@@ -95,6 +97,28 @@ public class DeviceTemplateService {
                                 metricDefinitionResponses,
                                 savedDeviceTemplate.getCreatedAt(),
                                 savedDeviceTemplate.getUpdatedAt());
+        }
+
+        public List<DeviceTemplateOptionResponse> searchDeviceTemplates(
+                        User authenticatedUser,
+                        UUID organizationId,
+                        String query) {
+
+                Organization organization = authorizationService.requireOrganizationAccess(
+                                authenticatedUser,
+                                organizationId);
+
+                Pageable pageable = PageRequest.of(
+                                0,
+                                DeviceTemplateConstants.SEARCH_LIMIT);
+
+                Page<DeviceTemplateOptionResponse> deviceTemplates = deviceTemplateRepository
+                                .findByOrganization_IdAndNameContainingIgnoreCase(
+                                                organization.getId(),
+                                                query,
+                                                pageable);
+
+                return deviceTemplates.getContent();
         }
 
         public DeviceTemplateResponse getDeviceTemplateById(

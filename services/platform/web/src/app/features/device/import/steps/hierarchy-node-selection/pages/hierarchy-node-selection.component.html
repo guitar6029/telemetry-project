@@ -1,0 +1,6 @@
+<ul class="menu menu-xs bg-base-200 rounded-box w-full">
+    @for (node of hierarchyNodes(); track node.id) {
+    <telemetry-hierarchy-node [node]="node" (selected)="selectNode($event)"
+        (childrenRequested)="getHierarchyChildrenNode($event)" />
+    }
+</ul>

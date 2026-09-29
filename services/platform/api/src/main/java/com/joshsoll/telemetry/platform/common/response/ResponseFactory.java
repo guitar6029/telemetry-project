@@ -91,4 +91,17 @@ public final class ResponseFactory {
         return message;
     }
 
+    public static <T> ResponseEntity<ApiResponse<T>> accepted(
+            T data,
+            String message) {
+
+        ApiResponse<T> response = new ApiResponse<>(
+                data,
+                normalizeMessage(message));
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(response);
+    }
+
 }

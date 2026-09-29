@@ -4,5 +4,8 @@ export enum IconName {
     ARROW_LEFT = 'arrow-left',
     ARROW_RIGHT = 'arrow-right',
     ADD_USER = 'add-user',
-    PLUS = 'plus'
+    PLUS = 'plus',
+    SEARCH = 'search',
+    CHEVRON_DOWN = 'chevron-down',
+    CHEVRON_UP = 'chevron-up'
 }
