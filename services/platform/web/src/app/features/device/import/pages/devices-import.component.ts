@@ -13,13 +13,11 @@ import { ReviewStep } from "../steps/review/review.component";
 import { DeviceImportService } from "../service/device-import.service";
 import { DeviceImport } from "../dto/device-import-request.dto";
 
-
 @Component({
     selector: 'telemetry-devices-import',
     templateUrl: './devices-import.component.html',
     imports: [PageComponent, ButtonComponent, DeviceTemplateSelectionComponent, HierarchyNodeSelectionComponent, FileImportComponent, ReviewStep]
 })
-
 export class DevicesImportComponent {
 
     readonly deviceImportSteps = DEVICE_IMPORT_STEPS;
@@ -28,13 +26,11 @@ export class DevicesImportComponent {
     private readonly router = inject(Router);
     private readonly deviceImportService = inject(DeviceImportService);
 
-
     currentStep = signal<DeviceImportStep>(1);
     selectedTemplate = signal<DeviceTemplateSelection | null>(null);
     selectedHierarchyNode = signal<HierarchyNodeSelection | null>(null);
     selectedImportMode = signal<DeviceImportMode>(DeviceImportMode.SKIP_EXISTING);
     selectedFile = signal<File | null>(null);
-    importMode = signal<DeviceImportMode>(DeviceImportMode.SKIP_EXISTING);
 
     readonly showCancel = computed(() => this.currentStep() === 1);
 
@@ -144,12 +140,8 @@ export class DevicesImportComponent {
         };
 
         this.deviceImportService.importDevices(request).subscribe({
-            next: response => {
-                console.log('Import queued:', response);
-            },
-            error: error => {
-                console.error('Import failed:', error);
-            }
+            next: () => {},
+            error: () => {}
         });
     }
 }
