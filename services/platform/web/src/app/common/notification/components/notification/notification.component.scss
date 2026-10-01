@@ -1,0 +1,16 @@
+.notification-leave {
+    animation: notification-drift-fade 250ms ease-in forwards;
+}
+
+@keyframes notification-drift-fade {
+    to {
+        opacity: 0;
+        transform: translate(0.75rem, -0.5rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notification-leave {
+        animation-duration: 1ms;
+    }
+}
