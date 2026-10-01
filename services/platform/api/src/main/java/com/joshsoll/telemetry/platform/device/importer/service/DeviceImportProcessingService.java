@@ -20,6 +20,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
@@ -56,7 +57,14 @@ public class DeviceImportProcessingService {
 
         InputStream inputStream = new ByteArrayInputStream(message.csvData());
 
-        DeviceImportParseResult parsedResults = parseCSVFile(inputStream, context);
+        DeviceImportParseResult parsedResults;
+        try {
+            parsedResults = parseCSVFile(inputStream, context);
+        } catch (DeviceImportInvalidException exception) {
+            throw new AmqpRejectAndDontRequeueException(
+                    "Device import contains an invalid CSV",
+                    exception);
+        }
 
         saveDevices(parsedResults.validRows(), context);
 
