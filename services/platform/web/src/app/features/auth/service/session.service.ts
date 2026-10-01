@@ -109,9 +109,9 @@ export class SessionService {
                 );
             },
             error: (httpError) => {
-                this.notificationService.error({
-                    message: httpError.error?.message ?? MessageDefaultConstants.auth.logout.error,
-                });
+                this.notificationService.error(
+                    httpError.error?.message ?? MessageDefaultConstants.auth.logout.error
+                );
             }
         })
     }

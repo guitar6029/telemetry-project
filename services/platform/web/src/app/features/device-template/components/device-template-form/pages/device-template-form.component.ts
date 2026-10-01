@@ -140,9 +140,7 @@ export class DeviceTemplateFormComponent implements OnInit {
                 next: () => {
                     this.router.navigate(['/app/device-templates']);
 
-                    this.notificationService.success({
-                        message: "Successfully updated a device template"
-                    });
+                    this.notificationService.success("Successfully updated a device template");
                 },
                 error: (httpError) => {
                     console.error(httpError);
@@ -159,9 +157,7 @@ export class DeviceTemplateFormComponent implements OnInit {
                 next: () => {
                     this.router.navigate(['/device-templates']);
 
-                    this.notificationService.success({
-                        message: "Successfully created a device template"
-                    });
+                    this.notificationService.success("Successfully created a device template");
                 },
                 error: (httpError) => {
                     console.error(httpError);
@@ -205,9 +201,7 @@ export class DeviceTemplateFormComponent implements OnInit {
             },
 
             error: (httpError) => {
-                this.notificationService.error({
-                    message: "Cannot load device template"
-                });
+                this.notificationService.error("Cannot load device template");
 
                 console.error(httpError);
                 this.loading.set(false);

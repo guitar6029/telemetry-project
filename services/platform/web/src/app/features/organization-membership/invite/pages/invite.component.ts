@@ -83,16 +83,16 @@ export class InviteFormComponent {
         this.inviteService.sendInvite(request).subscribe({
             next: (response) => {
                 this.loading.set(false);
-                this.notificationService.success({
-                    message: `Invitation sent to ${response.data.email} successfully!`,
-                });
+                this.notificationService.success(
+                    `Invitation sent to ${response.data.email} successfully!`
+                );
 
             },
             error: (httpError) => {
                 this.loading.set(false);
-                this.notificationService.error({
-                    message: httpError.error?.message ?? httpError.message
-                });
+                this.notificationService.error(
+                    `httpError.error?.message ?? httpError.message`
+                );
 
             }
         })

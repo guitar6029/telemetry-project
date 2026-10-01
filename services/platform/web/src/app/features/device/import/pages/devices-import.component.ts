@@ -12,6 +12,7 @@ import { DeviceTemplateSelection, HierarchyNodeSelection } from "../dto/device-i
 import { ReviewStep } from "../steps/review/review.component";
 import { DeviceImportService } from "../service/device-import.service";
 import { DeviceImport } from "../dto/device-import-request.dto";
+import { NotificationService } from "../../../../common/notification/service/notification.service";
 
 @Component({
     selector: 'telemetry-devices-import',
@@ -25,6 +26,7 @@ export class DevicesImportComponent {
 
     private readonly router = inject(Router);
     private readonly deviceImportService = inject(DeviceImportService);
+    private readonly notificationService = inject(NotificationService);
 
     currentStep = signal<DeviceImportStep>(1);
     selectedTemplate = signal<DeviceTemplateSelection | null>(null);
@@ -140,8 +142,12 @@ export class DevicesImportComponent {
         };
 
         this.deviceImportService.importDevices(request).subscribe({
-            next: () => {},
-            error: () => {}
+            next: () => {
+                this.notificationService.success("Device import queued successfully.");
+            },
+            error: () => {
+                this.notificationService.error("Failed to queue device import.");
+            }
         });
     }
 }

@@ -1,68 +1,50 @@
-import { Injectable, inject } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 import { NotificationSettingsConstants } from "../constants/notification-settings.constants";
-import { NotificationSettings } from "../types/notification.types";
+import { Notification, NotificationType } from "../types/notification.types";
 
 @Injectable({
     providedIn: 'root'
 })
-
-
 export class NotificationService {
+    private dismissTimeout: ReturnType<typeof setTimeout> | undefined;
+    readonly current = signal<Notification | null>(null);
 
+    success(message?: string) {
+        this.open('success', message ?? NotificationSettingsConstants.successMessage);
+    }
 
+    error(message?: string) {
+        this.open('error', message ?? NotificationSettingsConstants.errorMessage);
+    }
 
-    private open(
-        {
+    warning(message?: string) {
+        this.open('warning', message ?? NotificationSettingsConstants.warningMessage);
+    }
+
+    info(message?: string) {
+        this.open('info', message ?? NotificationSettingsConstants.infoMessage);
+    }
+
+    clearAll() {
+        if (this.dismissTimeout) {
+            clearTimeout(this.dismissTimeout);
+            this.dismissTimeout = undefined;
+        }
+
+        this.current.set(null);
+    }
+
+    private open(type: NotificationType, message: string) {
+        this.clearAll();
+
+        const notification: Notification = {
+            id: crypto.randomUUID(),
+            type,
             message,
-            duration = NotificationSettingsConstants.duration,
-            horizontalPosition = 'right',
-            verticalPosition = 'top'
-        }: { message: string } & Partial<Omit<NotificationSettings, 'message'>>
-    ) {
-        console.log("notification")
-        // this.snackBar.open(
-        //     message,
-        //     'Close',
-        //     {
-        //         duration,
-        //         horizontalPosition,
-        //         verticalPosition
-        //     }
-        // );
+            duration: NotificationSettingsConstants.duration
+        };
+
+        this.current.set(notification);
+        this.dismissTimeout = setTimeout(() => this.clearAll(), notification.duration);
     }
-
-    success(settings: Partial<NotificationSettings> = {}) {
-        console.log("notification")
-        // this.open({
-        //     ...settings,
-        //     message: settings.message ?? NotificationSettingsConstants.successMessage
-
-        // });
-    }
-
-    error(settings: Partial<NotificationSettings> = {}) {
-        console.log("notification")
-        // this.open({
-        //     ...settings,
-        //     message: settings.message ?? NotificationSettingsConstants.errorMessage
-        // });
-    }
-
-    warning(settings: Partial<NotificationSettings> = {}) {
-        console.log("notification")
-        // this.open({
-        //     ...settings,
-        //     message: settings.message ?? NotificationSettingsConstants.warningMessage
-        // })
-    }
-
-    info(settings: Partial<NotificationSettings> = {}) {
-        console.log("notification")
-        // this.open({
-        //     ...settings,
-        //     message: settings.message ?? NotificationSettingsConstants.infoMessage
-        // })
-    }
-
 }
-

@@ -80,9 +80,9 @@ export class LoginComponent {
                         replaceUrl: true
                     }
                 );
-                this.notificationService.success({
-                    message: MessageDefaultConstants.auth.login.success,
-                });
+                this.notificationService.success(
+                    MessageDefaultConstants.auth.login.success
+                );
 
                 this.loading.set(false);
 
@@ -90,13 +90,12 @@ export class LoginComponent {
             },
             error: (httpError) => {
                 this.loginError = true;
-                this.notificationService.error({
-                    message: httpError.error?.message ?? MessageDefaultConstants.auth.login.error,
-                });
+                this.notificationService.error(
+                    httpError.error?.message ?? MessageDefaultConstants.auth.login.error
+                );
                 this.loading.set(false);
             }
         })
     }
 
 }
-

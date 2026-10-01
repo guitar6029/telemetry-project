@@ -1,9 +1,8 @@
-type NotificationHorizontalPosition = 'left' | 'center' | 'right';
-type NotificationVerticalPosition = 'top' | 'bottom';
+export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
-export interface NotificationSettings {
+export interface Notification {
+    id: string;
+    type: NotificationType;
     message: string;
     duration: number;
-    horizontalPosition: NotificationHorizontalPosition;
-    verticalPosition: NotificationVerticalPosition;
 }

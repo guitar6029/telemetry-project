@@ -71,9 +71,9 @@ export class OrganizationListComponent implements OnInit {
             },
             error: (httpError) => {
                 this.error.set("Unable to load organizations.")
-                this.notificationService.error({
-                    message: httpError.error?.message ?? MessageDefaultConstants.organizations.list.error
-                });
+                this.notificationService.error(
+                    httpError.error?.message ?? MessageDefaultConstants.organizations.list.error
+                );
             }
         })
     }
