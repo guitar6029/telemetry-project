@@ -156,9 +156,9 @@ export class MemberFormComponent implements OnInit {
             error: (httpError) => {
                 this.error.set("Unable to load member");
                 this.loading.set(false);
-                this.notificationService.error({
-                    message: httpError.error?.message ?? MessageDefaultConstants.organization.update.error
-                });
+                this.notificationService.error(
+                    httpError.error?.message ?? MessageDefaultConstants.organization.update.error
+                );
             }
         })
     }
@@ -205,14 +205,14 @@ export class MemberFormComponent implements OnInit {
                     this.saving.set(false);
                     this.member.set(response.data);
                     this.router.navigate(['/manage/members', membershipId]);
-                    this.notificationService.success({
-                        message: response?.message ?? "Updated user successfully!"
-                    })
+                    this.notificationService.success(
+                        response?.message ?? "Updated user successfully!"
+                    )
                 },
                 error: (httpError) => {
-                    this.notificationService.error({
-                        message: httpError.error?.message ?? "User could not be updated."
-                    })
+                    this.notificationService.error(
+                        httpError.error?.message ?? "User could not be updated."
+                    )
                     this.saving.set(false);
                 }
 

@@ -156,9 +156,9 @@ export class OrganizationFormComponent implements OnInit {
                     this.loading.set(false);
                 },
                 error: (httpError) => {
-                    this.notificationService.error({
-                        message: httpError.error?.message ?? MessageDefaultConstants.organization.update.error
-                    });
+                    this.notificationService.error(
+                        httpError.error?.message ?? MessageDefaultConstants.organization.update.error
+                    );
                     this.loading.set(false);
                 }
             });
@@ -179,16 +179,14 @@ export class OrganizationFormComponent implements OnInit {
         this.organizationService.createOrganization(request).subscribe({
             next: (response) => {
                 this.router.navigate([`/organizations/${response.data.id}`])
-                this.notificationService.success({
-                    message: MessageDefaultConstants.organization.creation.success,
-                });
+                this.notificationService.success(
+                    MessageDefaultConstants.organization.creation.success
+                );
             },
             error: (httpError) => {
-                this.notificationService.error({
-                    message: httpError.error?.message ?? MessageDefaultConstants.organization.creation.error,
-
-
-                });
+                this.notificationService.error(
+                    httpError.error?.message ?? MessageDefaultConstants.organization.creation.error
+                );
 
             }
         })
@@ -212,14 +210,14 @@ export class OrganizationFormComponent implements OnInit {
             .subscribe({
                 next: (response) => {
                     this.router.navigate([`/organizations/${response.data.id}`])
-                    this.notificationService.success({
-                        message: response?.message ?? MessageDefaultConstants.organization.update.success
-                    });
+                    this.notificationService.success(
+                        response?.message ?? MessageDefaultConstants.organization.update.success
+                    );
                 },
                 error: (httpError) => {
-                    this.notificationService.error({
-                        message: httpError.error?.message ?? MessageDefaultConstants.organization.update.error
-                    });
+                    this.notificationService.error(
+                        httpError.error?.message ?? MessageDefaultConstants.organization.update.error
+                    );
 
                 }
             })
