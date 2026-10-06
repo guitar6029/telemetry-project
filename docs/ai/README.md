@@ -28,4 +28,4 @@ Telemetry is our practical AI Engineering sandbox. We are moving gradually from 
 - **Conceptual** explains a model useful for reasoning and design.
 - **Future** describes possibilities that are not implemented.
 
-See [fundamentals](fundamentals.md), [instructions](instructions.md), [agents](agents.md), [agent management](agent-management.md), [workflows](workflows.md), and the conceptual [AI Factory](ai-factory.md).
+See [fundamentals](fundamentals.md), [instructions](instructions.md), [agents](agents.md), [agent management](agent-management.md), [context management](context-management.md), [workflows](workflows.md), and the conceptual [AI Factory](ai-factory.md).
