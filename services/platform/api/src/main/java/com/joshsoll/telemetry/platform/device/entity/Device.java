@@ -146,4 +146,18 @@ public class Device {
         return deviceTemplate;
     }
 
+    public void updateImportableFields(
+            String name,
+            String manufacturer,
+            String model,
+            String firmwareVersion,
+            DeviceStatus status) {
+        this.name = name;
+        this.manufacturer = manufacturer;
+        this.model = model;
+        this.firmwareVersion = firmwareVersion;
+        this.status = status;
+        this.updatedAt = Instant.now();
+    }
+
 }

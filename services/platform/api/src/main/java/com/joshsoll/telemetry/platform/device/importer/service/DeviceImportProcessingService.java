@@ -5,13 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-
 import java.nio.charset.StandardCharsets;
-
 import java.time.Instant;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,13 +18,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.stereotype.Service;
 
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
 import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
-import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
@@ -33,13 +30,15 @@ import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportError;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportParseResult;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportProcessingResult;
+import com.joshsoll.telemetry.platform.device.importer.dto.PreparedDeviceImportRow;
+import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 
 @Service
 public class DeviceImportProcessingService {
 
     private final DeviceRepository deviceRepository;
-
     private final DeviceImportContextService deviceImportContextService;
 
     public DeviceImportProcessingService(
@@ -49,7 +48,7 @@ public class DeviceImportProcessingService {
         this.deviceImportContextService = deviceImportContextService;
     }
 
-    public void processImport(DeviceImportMessage message) {
+    public DeviceImportProcessingResult processImport(DeviceImportMessage message) {
         DeviceImportContext context = deviceImportContextService.resolveImportContext(
                 message.organizationId(),
                 message.templateId(),
@@ -66,8 +65,7 @@ public class DeviceImportProcessingService {
                     exception);
         }
 
-        saveDevices(parsedResults.validRows(), context);
-
+        return processRows(parsedResults, context, message.importMode());
     }
 
     private DeviceImportParseResult parseCSVFile(
@@ -80,27 +78,17 @@ public class DeviceImportProcessingService {
                 .get();
 
         try (
-                Reader reader = new InputStreamReader(
-                        inputStream,
-                        StandardCharsets.UTF_8);
-                CSVParser parser = format.parse(reader);) {
+                Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                CSVParser parser = format.parse(reader)) {
 
-            // Verify headers
             verifyHeaders(parser);
-
-            // Parse rows; we get valid devices and error objects back
-            DeviceImportParseResult parsedResults = parseRows(parser, deviceContext);
-
-            return parsedResults;
-
-        } catch (IOException ex) {
-            throw new DeviceImportInvalidException(
-                    "Unable to read import file");
+            return parseRows(parser);
+        } catch (IOException exception) {
+            throw new DeviceImportInvalidException("Unable to read import file");
         }
     }
 
     private void verifyHeaders(CSVParser parser) {
-
         Set<String> headers = parser.getHeaderMap()
                 .keySet()
                 .stream()
@@ -108,69 +96,78 @@ public class DeviceImportProcessingService {
                 .collect(Collectors.toSet());
 
         if (!headers.equals(DeviceImportConstants.REQUIRED_HEADERS)) {
-            throw new DeviceImportInvalidException(
-                    "Invalid CSV headers.");
+            throw new DeviceImportInvalidException("Invalid CSV headers.");
         }
     }
 
-    private DeviceImportParseResult parseRows(
-            CSVParser parser,
-            DeviceImportContext deviceContext) {
+    private DeviceImportParseResult parseRows(CSVParser parser) {
 
-        List<CreateDeviceRequest> validRows = new ArrayList<>();
-        List<DeviceImportError> errors = new ArrayList<>();
+        List<PreparedDeviceImportRow> rows = new ArrayList<>();
+        List<List<String>> rowErrors = new ArrayList<>();
+        Map<String, List<Integer>> rowsBySerialNumber = new HashMap<>();
 
         for (CSVRecord record : parser) {
+            PreparedDeviceImportRow row = new PreparedDeviceImportRow(
+                    record.getRecordNumber(),
+                    normalize(record.get("name")),
+                    normalize(record.get("manufacturer")),
+                    normalize(record.get("model")),
+                    normalize(record.get("serialnumber")),
+                    normalize(record.get("firmwareversion")),
+                    normalize(record.get("status")));
+            rows.add(row);
 
-            String name = record.get("name");
-            String manufacturer = record.get("manufacturer");
-            String model = record.get("model");
-            String serialNumber = record.get("serialnumber");
-            String firmwareVersion = record.get("firmwareversion");
-            String status = record.get("status");
+            List<String> errors = validateRow(row);
+            rowErrors.add(errors);
 
-            List<String> rowErrors = new ArrayList<>();
+            if (hasSerialNumber(row.serialNumber())) {
+                rowsBySerialNumber.computeIfAbsent(row.serialNumber(), ignored -> new ArrayList<>())
+                        .add(rows.size() - 1);
+            }
+        }
 
-            validateName(name).ifPresent(rowErrors::add);
-            validateModel(model).ifPresent(rowErrors::add);
-            validateSerialNumber(serialNumber).ifPresent(rowErrors::add);
-            validateManufacturer(manufacturer).ifPresent(rowErrors::add);
-            validateFirmwareVersion(firmwareVersion).ifPresent(rowErrors::add);
-            validateStatus(status).ifPresent(rowErrors::add);
+        List<PreparedDeviceImportRow> validRows = new ArrayList<>();
+        List<DeviceImportError> errors = new ArrayList<>();
 
-            if (!rowErrors.isEmpty()) {
-                errors.add(new DeviceImportError(
-                        record.getRecordNumber(),
-                        rowErrors));
+        for (int index = 0; index < rows.size(); index++) {
+            PreparedDeviceImportRow row = rows.get(index);
+            List<String> currentErrors = rowErrors.get(index);
+            List<Integer> duplicateRows = rowsBySerialNumber.get(row.serialNumber());
 
-                continue;
+            if (hasSerialNumber(row.serialNumber()) && duplicateRows.size() > 1) {
+                currentErrors.add("Serial number appears more than once in this import.");
             }
 
-            validRows.add(new CreateDeviceRequest(
-                    name,
-                    model,
-                    serialNumber,
-                    manufacturer,
-                    firmwareVersion,
-                    DeviceStatus.valueOf(
-                            status.trim().toUpperCase()),
-                    deviceContext.organization().getId(),
-                    deviceContext.hierarchyNode().getId(),
-                    deviceContext.deviceTemplate().getId()));
+            if (!currentErrors.isEmpty()) {
+                errors.add(new DeviceImportError(row.rowNumber(), List.copyOf(currentErrors)));
+            } else {
+                validRows.add(row);
+            }
         }
 
         return new DeviceImportParseResult(validRows, errors);
     }
 
-    private Optional<String> validateName(String name) {
+    private List<String> validateRow(PreparedDeviceImportRow row) {
+        List<String> errors = new ArrayList<>();
 
+        validateName(row.name()).ifPresent(errors::add);
+        validateRequired(row.model(), "Model").ifPresent(errors::add);
+        validateRequired(row.serialNumber(), "Serial Number").ifPresent(errors::add);
+        validateRequired(row.manufacturer(), "Manufacturer").ifPresent(errors::add);
+        validateRequired(row.firmwareVersion(), "Firmware Version").ifPresent(errors::add);
+        validateStatus(row.status()).ifPresent(errors::add);
+
+        return errors;
+    }
+
+    private Optional<String> validateName(String name) {
         if (name == null || name.isBlank()) {
             return Optional.of("Name is required");
         }
 
         if (name.length() < DeviceConstants.NAME_MIN_LENGTH
                 || name.length() > DeviceConstants.NAME_MAX_LENGTH) {
-
             return Optional.of(
                     "Name must be between "
                             + DeviceConstants.NAME_MIN_LENGTH
@@ -182,55 +179,21 @@ public class DeviceImportProcessingService {
         return Optional.empty();
     }
 
-    private Optional<String> validateModel(String model) {
-
-        if (model == null || model.isBlank()) {
-            return Optional.of("Model is required");
+    private Optional<String> validateRequired(String value, String label) {
+        if (value == null || value.isBlank()) {
+            return Optional.of(label + " is required");
         }
-
-        return Optional.empty();
-    }
-
-    private Optional<String> validateSerialNumber(String serialNumber) {
-
-        if (serialNumber == null || serialNumber.isBlank()) {
-            return Optional.of("Serial Number is required");
-        }
-
-        return Optional.empty();
-    }
-
-    private Optional<String> validateManufacturer(String manufacturer) {
-
-        if (manufacturer == null || manufacturer.isBlank()) {
-            return Optional.of("Manufacturer is required");
-        }
-
-        return Optional.empty();
-    }
-
-    private Optional<String> validateFirmwareVersion(
-            String firmwareVersion) {
-
-        if (firmwareVersion == null || firmwareVersion.isBlank()) {
-            return Optional.of("Firmware Version is required");
-        }
-
         return Optional.empty();
     }
 
     private Optional<String> validateStatus(String status) {
-
         if (status == null || status.isBlank()) {
             return Optional.of("Status is required");
         }
-
         try {
-            DeviceStatus.valueOf(status.trim().toUpperCase());
-
+            DeviceStatus.valueOf(status.toUpperCase());
             return Optional.empty();
-
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException exception) {
             return Optional.of(
                     "Invalid status: '"
                             + status
@@ -239,36 +202,87 @@ public class DeviceImportProcessingService {
         }
     }
 
-    private Device toEntity(
-            CreateDeviceRequest deviceRequest,
-            DeviceImportContext deviceImportContext) {
+    private String normalize(String value) {
+        return value == null ? null : value.trim();
+    }
 
+    private DeviceImportProcessingResult processRows(
+            DeviceImportParseResult parsedResults,
+            DeviceImportContext context,
+            DeviceImportMode importMode) {
+
+        long createdRows = 0;
+        long updatedRows = 0;
+        long skippedRows = 0;
+        List<DeviceImportError> errors = new ArrayList<>(parsedResults.errors());
+
+        for (PreparedDeviceImportRow row : parsedResults.validRows()) {
+            try {
+                Optional<Device> existingDevice = deviceRepository.findByOrganizationAndSerialNumber(
+                        context.organization(),
+                        row.serialNumber());
+
+                if (existingDevice.isEmpty()) {
+                    deviceRepository.save(toEntity(row, context));
+                    createdRows++;
+                    continue;
+                }
+
+                if (importMode == DeviceImportMode.SKIP_EXISTING) {
+                    skippedRows++;
+                    continue;
+                }
+
+                if (importMode == DeviceImportMode.UPDATE_EXISTING) {
+                    Device device = existingDevice.get();
+                    device.updateImportableFields(
+                            row.name(),
+                            row.manufacturer(),
+                            row.model(),
+                            row.firmwareVersion(),
+                            DeviceStatus.valueOf(row.status().toUpperCase()));
+                    deviceRepository.save(device);
+                    updatedRows++;
+                    continue;
+                }
+
+                errors.add(new DeviceImportError(
+                        row.rowNumber(),
+                        List.of("Import mode is required.")));
+            } catch (RuntimeException ignored) {
+                errors.add(new DeviceImportError(
+                        row.rowNumber(),
+                        List.of("Unable to process row.")));
+            }
+        }
+
+        long totalRows = parsedResults.validRows().size() + parsedResults.errors().size();
+        return new DeviceImportProcessingResult(
+                totalRows,
+                createdRows,
+                updatedRows,
+                skippedRows,
+                errors.size(),
+                List.copyOf(errors));
+    }
+
+    private Device toEntity(PreparedDeviceImportRow row, DeviceImportContext context) {
         Instant now = Instant.now();
-
         return new Device(
-                deviceRequest.getName(),
-                deviceRequest.getManufacturer(),
-                deviceRequest.getModel(),
-                deviceRequest.getSerialNumber(),
-                deviceRequest.getFirmwareVersion(),
-                deviceRequest.getStatus(),
-                deviceImportContext.organization(),
-                deviceImportContext.hierarchyNode(),
-                deviceImportContext.deviceTemplate(),
+                row.name(),
+                row.manufacturer(),
+                row.model(),
+                row.serialNumber(),
+                row.firmwareVersion(),
+                DeviceStatus.valueOf(row.status().toUpperCase()),
+                context.organization(),
+                context.hierarchyNode(),
+                context.deviceTemplate(),
                 now,
                 now);
     }
 
-    private void saveDevices(
-            List<CreateDeviceRequest> deviceRequests,
-            DeviceImportContext deviceImportContext) {
-
-        List<Device> entities = deviceRequests.stream()
-                .map(request -> toEntity(
-                        request,
-                        deviceImportContext))
-                .toList();
-
-        deviceRepository.saveAll(entities);
+    private boolean hasSerialNumber(String serialNumber) {
+        return serialNumber != null && !serialNumber.isBlank();
     }
 }

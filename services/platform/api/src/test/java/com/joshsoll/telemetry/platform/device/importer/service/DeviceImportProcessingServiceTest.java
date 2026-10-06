@@ -20,6 +20,7 @@ import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
+import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
@@ -50,6 +51,7 @@ class DeviceImportProcessingServiceTest {
                 organizationId,
                 templateId,
                 hierarchyNodeId,
+                DeviceImportMode.SKIP_EXISTING,
                 ("device_name,vendor,device_model,serial_number\n"
                         + "Temperature Sensor,Acme,TS-1000,TS1000001\n")
                         .getBytes(StandardCharsets.UTF_8));
