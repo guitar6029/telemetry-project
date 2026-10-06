@@ -2,6 +2,7 @@ package com.joshsoll.telemetry.platform.device.importer.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -201,6 +202,21 @@ class DeviceImportProcessingRulesTest {
         assertFalse(result.errors().isEmpty());
         verify(deviceRepository, never()).findByOrganizationAndSerialNumber(context.organization(), "B");
         verify(deviceRepository, org.mockito.Mockito.times(2)).save(any(Device.class));
+    }
+
+    @Test
+    void propagatesUnexpectedRepositoryRuntimeFailure() {
+        prepareContext();
+        when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "A"))
+                .thenThrow(new IllegalStateException("database unavailable"));
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> process(
+                        DeviceImportMode.SKIP_EXISTING,
+                        row("Device", "Acme", "M1", "A", "1", "ONLINE")));
+
+        assertEquals("database unavailable", exception.getMessage());
     }
 
     private void prepareContext() {

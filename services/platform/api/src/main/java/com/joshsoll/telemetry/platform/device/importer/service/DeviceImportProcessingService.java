@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.joshsoll.telemetry.platform.device.DeviceStatus;
 import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.entity.Device;
+import com.joshsoll.telemetry.platform.device.exception.DuplicateDeviceSerialNumberException;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
@@ -249,10 +250,10 @@ public class DeviceImportProcessingService {
                 errors.add(new DeviceImportError(
                         row.rowNumber(),
                         List.of("Import mode is required.")));
-            } catch (RuntimeException ignored) {
+            } catch (DuplicateDeviceSerialNumberException exception) {
                 errors.add(new DeviceImportError(
                         row.rowNumber(),
-                        List.of("Unable to process row.")));
+                        List.of(exception.getMessage())));
             }
         }
 
