@@ -24,6 +24,7 @@ import com.joshsoll.telemetry.platform.device.constants.DeviceConstants;
 import com.joshsoll.telemetry.platform.device.dto.CreateDeviceRequest;
 import com.joshsoll.telemetry.platform.device.dto.DeviceResponse;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
+import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.service.DeviceImportService;
 import com.joshsoll.telemetry.platform.device.service.DeviceService;
 
@@ -77,13 +78,15 @@ public class DeviceController {
             @PathVariable UUID organizationId,
             @PathVariable UUID templateId,
             @PathVariable UUID hierarchyNodeId,
-            @RequestParam MultipartFile file) {
+            @RequestParam MultipartFile file,
+            @RequestParam DeviceImportMode importMode) {
         DeviceImportResponse response = deviceImportService.importDevices(
                 user,
                 organizationId,
                 templateId,
                 hierarchyNodeId,
-                file);
+                file,
+                importMode);
 
         return ResponseFactory.accepted(response, DOMAIN_NAME);
     }
