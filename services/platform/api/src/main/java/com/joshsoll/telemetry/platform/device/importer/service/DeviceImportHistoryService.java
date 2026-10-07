@@ -21,6 +21,9 @@ import com.joshsoll.telemetry.platform.organization.entity.Organization;
 @Service
 public class DeviceImportHistoryService {
 
+    private static final String SUBMITTED_AT_PROPERTY = "submittedAt";
+    private static final String ID_PROPERTY = "id";
+
     private final AuthorizationService authorizationService;
     private final DeviceImportRepository deviceImportRepository;
 
@@ -39,8 +42,8 @@ public class DeviceImportHistoryService {
             int size) {
         Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
         Pageable pageable = PageRequest.of(page, size, Sort.by(
-                Sort.Order.desc("submittedAt"),
-                Sort.Order.desc("id")));
+                Sort.Order.desc(SUBMITTED_AT_PROPERTY),
+                Sort.Order.desc(ID_PROPERTY)));
         Page<DeviceImportHistoryResponse> imports = deviceImportRepository
                 .findByOrganization_Id(organization.getId(), pageable)
                 .map(this::toResponse);
