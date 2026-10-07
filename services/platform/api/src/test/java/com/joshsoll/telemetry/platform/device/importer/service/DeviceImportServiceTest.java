@@ -29,7 +29,9 @@ import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidExcep
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
+import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -85,18 +87,29 @@ class DeviceImportServiceTest {
     }
 
     @Test
-    void rejectsCsvFilesWithMoreThanTenThousandDataRows() {
+    void queuesCsvWithMoreThanTenThousandRowsWithoutParsingItAtSubmission() {
+        when(authorizationService.requireOrganizationAccess(user, organizationId))
+                .thenReturn(organization);
+        when(organization.getId()).thenReturn(organizationId);
+        when(template.getId()).thenReturn(templateId);
+        when(hierarchyNode.getId()).thenReturn(hierarchyNodeId);
+        when(deviceImportContextService.resolveImportContext(
+                organizationId, templateId, hierarchyNodeId))
+                .thenReturn(context);
+
         StringBuilder csv = new StringBuilder("name,manufacturer,model,serialnumber,firmwareversion,status\n");
         for (int row = 0; row <= DeviceImportConstants.MAX_ROW_COUNT; row++) {
             csv.append("name,manufacturer,model,serial-").append(row).append(",1,ACTIVE\n");
         }
         MockMultipartFile file = csvFile(csv.toString());
 
-        assertThrows(DeviceImportInvalidException.class, () -> deviceImportService.importDevices(
-                user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.SKIP_EXISTING));
+        deviceImportService.importDevices(
+                user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.SKIP_EXISTING);
 
-        verify(deviceImportContextService, never()).resolveImportContext(any(), any(), any());
-        verify(rabbitTemplate, never()).convertAndSend(any(String.class), any(Object.class));
+        ArgumentCaptor<DeviceImportMessage> messageCaptor = ArgumentCaptor.forClass(DeviceImportMessage.class);
+        verify(rabbitTemplate).convertAndSend(
+                eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME), messageCaptor.capture());
+        assertEquals(csv.toString(), new String(messageCaptor.getValue().csvData(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -116,9 +129,10 @@ class DeviceImportServiceTest {
         }
         MockMultipartFile file = csvFile(csv.toString());
 
-        deviceImportService.importDevices(
+        DeviceImportResponse response = deviceImportService.importDevices(
                 user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.UPDATE_EXISTING);
 
+        assertEquals(DeviceImportStatus.QUEUED, response.status());
         ArgumentCaptor<DeviceImportMessage> messageCaptor = ArgumentCaptor.forClass(DeviceImportMessage.class);
         verify(rabbitTemplate).convertAndSend(
                 eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME), messageCaptor.capture());

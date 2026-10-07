@@ -1,13 +1,7 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -67,8 +61,6 @@ public class DeviceImportService {
             throw new DeviceImportInvalidException("Import file must be a CSV.");
         }
 
-        validateRowCount(file);
-
         return deviceImportContextService.resolveImportContext(
                 organization.getId(),
                 templateId,
@@ -83,6 +75,10 @@ public class DeviceImportService {
             UUID hierarchyNodeId,
             MultipartFile file,
             DeviceImportMode importMode) {
+
+        if (importMode == null) {
+            throw new DeviceImportInvalidException("Import mode is required.");
+        }
 
         DeviceImportContext context = validateImportContext(
                 authenticatedUser,
@@ -106,29 +102,6 @@ public class DeviceImportService {
             return new DeviceImportResponse(
                     "Import job accepted",
                     DeviceImportStatus.QUEUED);
-        } catch (IOException exception) {
-            throw new DeviceImportFileReadException(
-                    "Unable to read import file",
-                    exception);
-        }
-    }
-
-    private void validateRowCount(MultipartFile file) {
-        try {
-            byte[] csvData = file.getBytes();
-            CSVFormat format = CSVFormat.DEFAULT.builder()
-                    .setHeader()
-                    .setSkipHeaderRecord(true)
-                    .get();
-
-            try (CSVParser parser = format.parse(new InputStreamReader(
-                    new ByteArrayInputStream(csvData),
-                    StandardCharsets.UTF_8))) {
-                if (parser.getRecords().size() > DeviceImportConstants.MAX_ROW_COUNT) {
-                    throw new DeviceImportInvalidException(
-                            "Import file must not contain more than 10,000 rows.");
-                }
-            }
         } catch (IOException exception) {
             throw new DeviceImportFileReadException(
                     "Unable to read import file",

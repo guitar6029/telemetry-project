@@ -108,6 +108,11 @@ public class DeviceImportProcessingService {
         Map<String, List<Integer>> rowsBySerialNumber = new HashMap<>();
 
         for (CSVRecord record : parser) {
+            if (rows.size() >= DeviceImportConstants.MAX_ROW_COUNT) {
+                throw new DeviceImportInvalidException(
+                        "Import file must not contain more than 10,000 rows.");
+            }
+
             PreparedDeviceImportRow row = new PreparedDeviceImportRow(
                     record.getRecordNumber(),
                     normalize(record.get("name")),

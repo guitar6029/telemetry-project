@@ -1,5 +1,6 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -18,8 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
+import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportProcessingResult;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
@@ -72,5 +75,69 @@ class DeviceImportProcessingServiceTest {
                 templateId,
                 hierarchyNodeId);
         verifyNoInteractions(deviceRepository);
+    }
+
+    @Test
+    void shouldRejectMoreThanTenThousandRowsWithoutProcessingAnyRows() {
+        DeviceImportContext context = validContext();
+        UUID organizationId = UUID.randomUUID();
+        UUID templateId = UUID.randomUUID();
+        UUID hierarchyNodeId = UUID.randomUUID();
+        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
+                .thenReturn(context);
+
+        AmqpRejectAndDontRequeueException exception = assertThrows(
+                AmqpRejectAndDontRequeueException.class,
+                () -> deviceImportProcessingService.processImport(messageWithRows(
+                        organizationId,
+                        templateId,
+                        hierarchyNodeId,
+                        DeviceImportConstants.MAX_ROW_COUNT + 1)));
+
+        assertInstanceOf(DeviceImportInvalidException.class, exception.getCause());
+        verifyNoInteractions(deviceRepository);
+    }
+
+    @Test
+    void shouldAcceptExactlyTenThousandRowsByRowCountRule() {
+        DeviceImportContext context = validContext();
+        UUID organizationId = UUID.randomUUID();
+        UUID templateId = UUID.randomUUID();
+        UUID hierarchyNodeId = UUID.randomUUID();
+        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
+                .thenReturn(context);
+
+        DeviceImportProcessingResult result = deviceImportProcessingService.processImport(messageWithRows(
+                organizationId,
+                templateId,
+                hierarchyNodeId,
+                DeviceImportConstants.MAX_ROW_COUNT));
+
+        assertEquals(DeviceImportConstants.MAX_ROW_COUNT, result.totalRows());
+        assertEquals(DeviceImportConstants.MAX_ROW_COUNT, result.failedRows());
+    }
+
+    private DeviceImportContext validContext() {
+        return new DeviceImportContext(
+                mock(Organization.class),
+                mock(DeviceTemplate.class),
+                mock(HierarchyNode.class));
+    }
+
+    private DeviceImportMessage messageWithRows(
+            UUID organizationId,
+            UUID templateId,
+            UUID hierarchyNodeId,
+            long rowCount) {
+        StringBuilder csv = new StringBuilder("name,manufacturer,model,serialnumber,firmwareversion,status\n");
+        for (int row = 0; row < rowCount; row++) {
+            csv.append(",,,,,\n");
+        }
+        return new DeviceImportMessage(
+                organizationId,
+                templateId,
+                hierarchyNodeId,
+                DeviceImportMode.SKIP_EXISTING,
+                csv.toString().getBytes(StandardCharsets.UTF_8));
     }
 }
