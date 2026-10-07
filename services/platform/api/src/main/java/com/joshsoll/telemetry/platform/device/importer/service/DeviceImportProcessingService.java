@@ -33,7 +33,9 @@ import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportParseResult;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportProcessingResult;
 import com.joshsoll.telemetry.platform.device.importer.dto.PreparedDeviceImportRow;
+import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 
 @Service
@@ -41,15 +43,24 @@ public class DeviceImportProcessingService {
 
     private final DeviceRepository deviceRepository;
     private final DeviceImportContextService deviceImportContextService;
+    private final DeviceImportRepository deviceImportRepository;
 
     public DeviceImportProcessingService(
             DeviceRepository deviceRepository,
-            DeviceImportContextService deviceImportContextService) {
+            DeviceImportContextService deviceImportContextService,
+            DeviceImportRepository deviceImportRepository) {
         this.deviceRepository = deviceRepository;
         this.deviceImportContextService = deviceImportContextService;
+        this.deviceImportRepository = deviceImportRepository;
     }
 
     public DeviceImportProcessingResult processImport(DeviceImportMessage message) {
+        DeviceImport deviceImport = deviceImportRepository.findById(message.importId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Device import not found: " + message.importId()));
+        deviceImport.markProcessing(Instant.now());
+        deviceImportRepository.save(deviceImport);
+
         DeviceImportContext context = deviceImportContextService.resolveImportContext(
                 message.organizationId(),
                 message.templateId(),
@@ -61,12 +72,21 @@ public class DeviceImportProcessingService {
         try {
             parsedResults = parseCSVFile(inputStream, context);
         } catch (DeviceImportInvalidException exception) {
+            deviceImport.markFailed(Instant.now());
+            deviceImportRepository.save(deviceImport);
             throw new AmqpRejectAndDontRequeueException(
                     "Device import contains an invalid CSV",
                     exception);
         }
 
-        return processRows(parsedResults, context, message.importMode());
+        DeviceImportProcessingResult result = processRows(parsedResults, context, message.importMode());
+        if (result.failedRows() > 0) {
+            deviceImport.markCompletedWithErrors(Instant.now());
+        } else {
+            deviceImport.markCompleted(Instant.now());
+        }
+        deviceImportRepository.save(deviceImport);
+        return result;
     }
 
     private DeviceImportParseResult parseCSVFile(

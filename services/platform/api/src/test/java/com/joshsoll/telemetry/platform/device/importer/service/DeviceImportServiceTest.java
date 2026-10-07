@@ -1,11 +1,16 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -30,8 +36,10 @@ import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportCon
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
+import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -47,6 +55,9 @@ class DeviceImportServiceTest {
 
     @Mock
     private DeviceImportContextService deviceImportContextService;
+
+    @Mock
+    private DeviceImportRepository deviceImportRepository;
 
     @InjectMocks
     private DeviceImportService deviceImportService;
@@ -103,13 +114,29 @@ class DeviceImportServiceTest {
         }
         MockMultipartFile file = csvFile(csv.toString());
 
-        deviceImportService.importDevices(
+        DeviceImportResponse response = deviceImportService.importDevices(
                 user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.SKIP_EXISTING);
 
+        assertEquals(DeviceImportStatus.QUEUED, response.status());
+        ArgumentCaptor<DeviceImport> importCaptor = ArgumentCaptor.forClass(DeviceImport.class);
         ArgumentCaptor<DeviceImportMessage> messageCaptor = ArgumentCaptor.forClass(DeviceImportMessage.class);
-        verify(rabbitTemplate).convertAndSend(
+        InOrder order = inOrder(deviceImportRepository, rabbitTemplate);
+        order.verify(deviceImportRepository).save(importCaptor.capture());
+        order.verify(rabbitTemplate).convertAndSend(
                 eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME), messageCaptor.capture());
+
+        DeviceImport savedImport = importCaptor.getValue();
+        assertEquals(DeviceImportStatus.QUEUED, savedImport.getStatus());
+        assertEquals(DeviceImportMode.SKIP_EXISTING, savedImport.getImportMode());
+        assertNotNull(savedImport.getSubmittedAt());
+        assertNull(savedImport.getStartedAt());
+        assertNull(savedImport.getCompletedAt());
+        assertEquals(organization, savedImport.getOrganization());
+        assertEquals(template, savedImport.getDeviceTemplate());
+        assertEquals(hierarchyNode, savedImport.getHierarchyNode());
+        assertEquals("devices.csv", savedImport.getFilename());
         assertEquals(csv.toString(), new String(messageCaptor.getValue().csvData(), StandardCharsets.UTF_8));
+        assertEquals(savedImport.getId(), messageCaptor.getValue().importId());
     }
 
     @Test
@@ -133,6 +160,7 @@ class DeviceImportServiceTest {
                 user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.UPDATE_EXISTING);
 
         assertEquals(DeviceImportStatus.QUEUED, response.status());
+        DeviceImport savedImport = verifySavedImport(DeviceImportMode.UPDATE_EXISTING);
         ArgumentCaptor<DeviceImportMessage> messageCaptor = ArgumentCaptor.forClass(DeviceImportMessage.class);
         verify(rabbitTemplate).convertAndSend(
                 eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME), messageCaptor.capture());
@@ -141,7 +169,46 @@ class DeviceImportServiceTest {
         assertEquals(organizationId, message.organizationId());
         assertEquals(templateId, message.templateId());
         assertEquals(hierarchyNodeId, message.hierarchyNodeId());
+        assertEquals(response.importId(), message.importId());
         assertEquals(csv.toString(), new String(message.csvData(), StandardCharsets.UTF_8));
+        assertEquals(response.importId(), savedImport.getId());
+    }
+
+    @Test
+    void createsDistinctImportIdsForAcceptedImports() {
+        when(authorizationService.requireOrganizationAccess(user, organizationId))
+                .thenReturn(organization);
+        when(organization.getId()).thenReturn(organizationId);
+        when(template.getId()).thenReturn(templateId);
+        when(hierarchyNode.getId()).thenReturn(hierarchyNodeId);
+        when(deviceImportContextService.resolveImportContext(
+                organizationId, templateId, hierarchyNodeId))
+                .thenReturn(context);
+        MockMultipartFile file = csvFile("name,manufacturer,model,serialnumber,firmwareversion,status\n");
+
+        DeviceImportResponse first = deviceImportService.importDevices(
+                user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.SKIP_EXISTING);
+        DeviceImportResponse second = deviceImportService.importDevices(
+                user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.SKIP_EXISTING);
+
+        assertNotNull(first.importId());
+        assertNotNull(second.importId());
+        assertNotEquals(first.importId(), second.importId());
+        verify(deviceImportRepository, times(2)).save(any(DeviceImport.class));
+        verify(rabbitTemplate, times(2)).convertAndSend(
+                eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME), any(DeviceImportMessage.class));
+    }
+
+    private DeviceImport verifySavedImport(DeviceImportMode expectedMode) {
+        ArgumentCaptor<DeviceImport> importCaptor = ArgumentCaptor.forClass(DeviceImport.class);
+        verify(deviceImportRepository).save(importCaptor.capture());
+        DeviceImport savedImport = importCaptor.getValue();
+        assertEquals(DeviceImportStatus.QUEUED, savedImport.getStatus());
+        assertEquals(expectedMode, savedImport.getImportMode());
+        assertEquals(organization, savedImport.getOrganization());
+        assertEquals(template, savedImport.getDeviceTemplate());
+        assertEquals(hierarchyNode, savedImport.getHierarchyNode());
+        return savedImport;
     }
 
     private MockMultipartFile csvFile(String contents) {

@@ -30,7 +30,10 @@ import com.joshsoll.telemetry.platform.device.entity.Device;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportProcessingResult;
+import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
+import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
@@ -49,10 +52,14 @@ class DeviceImportProcessingRulesTest {
     @Mock
     private DeviceImportContextService deviceImportContextService;
 
+    @Mock
+    private DeviceImportRepository deviceImportRepository;
+
     @InjectMocks
     private DeviceImportProcessingService processingService;
 
     private UserContext context;
+    private DeviceImport currentImport;
 
     @BeforeEach
     void setUp() {
@@ -91,6 +98,9 @@ class DeviceImportProcessingRulesTest {
         assertEquals(TEMPLATE_ID, saved.getDeviceTemplateId());
         assertEquals(1, result.createdRows());
         assertEquals(0, result.failedRows());
+        assertEquals(DeviceImportStatus.COMPLETED, currentImport.getStatus());
+        assertTrue(currentImport.getStartedAt() != null);
+        assertTrue(currentImport.getCompletedAt() != null);
     }
 
     @Test
@@ -172,6 +182,7 @@ class DeviceImportProcessingRulesTest {
         assertEquals(3, result.totalRows());
         assertEquals(1, result.createdRows());
         assertEquals(2, result.failedRows());
+        assertEquals(DeviceImportStatus.COMPLETED_WITH_ERRORS, currentImport.getStatus());
         assertEquals(2, result.errors().size());
         assertTrue(result.errors().stream().allMatch(error -> error.errors().stream()
                 .anyMatch(message -> message.contains("more than once"))));
@@ -199,6 +210,7 @@ class DeviceImportProcessingRulesTest {
         assertEquals(3, result.totalRows());
         assertEquals(2, result.createdRows());
         assertEquals(1, result.failedRows());
+        assertEquals(DeviceImportStatus.COMPLETED_WITH_ERRORS, currentImport.getStatus());
         assertFalse(result.errors().isEmpty());
         verify(deviceRepository, never()).findByOrganizationAndSerialNumber(context.organization(), "B");
         verify(deviceRepository, org.mockito.Mockito.times(2)).save(any(Device.class));
@@ -235,7 +247,16 @@ class DeviceImportProcessingRulesTest {
         String csv = "name,manufacturer,model,serialnumber,firmwareversion,status\n"
                 + String.join("\n", rows)
                 + "\n";
+        currentImport = new DeviceImport(
+                context.organization(),
+                context.template(),
+                context.hierarchyNode(),
+                "devices.csv",
+                mode,
+                Instant.now());
+        when(deviceImportRepository.findById(currentImport.getId())).thenReturn(Optional.of(currentImport));
         DeviceImportMessage message = new DeviceImportMessage(
+                currentImport.getId(),
                 ORGANIZATION_ID,
                 TEMPLATE_ID,
                 HIERARCHY_NODE_ID,

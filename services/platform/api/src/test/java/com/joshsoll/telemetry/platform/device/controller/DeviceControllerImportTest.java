@@ -42,7 +42,8 @@ class DeviceControllerImportTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "devices.csv", "text/csv", "name,manufacturer,model,serialnumber,firmwareversion,status\n"
                         .getBytes());
-        DeviceImportResponse response = new DeviceImportResponse("Import job accepted", DeviceImportStatus.QUEUED);
+        DeviceImportResponse response = new DeviceImportResponse(
+                UUID.randomUUID(), "Import job accepted", DeviceImportStatus.QUEUED);
         when(deviceImportService.importDevices(
                 user, organizationId, templateId, hierarchyNodeId, file, DeviceImportMode.SKIP_EXISTING))
                 .thenReturn(response);
@@ -52,5 +53,6 @@ class DeviceControllerImportTest {
 
         assertEquals(HttpStatus.ACCEPTED, result.getStatusCode());
         assertEquals(response, result.getBody().getData());
+        assertEquals(response.importId(), result.getBody().getData().importId());
     }
 }

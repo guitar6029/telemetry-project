@@ -1,6 +1,7 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -14,9 +15,11 @@ import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportCon
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
+import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
 import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportFileReadException;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
 @Service
@@ -26,14 +29,17 @@ public class DeviceImportService {
 
     private final RabbitTemplate rabbitTemplate;
     private final DeviceImportContextService deviceImportContextService;
+    private final DeviceImportRepository deviceImportRepository;
 
     public DeviceImportService(
             AuthorizationService authorizationService,
             RabbitTemplate rabbitTemplate,
-            DeviceImportContextService deviceImportContextService) {
+            DeviceImportContextService deviceImportContextService,
+            DeviceImportRepository deviceImportRepository) {
         this.authorizationService = authorizationService;
         this.rabbitTemplate = rabbitTemplate;
         this.deviceImportContextService = deviceImportContextService;
+        this.deviceImportRepository = deviceImportRepository;
     }
 
     public DeviceImportContext validateImportContext(
@@ -88,18 +94,30 @@ public class DeviceImportService {
                 file);
 
         try {
+            byte[] csvData = file.getBytes();
+            DeviceImport importOperation = new DeviceImport(
+                    context.organization(),
+                    context.deviceTemplate(),
+                    context.hierarchyNode(),
+                    file.getOriginalFilename(),
+                    importMode,
+                    Instant.now());
+            deviceImportRepository.save(importOperation);
+
             DeviceImportMessage message = new DeviceImportMessage(
+                    importOperation.getId(),
                     context.organization().getId(),
                     context.deviceTemplate().getId(),
                     context.hierarchyNode().getId(),
                     importMode,
-                    file.getBytes());
+                    csvData);
 
             rabbitTemplate.convertAndSend(
                     DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME,
                     message);
 
             return new DeviceImportResponse(
+                    importOperation.getId(),
                     "Import job accepted",
                     DeviceImportStatus.QUEUED);
         } catch (IOException exception) {
