@@ -11,12 +11,27 @@ import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidExcep
 import com.joshsoll.telemetry.platform.device.exception.DeviceNotFoundException;
 import com.joshsoll.telemetry.platform.device.exception.DuplicateDeviceSerialNumberException;
 import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportFileReadException;
+import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportNotFoundException;
 import com.joshsoll.telemetry.platform.exception.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class DeviceExceptionHandler {
+        @ExceptionHandler(DeviceImportNotFoundException.class)
+        public ResponseEntity<ErrorResponse> handleDeviceImportNotFound(
+                        DeviceImportNotFoundException ex,
+                        HttpServletRequest request) {
+
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(new ErrorResponse(
+                                                Instant.now(),
+                                                HttpStatus.NOT_FOUND.value(),
+                                                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                                                ex.getMessage(),
+                                                request.getRequestURI()));
+        }
+
         @ExceptionHandler(DeviceNotFoundException.class)
         public ResponseEntity<ErrorResponse> handleDeviceNotFound(
                         DeviceNotFoundException ex,
