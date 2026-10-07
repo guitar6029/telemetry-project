@@ -5,5 +5,9 @@ public enum DeviceImportStatus {
     PROCESSING,
     COMPLETED,
     COMPLETED_WITH_ERRORS,
-    FAILED
+    FAILED;
+
+    public boolean isTerminal() {
+        return this == COMPLETED || this == COMPLETED_WITH_ERRORS || this == FAILED;
+    }
 }

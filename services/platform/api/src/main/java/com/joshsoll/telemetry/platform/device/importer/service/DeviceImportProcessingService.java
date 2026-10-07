@@ -58,6 +58,9 @@ public class DeviceImportProcessingService {
         DeviceImport deviceImport = deviceImportRepository.findById(message.importId())
                 .orElseThrow(() -> new IllegalStateException(
                         "Device import not found: " + message.importId()));
+        if (deviceImport.getStatus().isTerminal()) {
+            return new DeviceImportProcessingResult(0, 0, 0, 0, 0, List.of());
+        }
         deviceImport.markProcessing(Instant.now());
         deviceImportRepository.save(deviceImport);
 

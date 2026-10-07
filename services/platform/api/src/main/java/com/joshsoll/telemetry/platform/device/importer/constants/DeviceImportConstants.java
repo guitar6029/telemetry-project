@@ -16,6 +16,7 @@ public final class DeviceImportConstants {
             "status");
 
     public static final String DEVICE_IMPORT_QUEUE_NAME = "device.import";
+    public static final String DEVICE_IMPORT_OUTBOX_EVENT_TYPE = "DEVICE_IMPORT";
 
     protected DeviceImportConstants() {
     }

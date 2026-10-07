@@ -157,6 +157,25 @@ class DeviceImportProcessingServiceTest {
                 savedStatuses);
     }
 
+    @Test
+    void shouldIgnoreDuplicateDeliveryForTerminalImport() {
+        DeviceImportContext context = validContext();
+        DeviceImport deviceImport = prepareImport(context);
+        deviceImport.markCompleted(Instant.now());
+        DeviceImportMessage message = messageWithRows(
+                deviceImport,
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                1);
+
+        DeviceImportProcessingResult result = deviceImportProcessingService.processImport(message);
+
+        assertEquals(0, result.totalRows());
+        assertEquals(DeviceImportStatus.COMPLETED, deviceImport.getStatus());
+        verifyNoInteractions(deviceRepository, deviceImportContextService);
+    }
+
     private DeviceImportContext validContext() {
         return new DeviceImportContext(
                 mock(Organization.class),
