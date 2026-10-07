@@ -1,7 +1,12 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
 import java.time.Instant;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,14 +25,17 @@ public class DeviceImportOutboxPublisher {
     private final OutboxMessageRepository outboxMessageRepository;
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
+    private final long confirmationTimeoutMillis;
 
     public DeviceImportOutboxPublisher(
             OutboxMessageRepository outboxMessageRepository,
             RabbitTemplate rabbitTemplate,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            @Value("${device-import.outbox.confirm-timeout-ms:5000}") long confirmationTimeoutMillis) {
         this.outboxMessageRepository = outboxMessageRepository;
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
+        this.confirmationTimeoutMillis = confirmationTimeoutMillis;
     }
 
     @Scheduled(fixedDelayString = "${device-import.outbox.poll-interval-ms:1000}")
@@ -45,7 +53,23 @@ public class DeviceImportOutboxPublisher {
                 throw new IllegalStateException("Unable to deserialize device import outbox message", exception);
             }
 
-            rabbitTemplate.convertAndSend(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME, message);
+            CorrelationData correlationData = new CorrelationData(outboxMessage.getId().toString());
+            rabbitTemplate.convertAndSend(
+                    DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME, message, correlationData);
+            try {
+                CorrelationData.Confirm confirm = correlationData.getFuture()
+                        .get(confirmationTimeoutMillis, TimeUnit.MILLISECONDS);
+                if (!confirm.ack()) {
+                    throw new IllegalStateException("RabbitMQ negatively acknowledged device import message: "
+                            + confirm.reason());
+                }
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Interrupted waiting for RabbitMQ publisher confirmation", exception);
+            } catch (ExecutionException | TimeoutException exception) {
+                throw new IllegalStateException("Unable to confirm device import message publication", exception);
+            }
+
             outboxMessage.markPublished(Instant.now());
             outboxMessageRepository.save(outboxMessage);
         }

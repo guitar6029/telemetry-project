@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
@@ -50,7 +52,7 @@ class DeviceImportOutboxPublisherTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        publisher = new DeviceImportOutboxPublisher(outboxMessageRepository, rabbitTemplate, objectMapper);
+        publisher = new DeviceImportOutboxPublisher(outboxMessageRepository, rabbitTemplate, objectMapper, 30);
         expectedMessage = new DeviceImportMessage(
                 UUID.randomUUID(),
                 UUID.randomUUID(),
@@ -69,11 +71,20 @@ class DeviceImportOutboxPublisherTest {
 
     @Test
     void publishesExistingMessageAndMarksOutboxRecordPublished() {
+        doAnswer(invocation -> {
+            CorrelationData correlationData = invocation.getArgument(2);
+            correlationData.getFuture().complete(new CorrelationData.Confirm(true, null));
+            return null;
+        }).when(rabbitTemplate).convertAndSend(
+                eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME),
+                any(DeviceImportMessage.class), any(CorrelationData.class));
+
         publisher.publishPendingMessages();
 
         ArgumentCaptor<DeviceImportMessage> messageCaptor = ArgumentCaptor.forClass(DeviceImportMessage.class);
+        ArgumentCaptor<CorrelationData> correlationCaptor = ArgumentCaptor.forClass(CorrelationData.class);
         verify(rabbitTemplate).convertAndSend(eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME),
-                messageCaptor.capture());
+                messageCaptor.capture(), correlationCaptor.capture());
         assertEquals(expectedMessage.importId(), messageCaptor.getValue().importId());
         assertEquals(expectedMessage.organizationId(), messageCaptor.getValue().organizationId());
         assertEquals(expectedMessage.templateId(), messageCaptor.getValue().templateId());
@@ -81,16 +92,49 @@ class DeviceImportOutboxPublisherTest {
         assertEquals(expectedMessage.importMode(), messageCaptor.getValue().importMode());
         org.junit.jupiter.api.Assertions.assertArrayEquals(
                 expectedMessage.csvData(), messageCaptor.getValue().csvData());
+        assertEquals(outboxMessage.getId().toString(), correlationCaptor.getValue().getId());
         verify(outboxMessageRepository).save(outboxMessage);
         assertNotNull(outboxMessage.getPublishedAt());
     }
 
     @Test
+    void leavesMessageUnpublishedAndAvailableForRetryWhenBrokerNacks() {
+        doAnswer(invocation -> {
+            CorrelationData correlationData = invocation.getArgument(2);
+            correlationData.getFuture().complete(new CorrelationData.Confirm(false, "broker rejected"));
+            return null;
+        }).when(rabbitTemplate).convertAndSend(
+                eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME),
+                any(DeviceImportMessage.class), any(CorrelationData.class));
+
+        assertThrows(IllegalStateException.class, () -> publisher.publishPendingMessages());
+
+        assertNull(outboxMessage.getPublishedAt());
+        verify(outboxMessageRepository, never()).save(any(OutboxMessage.class));
+        verify(outboxMessageRepository).findTop10ByPublishedAtIsNullOrderByCreatedAtAsc();
+    }
+
+    @Test
+    void leavesMessageUnpublishedAndAvailableForRetryWhenConfirmationTimesOut() {
+        assertThrows(IllegalStateException.class, () -> publisher.publishPendingMessages());
+
+        assertNull(outboxMessage.getPublishedAt());
+        verify(outboxMessageRepository, never()).save(any(OutboxMessage.class));
+        verify(outboxMessageRepository).findTop10ByPublishedAtIsNullOrderByCreatedAtAsc();
+    }
+
+    @Test
     void leavesMessageUnpublishedAndAvailableForRetryWhenRabbitPublishFails() {
-        doThrow(new AmqpException("RabbitMQ unavailable"))
-                .doNothing()
-                .when(rabbitTemplate)
-                .convertAndSend(eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME), any(DeviceImportMessage.class));
+        AtomicInteger publishAttempts = new AtomicInteger();
+        doAnswer(invocation -> {
+            if (publishAttempts.getAndIncrement() == 0) {
+                throw new AmqpException("RabbitMQ unavailable");
+            }
+            CorrelationData correlationData = invocation.getArgument(2);
+            correlationData.getFuture().complete(new CorrelationData.Confirm(true, null));
+            return null;
+        }).when(rabbitTemplate).convertAndSend(eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME),
+                any(DeviceImportMessage.class), any(CorrelationData.class));
 
         assertThrows(AmqpException.class, () -> publisher.publishPendingMessages());
 
