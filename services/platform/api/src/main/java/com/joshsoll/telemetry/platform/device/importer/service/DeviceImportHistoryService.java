@@ -38,7 +38,9 @@ public class DeviceImportHistoryService {
             int page,
             int size) {
         Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submittedAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(
+                Sort.Order.desc("submittedAt"),
+                Sort.Order.desc("id")));
         Page<DeviceImportHistoryResponse> imports = deviceImportRepository
                 .findByOrganization_Id(organization.getId(), pageable)
                 .map(this::toResponse);

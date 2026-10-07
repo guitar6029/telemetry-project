@@ -79,8 +79,10 @@ class DeviceImportHistoryServiceTest {
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(deviceImportRepository).findByOrganization_Id(eq(organizationId), pageableCaptor.capture());
-        Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("submittedAt");
-        assertEquals(Sort.Direction.DESC, order.getDirection());
+        Sort sort = pageableCaptor.getValue().getSort();
+        assertEquals(Sort.Direction.DESC, sort.getOrderFor("submittedAt").getDirection());
+        assertEquals(Sort.Direction.DESC, sort.getOrderFor("id").getDirection());
+        assertEquals(List.of("submittedAt", "id"), sort.stream().map(Sort.Order::getProperty).toList());
     }
 
     @Test
