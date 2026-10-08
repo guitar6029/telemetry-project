@@ -56,21 +56,12 @@ class DeviceImportSubmissionServiceTest {
     private DeviceTemplate template;
     private HierarchyNode hierarchyNode;
     private DeviceImportContext context;
-    private UUID organizationId;
-    private UUID templateId;
-    private UUID hierarchyNodeId;
 
     @BeforeEach
     void setUp() {
         organization = mock(Organization.class);
         template = mock(DeviceTemplate.class);
         hierarchyNode = mock(HierarchyNode.class);
-        organizationId = UUID.randomUUID();
-        templateId = UUID.randomUUID();
-        hierarchyNodeId = UUID.randomUUID();
-        when(organization.getId()).thenReturn(organizationId);
-        when(template.getId()).thenReturn(templateId);
-        when(hierarchyNode.getId()).thenReturn(hierarchyNodeId);
         context = new DeviceImportContext(organization, template, hierarchyNode);
         submissionService = new DeviceImportSubmissionService(
                 deviceImportRepository, outboxMessageRepository, objectMapper);
@@ -99,11 +90,8 @@ class DeviceImportSubmissionServiceTest {
         assertEquals(DeviceImportConstants.DEVICE_IMPORT_OUTBOX_EVENT_TYPE, outboxMessage.getEventType());
         assertEquals(savedImport.getId(), outboxMessage.getAggregateId());
         assertEquals(savedImport.getId(), payload.importId());
-        assertEquals(organizationId, payload.organizationId());
-        assertEquals(templateId, payload.templateId());
-        assertEquals(hierarchyNodeId, payload.hierarchyNodeId());
-        assertEquals(DeviceImportMode.UPDATE_EXISTING, payload.importMode());
         assertArrayEquals(csvData, payload.csvData());
+        assertEquals(2, objectMapper.readTree(outboxMessage.getPayload()).size());
         assertEquals(0, outboxMessage.getCreatedAt().compareTo(savedImport.getSubmittedAt()));
         assertNull(outboxMessage.getPublishedAt());
         assertNotEquals(savedImport.getId(), outboxMessage.getId());

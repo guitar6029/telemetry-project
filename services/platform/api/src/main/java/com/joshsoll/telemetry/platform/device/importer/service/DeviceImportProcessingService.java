@@ -68,15 +68,12 @@ public class DeviceImportProcessingService {
         deviceImportRepository.save(deviceImport);
 
         try {
-            DeviceImportContext context = deviceImportContextService.resolveImportContext(
-                    message.organizationId(),
-                    message.templateId(),
-                    message.hierarchyNodeId());
+            DeviceImportContext context = deviceImportContextService.resolveImportContext(deviceImport);
 
             InputStream inputStream = new ByteArrayInputStream(message.csvData());
             DeviceImportParseResult parsedResults = parseCSVFile(inputStream, context);
 
-            DeviceImportProcessingResult result = processRows(parsedResults, context, message.importMode());
+            DeviceImportProcessingResult result = processRows(parsedResults, context, deviceImport.getImportMode());
             resultPersistenceService.persist(deviceImport.getId(), result);
             return result;
         } catch (DeviceImportInvalidException exception) {

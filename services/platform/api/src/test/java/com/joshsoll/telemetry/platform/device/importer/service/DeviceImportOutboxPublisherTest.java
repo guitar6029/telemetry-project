@@ -30,7 +30,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.entity.OutboxMessage;
-import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.repository.OutboxMessageRepository;
 
 import tools.jackson.databind.ObjectMapper;
@@ -55,10 +54,6 @@ class DeviceImportOutboxPublisherTest {
         publisher = new DeviceImportOutboxPublisher(outboxMessageRepository, rabbitTemplate, objectMapper, 30);
         expectedMessage = new DeviceImportMessage(
                 UUID.randomUUID(),
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                DeviceImportMode.SKIP_EXISTING,
                 "name,manufacturer,model,serialnumber,firmwareversion,status\n".getBytes(StandardCharsets.UTF_8));
         outboxMessage = new OutboxMessage(
                 DeviceImportConstants.DEVICE_IMPORT_OUTBOX_EVENT_TYPE,
@@ -86,10 +81,6 @@ class DeviceImportOutboxPublisherTest {
         verify(rabbitTemplate).convertAndSend(eq(DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME),
                 messageCaptor.capture(), correlationCaptor.capture());
         assertEquals(expectedMessage.importId(), messageCaptor.getValue().importId());
-        assertEquals(expectedMessage.organizationId(), messageCaptor.getValue().organizationId());
-        assertEquals(expectedMessage.templateId(), messageCaptor.getValue().templateId());
-        assertEquals(expectedMessage.hierarchyNodeId(), messageCaptor.getValue().hierarchyNodeId());
-        assertEquals(expectedMessage.importMode(), messageCaptor.getValue().importMode());
         org.junit.jupiter.api.Assertions.assertArrayEquals(
                 expectedMessage.csvData(), messageCaptor.getValue().csvData());
         assertEquals(outboxMessage.getId().toString(), correlationCaptor.getValue().getId());

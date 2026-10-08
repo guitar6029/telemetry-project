@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,9 +63,6 @@ class DeviceImportProcessingServiceTest {
 
     @Test
     void shouldRejectInvalidCsvWithoutRequeue() {
-        UUID organizationId = UUID.randomUUID();
-        UUID templateId = UUID.randomUUID();
-        UUID hierarchyNodeId = UUID.randomUUID();
         DeviceImportContext context = new DeviceImportContext(
                 mock(Organization.class),
                 mock(DeviceTemplate.class),
@@ -82,19 +78,11 @@ class DeviceImportProcessingServiceTest {
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         DeviceImportMessage message = new DeviceImportMessage(
                 deviceImport.getId(),
-                organizationId,
-                templateId,
-                hierarchyNodeId,
-                DeviceImportMode.SKIP_EXISTING,
                 ("device_name,vendor,device_model,serial_number\n"
                         + "Temperature Sensor,Acme,TS-1000,TS1000001\n")
                         .getBytes(StandardCharsets.UTF_8));
 
-        when(deviceImportContextService.resolveImportContext(
-                organizationId,
-                templateId,
-                hierarchyNodeId))
-                .thenReturn(context);
+        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
 
         AmqpRejectAndDontRequeueException exception = assertThrows(
                 AmqpRejectAndDontRequeueException.class,
@@ -105,26 +93,18 @@ class DeviceImportProcessingServiceTest {
         assertNotNull(deviceImport.getStartedAt());
         assertNotNull(deviceImport.getCompletedAt());
         assertEquals(List.of(DeviceImportStatus.PROCESSING, DeviceImportStatus.FAILED), savedStatuses);
-        verify(deviceImportContextService).resolveImportContext(
-                organizationId,
-                templateId,
-                hierarchyNodeId);
+        verify(deviceImportContextService).resolveImportContext(deviceImport);
         verifyNoInteractions(deviceRepository);
     }
 
     @Test
     void shouldMarkImportFailedAndRethrowContextResolutionFailure() {
-        UUID organizationId = UUID.randomUUID();
-        UUID templateId = UUID.randomUUID();
-        UUID hierarchyNodeId = UUID.randomUUID();
         DeviceImportContext context = validContext();
         DeviceImport deviceImport = prepareImport(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         RuntimeException originalException = new IllegalStateException("context lookup failed");
-        DeviceImportMessage message = messageWithCsv(
-                deviceImport, organizationId, templateId, hierarchyNodeId, VALID_CSV);
-        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
-                .thenThrow(originalException);
+        DeviceImportMessage message = messageWithCsv(deviceImport, VALID_CSV);
+        when(deviceImportContextService.resolveImportContext(deviceImport)).thenThrow(originalException);
 
         RuntimeException thrown = assertThrows(
                 RuntimeException.class,
@@ -139,13 +119,9 @@ class DeviceImportProcessingServiceTest {
 
     @Test
     void shouldMarkImportFailedAndRethrowResultPersistenceFailure() {
-        UUID organizationId = UUID.randomUUID();
-        UUID templateId = UUID.randomUUID();
-        UUID hierarchyNodeId = UUID.randomUUID();
         DeviceImportContext context = validContext();
-        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
-                .thenReturn(context);
         DeviceImport deviceImport = prepareImport(context);
+        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         RuntimeException originalException = new IllegalStateException("result persistence failed");
         org.mockito.Mockito.doThrow(originalException)
@@ -154,7 +130,7 @@ class DeviceImportProcessingServiceTest {
         RuntimeException thrown = assertThrows(
                 RuntimeException.class,
                 () -> deviceImportProcessingService.processImport(messageWithCsv(
-                        deviceImport, organizationId, templateId, hierarchyNodeId, VALID_CSV)));
+                        deviceImport, VALID_CSV)));
 
         assertSame(originalException, thrown);
         assertEquals(DeviceImportStatus.FAILED, deviceImport.getStatus());
@@ -165,21 +141,14 @@ class DeviceImportProcessingServiceTest {
     @Test
     void shouldRejectMoreThanTenThousandRowsWithoutProcessingAnyRows() {
         DeviceImportContext context = validContext();
-        UUID organizationId = UUID.randomUUID();
-        UUID templateId = UUID.randomUUID();
-        UUID hierarchyNodeId = UUID.randomUUID();
-        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
-                .thenReturn(context);
         DeviceImport deviceImport = prepareImport(context);
+        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
 
         AmqpRejectAndDontRequeueException exception = assertThrows(
                 AmqpRejectAndDontRequeueException.class,
                 () -> deviceImportProcessingService.processImport(messageWithRows(
                         deviceImport,
-                        organizationId,
-                        templateId,
-                        hierarchyNodeId,
                         DeviceImportConstants.MAX_ROW_COUNT + 1)));
 
         assertInstanceOf(DeviceImportInvalidException.class, exception.getCause());
@@ -191,19 +160,12 @@ class DeviceImportProcessingServiceTest {
     @Test
     void shouldAcceptExactlyTenThousandRowsByRowCountRule() {
         DeviceImportContext context = validContext();
-        UUID organizationId = UUID.randomUUID();
-        UUID templateId = UUID.randomUUID();
-        UUID hierarchyNodeId = UUID.randomUUID();
-        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
-                .thenReturn(context);
         DeviceImport deviceImport = prepareImport(context);
+        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
 
         DeviceImportProcessingResult result = deviceImportProcessingService.processImport(messageWithRows(
                 deviceImport,
-                organizationId,
-                templateId,
-                hierarchyNodeId,
                 DeviceImportConstants.MAX_ROW_COUNT));
 
         assertEquals(DeviceImportConstants.MAX_ROW_COUNT, result.totalRows());
@@ -217,12 +179,7 @@ class DeviceImportProcessingServiceTest {
         DeviceImportContext context = validContext();
         DeviceImport deviceImport = prepareImport(context);
         deviceImport.markCompleted(Instant.now());
-        DeviceImportMessage message = messageWithRows(
-                deviceImport,
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                1);
+        DeviceImportMessage message = messageWithRows(deviceImport, 1);
 
         DeviceImportProcessingResult result = deviceImportProcessingService.processImport(message);
 
@@ -262,35 +219,17 @@ class DeviceImportProcessingServiceTest {
 
     private DeviceImportMessage messageWithRows(
             DeviceImport deviceImport,
-            UUID organizationId,
-            UUID templateId,
-            UUID hierarchyNodeId,
             long rowCount) {
         StringBuilder csv = new StringBuilder("name,manufacturer,model,serialnumber,firmwareversion,status\n");
         for (int row = 0; row < rowCount; row++) {
             csv.append(",,,,,\n");
         }
-        return new DeviceImportMessage(
-                deviceImport.getId(),
-                organizationId,
-                templateId,
-                hierarchyNodeId,
-                DeviceImportMode.SKIP_EXISTING,
-                csv.toString().getBytes(StandardCharsets.UTF_8));
+        return new DeviceImportMessage(deviceImport.getId(), csv.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     private DeviceImportMessage messageWithCsv(
             DeviceImport deviceImport,
-            UUID organizationId,
-            UUID templateId,
-            UUID hierarchyNodeId,
             String csv) {
-        return new DeviceImportMessage(
-                deviceImport.getId(),
-                organizationId,
-                templateId,
-                hierarchyNodeId,
-                DeviceImportMode.SKIP_EXISTING,
-                csv.getBytes(StandardCharsets.UTF_8));
+        return new DeviceImportMessage(deviceImport.getId(), csv.getBytes(StandardCharsets.UTF_8));
     }
 }

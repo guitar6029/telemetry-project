@@ -82,7 +82,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void createsNewDeviceWithTrimmedCsvValuesAndImportContext() {
-                prepareContext();
                 stubContextIds();
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "ABC-123"))
                                 .thenReturn(Optional.empty());
@@ -112,7 +111,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void scopesLookupToOrganizationAndAllowsCreationForThatOrganization() {
-                prepareContext();
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "SHARED-SERIAL"))
                                 .thenReturn(Optional.empty());
 
@@ -127,7 +125,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void skipsExistingDeviceWithoutModifyingOrSavingIt() {
-                prepareContext();
                 Device existing = existingDevice(context, "ABC-123");
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "ABC-123"))
                                 .thenReturn(Optional.of(existing));
@@ -146,7 +143,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void updatesOnlyImportableFieldsOnExistingDevice() {
-                prepareContext();
                 stubContextIds();
                 Device existing = existingDevice(context, "ABC-123");
                 Instant originalCreatedAt = existing.getCreatedAt();
@@ -172,11 +168,12 @@ class DeviceImportProcessingRulesTest {
                 assertEquals(originalCreatedAt, existing.getCreatedAt());
                 assertTrue(existing.getUpdatedAt().isAfter(originalUpdatedAt));
                 assertEquals(1, result.updatedRows());
+                assertEquals(DeviceImportMode.UPDATE_EXISTING, currentImport.getImportMode());
+                verify(deviceImportContextService).resolveImportContext(currentImport);
         }
 
         @Test
         void rejectsEveryRowInTrimmedDuplicateGroupBeforeWritesAndContinuesWithOtherRows() {
-                prepareContext();
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "UNIQUE-1"))
                                 .thenReturn(Optional.empty());
 
@@ -202,7 +199,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void validRowsContinueWhenAnotherRowFailsValidation() {
-                prepareContext();
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "A"))
                                 .thenReturn(Optional.empty());
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "C"))
@@ -225,7 +221,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void propagatesUnexpectedRepositoryRuntimeFailure() {
-                prepareContext();
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "A"))
                                 .thenThrow(new IllegalStateException("database unavailable"));
 
@@ -236,12 +231,6 @@ class DeviceImportProcessingRulesTest {
                                                 row("Device", "Acme", "M1", "A", "1", "ONLINE")));
 
                 assertEquals("database unavailable", exception.getMessage());
-        }
-
-        private void prepareContext() {
-                when(deviceImportContextService.resolveImportContext(
-                                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID))
-                                .thenReturn(context.deviceImportContext());
         }
 
         private void stubContextIds() {
@@ -262,12 +251,10 @@ class DeviceImportProcessingRulesTest {
                                 mode,
                                 Instant.now());
                 when(deviceImportRepository.findById(currentImport.getId())).thenReturn(Optional.of(currentImport));
+                when(deviceImportContextService.resolveImportContext(currentImport))
+                                .thenReturn(context.deviceImportContext());
                 DeviceImportMessage message = new DeviceImportMessage(
                                 currentImport.getId(),
-                                ORGANIZATION_ID,
-                                TEMPLATE_ID,
-                                HIERARCHY_NODE_ID,
-                                mode,
                                 csv.getBytes(StandardCharsets.UTF_8));
                 return processingService.processImport(message);
         }

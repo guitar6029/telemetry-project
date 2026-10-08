@@ -49,10 +49,6 @@ public class DeviceImportSubmissionService {
                 submittedAt);
         DeviceImportMessage message = new DeviceImportMessage(
                 deviceImport.getId(),
-                context.organization().getId(),
-                context.deviceTemplate().getId(),
-                context.hierarchyNode().getId(),
-                importMode,
                 csvData);
 
         String payload;
