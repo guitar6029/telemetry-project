@@ -71,7 +71,7 @@ public class DeviceImportProcessingService {
             DeviceImportContext context = deviceImportContextService.resolveImportContext(deviceImport);
 
             InputStream inputStream = new ByteArrayInputStream(message.csvData());
-            DeviceImportParseResult parsedResults = parseCSVFile(inputStream, context);
+            DeviceImportParseResult parsedResults = parseCSVFile(inputStream);
 
             DeviceImportProcessingResult result = processRows(parsedResults, context, deviceImport.getImportMode());
             resultPersistenceService.persist(deviceImport.getId(), result);
@@ -93,9 +93,7 @@ public class DeviceImportProcessingService {
         }
     }
 
-    private DeviceImportParseResult parseCSVFile(
-            InputStream inputStream,
-            DeviceImportContext deviceContext) {
+    private DeviceImportParseResult parseCSVFile(InputStream inputStream) {
 
         CSVFormat format = CSVFormat.DEFAULT.builder()
                 .setHeader()
