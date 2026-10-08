@@ -50,5 +50,24 @@
             </dl>
         </div>
     </div>
+
+    <section class="mt-6 space-y-4" aria-labelledby="import-errors-heading">
+        <h2 id="import-errors-heading">Import Errors</h2>
+        @if (errorsLoading()) {
+        <div class="flex items-center gap-2">
+            <telemetry-loading-spinner />
+            <span>Loading device import errors...</span>
+        </div>
+        } @else if (errorsError()) {
+        <telemetry-error [text]="errorsError() ?? 'Unable to load device import errors.'" />
+        } @else if (importErrors().length === 0) {
+        <telemetry-empty-state message="No errors found for this import" />
+        } @else {
+        <telemetry-table [data]="importErrors()" [columns]="errorColumns" />
+        <telemetry-pagination [page]="errorsPagination().page" [size]="errorsPagination().size"
+            [total]="errorsPagination().total" [totalPages]="errorsPagination().totalPages"
+            (pageChange)="onErrorsPageChange($event)" (sizeChange)="onErrorsSizeChange($event)" />
+        }
+    </section>
     }
 </telemetry-page>

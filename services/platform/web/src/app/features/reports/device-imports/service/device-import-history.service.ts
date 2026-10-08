@@ -7,6 +7,7 @@ import { ApiConstants } from "../../../../constants/api.constants";
 import { OrganizationContextStore } from "../../../../core/stores/organization-context.store";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../../../../components/pagination/constants/pagination.constants";
 import { DeviceImportResponse } from "../dto/device-import-response.dto";
+import { DeviceImportErrorResponse } from "../dto/device-import-error-response.dto";
 
 @Injectable({
     providedIn: 'root'
@@ -38,6 +39,20 @@ export class DeviceImportHistoryService {
         return this.http.get<ApiResponse<DeviceImportResponse>>(
             `${this.importsUrl}/${this.organizationId}/imports/${importId}`,
             {
+                withCredentials: true
+            }
+        );
+    }
+
+    getDeviceImportErrors(
+        importId: string,
+        page = DEFAULT_PAGE,
+        size = DEFAULT_PAGE_SIZE
+    ): Observable<PagedApiResponse<DeviceImportErrorResponse>> {
+        return this.http.get<PagedApiResponse<DeviceImportErrorResponse>>(
+            `${this.importsUrl}/${this.organizationId}/imports/${importId}/errors`,
+            {
+                params: { page, size },
                 withCredentials: true
             }
         );
