@@ -51,6 +51,9 @@ class DeviceImportProcessingServiceTest {
     @Mock
     private DeviceImportRepository deviceImportRepository;
 
+    @Mock
+    private DeviceImportResultPersistenceService resultPersistenceService;
+
     @InjectMocks
     private DeviceImportProcessingService deviceImportProcessingService;
 
@@ -150,11 +153,8 @@ class DeviceImportProcessingServiceTest {
 
         assertEquals(DeviceImportConstants.MAX_ROW_COUNT, result.totalRows());
         assertEquals(DeviceImportConstants.MAX_ROW_COUNT, result.failedRows());
-        assertEquals(DeviceImportStatus.COMPLETED_WITH_ERRORS, deviceImport.getStatus());
-        assertNotNull(deviceImport.getCompletedAt());
-        assertEquals(
-                List.of(DeviceImportStatus.PROCESSING, DeviceImportStatus.COMPLETED_WITH_ERRORS),
-                savedStatuses);
+        assertEquals(DeviceImportStatus.PROCESSING, deviceImport.getStatus());
+        assertEquals(List.of(DeviceImportStatus.PROCESSING), savedStatuses);
     }
 
     @Test

@@ -58,6 +58,17 @@ public class DeviceImport {
     private Instant startedAt;
     private Instant completedAt;
 
+    @Column(name = "total_rows", nullable = false)
+    private long totalRows;
+    @Column(name = "created_rows", nullable = false)
+    private long createdRows;
+    @Column(name = "updated_rows", nullable = false)
+    private long updatedRows;
+    @Column(name = "skipped_rows", nullable = false)
+    private long skippedRows;
+    @Column(name = "failed_rows", nullable = false)
+    private long failedRows;
+
     protected DeviceImport() {
     }
 
@@ -116,6 +127,21 @@ public class DeviceImport {
 
     public Instant getCompletedAt() {
         return completedAt;
+    }
+
+    public long getTotalRows() { return totalRows; }
+    public long getCreatedRows() { return createdRows; }
+    public long getUpdatedRows() { return updatedRows; }
+    public long getSkippedRows() { return skippedRows; }
+    public long getFailedRows() { return failedRows; }
+
+    public void setProcessingResults(long totalRows, long createdRows, long updatedRows,
+            long skippedRows, long failedRows) {
+        this.totalRows = totalRows;
+        this.createdRows = createdRows;
+        this.updatedRows = updatedRows;
+        this.skippedRows = skippedRows;
+        this.failedRows = failedRows;
     }
 
     public void markProcessing(Instant startedAt) {

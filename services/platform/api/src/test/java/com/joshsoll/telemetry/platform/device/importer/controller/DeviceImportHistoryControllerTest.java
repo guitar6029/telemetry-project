@@ -93,6 +93,6 @@ class DeviceImportHistoryControllerTest {
         return new DeviceImportHistoryResponse(
                 UUID.randomUUID(), organizationId, UUID.randomUUID(), UUID.randomUUID(), "devices.csv",
                 DeviceImportMode.SKIP_EXISTING, DeviceImportStatus.QUEUED,
-                Instant.parse("2026-01-02T00:00:00Z"), null, null);
+                Instant.parse("2026-01-02T00:00:00Z"), null, null, 0, 0, 0, 0, 0);
     }
 }

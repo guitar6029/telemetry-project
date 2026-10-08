@@ -13,9 +13,11 @@ import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportHistoryResponse;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportErrorResponse;
 import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportNotFoundException;
 import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportErrorRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
 @Service
@@ -26,12 +28,15 @@ public class DeviceImportHistoryService {
 
     private final AuthorizationService authorizationService;
     private final DeviceImportRepository deviceImportRepository;
+    private final DeviceImportErrorRepository deviceImportErrorRepository;
 
     public DeviceImportHistoryService(
             AuthorizationService authorizationService,
-            DeviceImportRepository deviceImportRepository) {
+            DeviceImportRepository deviceImportRepository,
+            DeviceImportErrorRepository deviceImportErrorRepository) {
         this.authorizationService = authorizationService;
         this.deviceImportRepository = deviceImportRepository;
+        this.deviceImportErrorRepository = deviceImportErrorRepository;
     }
 
     @Transactional(readOnly = true)
@@ -61,6 +66,20 @@ public class DeviceImportHistoryService {
         return toResponse(deviceImport);
     }
 
+    @Transactional(readOnly = true)
+    public PagedApiResponse<DeviceImportErrorResponse> getImportErrors(
+            User user, UUID organizationId, UUID importId, int page, int size) {
+        Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
+        deviceImportRepository.findByIdAndOrganization_Id(importId, organization.getId())
+                .orElseThrow(() -> new DeviceImportNotFoundException(importId));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("rowNumber")));
+        Page<DeviceImportErrorResponse> errorPage = deviceImportErrorRepository
+                .findByDeviceImport_Id(importId, pageable)
+                .map(error -> new DeviceImportErrorResponse(error.getRowNumber(), error.getMessages()));
+        return new PagedApiResponse<>(errorPage.getContent(), "", page, size,
+                errorPage.getTotalElements(), errorPage.getTotalPages());
+    }
+
     private DeviceImportHistoryResponse toResponse(DeviceImport deviceImport) {
         return new DeviceImportHistoryResponse(
                 deviceImport.getId(),
@@ -72,6 +91,8 @@ public class DeviceImportHistoryService {
                 deviceImport.getStatus(),
                 deviceImport.getSubmittedAt(),
                 deviceImport.getStartedAt(),
-                deviceImport.getCompletedAt());
+                deviceImport.getCompletedAt(),
+                deviceImport.getTotalRows(), deviceImport.getCreatedRows(), deviceImport.getUpdatedRows(),
+                deviceImport.getSkippedRows(), deviceImport.getFailedRows());
     }
 }

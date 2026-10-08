@@ -32,6 +32,7 @@ import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
 import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportNotFoundException;
 import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportErrorRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.hierarchy.entity.HierarchyNode;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
@@ -45,6 +46,9 @@ class DeviceImportHistoryServiceTest {
     @Mock
     private DeviceImportRepository deviceImportRepository;
 
+    @Mock
+    private DeviceImportErrorRepository deviceImportErrorRepository;
+
     private DeviceImportHistoryService historyService;
     private User user;
     private Organization organization;
@@ -52,7 +56,8 @@ class DeviceImportHistoryServiceTest {
 
     @BeforeEach
     void setUp() {
-        historyService = new DeviceImportHistoryService(authorizationService, deviceImportRepository);
+        historyService = new DeviceImportHistoryService(
+                authorizationService, deviceImportRepository, deviceImportErrorRepository);
         user = mock(User.class);
         organization = mock(Organization.class);
         organizationId = UUID.randomUUID();

@@ -44,14 +44,17 @@ public class DeviceImportProcessingService {
     private final DeviceRepository deviceRepository;
     private final DeviceImportContextService deviceImportContextService;
     private final DeviceImportRepository deviceImportRepository;
+    private final DeviceImportResultPersistenceService resultPersistenceService;
 
     public DeviceImportProcessingService(
             DeviceRepository deviceRepository,
             DeviceImportContextService deviceImportContextService,
-            DeviceImportRepository deviceImportRepository) {
+            DeviceImportRepository deviceImportRepository,
+            DeviceImportResultPersistenceService resultPersistenceService) {
         this.deviceRepository = deviceRepository;
         this.deviceImportContextService = deviceImportContextService;
         this.deviceImportRepository = deviceImportRepository;
+        this.resultPersistenceService = resultPersistenceService;
     }
 
     public DeviceImportProcessingResult processImport(DeviceImportMessage message) {
@@ -83,12 +86,7 @@ public class DeviceImportProcessingService {
         }
 
         DeviceImportProcessingResult result = processRows(parsedResults, context, message.importMode());
-        if (result.failedRows() > 0) {
-            deviceImport.markCompletedWithErrors(Instant.now());
-        } else {
-            deviceImport.markCompleted(Instant.now());
-        }
-        deviceImportRepository.save(deviceImport);
+        resultPersistenceService.persist(deviceImport.getId(), result);
         return result;
     }
 

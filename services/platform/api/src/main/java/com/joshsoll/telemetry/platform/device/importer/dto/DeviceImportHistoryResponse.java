@@ -16,5 +16,10 @@ public record DeviceImportHistoryResponse(
         DeviceImportStatus status,
         Instant submittedAt,
         Instant startedAt,
-        Instant completedAt) {
+        Instant completedAt,
+        long totalRows,
+        long createdRows,
+        long updatedRows,
+        long skippedRows,
+        long failedRows) {
 }

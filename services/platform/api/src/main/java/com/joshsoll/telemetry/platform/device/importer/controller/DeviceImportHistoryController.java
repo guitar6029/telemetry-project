@@ -16,6 +16,7 @@ import com.joshsoll.telemetry.platform.common.response.ApiResponse;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
 import com.joshsoll.telemetry.platform.common.response.ResponseFactory;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportHistoryResponse;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportErrorResponse;
 import com.joshsoll.telemetry.platform.device.importer.service.DeviceImportHistoryService;
 
 @RestController
@@ -43,5 +44,16 @@ public class DeviceImportHistoryController {
             @PathVariable UUID organizationId,
             @PathVariable UUID importId) {
         return ResponseFactory.ok(deviceImportHistoryService.getImport(user, organizationId, importId), null);
+    }
+
+    @GetMapping("/{importId}/errors")
+    public ResponseEntity<PagedApiResponse<DeviceImportErrorResponse>> getImportErrors(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID organizationId,
+            @PathVariable UUID importId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        return ResponseFactory.ok(deviceImportHistoryService.getImportErrors(
+                user, organizationId, importId, page, size));
     }
 }
