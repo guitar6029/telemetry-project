@@ -3,12 +3,14 @@ package com.joshsoll.telemetry.platform.device.importer.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
@@ -41,6 +43,9 @@ import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
 @ExtendWith(MockitoExtension.class)
 class DeviceImportProcessingServiceTest {
+
+    private static final String VALID_CSV = "name,manufacturer,model,serialnumber,firmwareversion,status\n"
+            + "Temperature Sensor,Acme,TS-1000,TS1000001,1.0,ACTIVE\n";
 
     @Mock
     private DeviceRepository deviceRepository;
@@ -105,6 +110,56 @@ class DeviceImportProcessingServiceTest {
                 templateId,
                 hierarchyNodeId);
         verifyNoInteractions(deviceRepository);
+    }
+
+    @Test
+    void shouldMarkImportFailedAndRethrowContextResolutionFailure() {
+        UUID organizationId = UUID.randomUUID();
+        UUID templateId = UUID.randomUUID();
+        UUID hierarchyNodeId = UUID.randomUUID();
+        DeviceImportContext context = validContext();
+        DeviceImport deviceImport = prepareImport(context);
+        List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
+        RuntimeException originalException = new IllegalStateException("context lookup failed");
+        DeviceImportMessage message = messageWithCsv(
+                deviceImport, organizationId, templateId, hierarchyNodeId, VALID_CSV);
+        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
+                .thenThrow(originalException);
+
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> deviceImportProcessingService.processImport(message));
+
+        assertSame(originalException, thrown);
+        assertEquals(DeviceImportStatus.FAILED, deviceImport.getStatus());
+        assertNotNull(deviceImport.getCompletedAt());
+        assertEquals(List.of(DeviceImportStatus.PROCESSING, DeviceImportStatus.FAILED), savedStatuses);
+        verify(resultPersistenceService, never()).persist(any(), any());
+    }
+
+    @Test
+    void shouldMarkImportFailedAndRethrowResultPersistenceFailure() {
+        UUID organizationId = UUID.randomUUID();
+        UUID templateId = UUID.randomUUID();
+        UUID hierarchyNodeId = UUID.randomUUID();
+        DeviceImportContext context = validContext();
+        when(deviceImportContextService.resolveImportContext(organizationId, templateId, hierarchyNodeId))
+                .thenReturn(context);
+        DeviceImport deviceImport = prepareImport(context);
+        List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
+        RuntimeException originalException = new IllegalStateException("result persistence failed");
+        org.mockito.Mockito.doThrow(originalException)
+                .when(resultPersistenceService).persist(any(), any());
+
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> deviceImportProcessingService.processImport(messageWithCsv(
+                        deviceImport, organizationId, templateId, hierarchyNodeId, VALID_CSV)));
+
+        assertSame(originalException, thrown);
+        assertEquals(DeviceImportStatus.FAILED, deviceImport.getStatus());
+        assertNotNull(deviceImport.getCompletedAt());
+        assertEquals(List.of(DeviceImportStatus.PROCESSING, DeviceImportStatus.FAILED), savedStatuses);
     }
 
     @Test
@@ -222,5 +277,20 @@ class DeviceImportProcessingServiceTest {
                 hierarchyNodeId,
                 DeviceImportMode.SKIP_EXISTING,
                 csv.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    private DeviceImportMessage messageWithCsv(
+            DeviceImport deviceImport,
+            UUID organizationId,
+            UUID templateId,
+            UUID hierarchyNodeId,
+            String csv) {
+        return new DeviceImportMessage(
+                deviceImport.getId(),
+                organizationId,
+                templateId,
+                hierarchyNodeId,
+                DeviceImportMode.SKIP_EXISTING,
+                csv.getBytes(StandardCharsets.UTF_8));
     }
 }

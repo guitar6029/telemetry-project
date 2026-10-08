@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -33,6 +32,7 @@ import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportProcessin
 import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportErrorRepository;
 import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
@@ -55,7 +55,9 @@ class DeviceImportProcessingRulesTest {
     @Mock
     private DeviceImportRepository deviceImportRepository;
 
-    @InjectMocks
+    @Mock
+    private DeviceImportErrorRepository deviceImportErrorRepository;
+
     private DeviceImportProcessingService processingService;
 
     private UserContext context;
@@ -71,6 +73,11 @@ class DeviceImportProcessingRulesTest {
                 template,
                 hierarchyNode,
                 new DeviceImportContext(organization, template, hierarchyNode));
+        processingService = new DeviceImportProcessingService(
+                deviceRepository,
+                deviceImportContextService,
+                deviceImportRepository,
+                new DeviceImportResultPersistenceService(deviceImportRepository, deviceImportErrorRepository));
     }
 
     @Test

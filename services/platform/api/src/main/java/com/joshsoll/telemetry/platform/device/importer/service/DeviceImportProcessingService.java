@@ -67,27 +67,33 @@ public class DeviceImportProcessingService {
         deviceImport.markProcessing(Instant.now());
         deviceImportRepository.save(deviceImport);
 
-        DeviceImportContext context = deviceImportContextService.resolveImportContext(
-                message.organizationId(),
-                message.templateId(),
-                message.hierarchyNodeId());
-
-        InputStream inputStream = new ByteArrayInputStream(message.csvData());
-
-        DeviceImportParseResult parsedResults;
         try {
-            parsedResults = parseCSVFile(inputStream, context);
+            DeviceImportContext context = deviceImportContextService.resolveImportContext(
+                    message.organizationId(),
+                    message.templateId(),
+                    message.hierarchyNodeId());
+
+            InputStream inputStream = new ByteArrayInputStream(message.csvData());
+            DeviceImportParseResult parsedResults = parseCSVFile(inputStream, context);
+
+            DeviceImportProcessingResult result = processRows(parsedResults, context, message.importMode());
+            resultPersistenceService.persist(deviceImport.getId(), result);
+            return result;
         } catch (DeviceImportInvalidException exception) {
             deviceImport.markFailed(Instant.now());
             deviceImportRepository.save(deviceImport);
             throw new AmqpRejectAndDontRequeueException(
                     "Device import contains an invalid CSV",
                     exception);
+        } catch (RuntimeException exception) {
+            try {
+                deviceImport.markFailed(Instant.now());
+                deviceImportRepository.save(deviceImport);
+            } catch (RuntimeException failureStateException) {
+                exception.addSuppressed(failureStateException);
+            }
+            throw exception;
         }
-
-        DeviceImportProcessingResult result = processRows(parsedResults, context, message.importMode());
-        resultPersistenceService.persist(deviceImport.getId(), result);
-        return result;
     }
 
     private DeviceImportParseResult parseCSVFile(
