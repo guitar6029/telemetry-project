@@ -1,0 +1,19 @@
+<telemetry-page>
+    <h1>Device Imports</h1>
+
+    @if (loading()) {
+    <div class="flex items-center gap-2">
+        <telemetry-loading-spinner />
+        <span>Loading device imports...</span>
+    </div>
+    } @else if (error()) {
+    <telemetry-error [text]="error() ?? 'Unable to load device imports.'" />
+    } @else if (imports().length === 0) {
+    <telemetry-empty-state message="No device imports found" />
+    } @else {
+    <telemetry-table [data]="imports()" [columns]="columns" />
+    <telemetry-pagination [page]="pagination().page" [size]="pagination().size" [total]="pagination().total"
+        [totalPages]="pagination().totalPages" (pageChange)="onPageChange($event)"
+        (sizeChange)="onSizeChange($event)" />
+    }
+</telemetry-page>
