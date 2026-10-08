@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,9 @@ import com.joshsoll.telemetry.platform.organization.entity.Organization;
 @ExtendWith(MockitoExtension.class)
 class DeviceImportProcessingServiceTest {
 
+    private static final UUID ORGANIZATION_ID = UUID.randomUUID();
+    private static final UUID TEMPLATE_ID = UUID.randomUUID();
+    private static final UUID HIERARCHY_NODE_ID = UUID.randomUUID();
     private static final String VALID_CSV = "name,manufacturer,model,serialnumber,firmwareversion,status\n"
             + "Temperature Sensor,Acme,TS-1000,TS1000001,1.0,ACTIVE\n";
 
@@ -63,10 +67,7 @@ class DeviceImportProcessingServiceTest {
 
     @Test
     void shouldRejectInvalidCsvWithoutRequeue() {
-        DeviceImportContext context = new DeviceImportContext(
-                mock(Organization.class),
-                mock(DeviceTemplate.class),
-                mock(HierarchyNode.class));
+        DeviceImportContext context = validContext();
         DeviceImport deviceImport = new DeviceImport(
                 context.organization(),
                 context.deviceTemplate(),
@@ -82,7 +83,8 @@ class DeviceImportProcessingServiceTest {
                         + "Temperature Sensor,Acme,TS-1000,TS1000001\n")
                         .getBytes(StandardCharsets.UTF_8));
 
-        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
+        when(deviceImportContextService.resolveImportContext(
+                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenReturn(context);
 
         AmqpRejectAndDontRequeueException exception = assertThrows(
                 AmqpRejectAndDontRequeueException.class,
@@ -93,7 +95,8 @@ class DeviceImportProcessingServiceTest {
         assertNotNull(deviceImport.getStartedAt());
         assertNotNull(deviceImport.getCompletedAt());
         assertEquals(List.of(DeviceImportStatus.PROCESSING, DeviceImportStatus.FAILED), savedStatuses);
-        verify(deviceImportContextService).resolveImportContext(deviceImport);
+        verify(deviceImportContextService).resolveImportContext(
+                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID);
         verifyNoInteractions(deviceRepository);
     }
 
@@ -104,7 +107,8 @@ class DeviceImportProcessingServiceTest {
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         RuntimeException originalException = new IllegalStateException("context lookup failed");
         DeviceImportMessage message = messageWithCsv(deviceImport, VALID_CSV);
-        when(deviceImportContextService.resolveImportContext(deviceImport)).thenThrow(originalException);
+        when(deviceImportContextService.resolveImportContext(
+                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenThrow(originalException);
 
         RuntimeException thrown = assertThrows(
                 RuntimeException.class,
@@ -121,7 +125,8 @@ class DeviceImportProcessingServiceTest {
     void shouldMarkImportFailedAndRethrowResultPersistenceFailure() {
         DeviceImportContext context = validContext();
         DeviceImport deviceImport = prepareImport(context);
-        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
+        when(deviceImportContextService.resolveImportContext(
+                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         RuntimeException originalException = new IllegalStateException("result persistence failed");
         org.mockito.Mockito.doThrow(originalException)
@@ -142,7 +147,8 @@ class DeviceImportProcessingServiceTest {
     void shouldRejectMoreThanTenThousandRowsWithoutProcessingAnyRows() {
         DeviceImportContext context = validContext();
         DeviceImport deviceImport = prepareImport(context);
-        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
+        when(deviceImportContextService.resolveImportContext(
+                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
 
         AmqpRejectAndDontRequeueException exception = assertThrows(
@@ -161,7 +167,8 @@ class DeviceImportProcessingServiceTest {
     void shouldAcceptExactlyTenThousandRowsByRowCountRule() {
         DeviceImportContext context = validContext();
         DeviceImport deviceImport = prepareImport(context);
-        when(deviceImportContextService.resolveImportContext(deviceImport)).thenReturn(context);
+        when(deviceImportContextService.resolveImportContext(
+                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
 
         DeviceImportProcessingResult result = deviceImportProcessingService.processImport(messageWithRows(
@@ -176,7 +183,10 @@ class DeviceImportProcessingServiceTest {
 
     @Test
     void shouldIgnoreDuplicateDeliveryForTerminalImport() {
-        DeviceImportContext context = validContext();
+        DeviceImportContext context = new DeviceImportContext(
+                mock(Organization.class),
+                mock(DeviceTemplate.class),
+                mock(HierarchyNode.class));
         DeviceImport deviceImport = prepareImport(context);
         deviceImport.markCompleted(Instant.now());
         DeviceImportMessage message = messageWithRows(deviceImport, 1);
@@ -189,10 +199,13 @@ class DeviceImportProcessingServiceTest {
     }
 
     private DeviceImportContext validContext() {
-        return new DeviceImportContext(
-                mock(Organization.class),
-                mock(DeviceTemplate.class),
-                mock(HierarchyNode.class));
+        Organization organization = mock(Organization.class);
+        DeviceTemplate deviceTemplate = mock(DeviceTemplate.class);
+        HierarchyNode hierarchyNode = mock(HierarchyNode.class);
+        when(organization.getId()).thenReturn(ORGANIZATION_ID);
+        when(deviceTemplate.getId()).thenReturn(TEMPLATE_ID);
+        when(hierarchyNode.getId()).thenReturn(HIERARCHY_NODE_ID);
+        return new DeviceImportContext(organization, deviceTemplate, hierarchyNode);
     }
 
     private DeviceImport prepareImport(DeviceImportContext context) {

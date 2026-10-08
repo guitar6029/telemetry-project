@@ -72,6 +72,9 @@ class DeviceImportProcessingRulesTest {
                                 template,
                                 hierarchyNode,
                                 new DeviceImportContext(organization, template, hierarchyNode));
+                when(organization.getId()).thenReturn(ORGANIZATION_ID);
+                when(template.getId()).thenReturn(TEMPLATE_ID);
+                when(hierarchyNode.getId()).thenReturn(HIERARCHY_NODE_ID);
                 processingService = new DeviceImportProcessingService(
                                 deviceRepository,
                                 deviceImportContextService,
@@ -82,7 +85,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void createsNewDeviceWithTrimmedCsvValuesAndImportContext() {
-                stubContextIds();
                 when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "ABC-123"))
                                 .thenReturn(Optional.empty());
 
@@ -143,7 +145,6 @@ class DeviceImportProcessingRulesTest {
 
         @Test
         void updatesOnlyImportableFieldsOnExistingDevice() {
-                stubContextIds();
                 Device existing = existingDevice(context, "ABC-123");
                 Instant originalCreatedAt = existing.getCreatedAt();
                 Instant originalUpdatedAt = existing.getUpdatedAt();
@@ -169,7 +170,8 @@ class DeviceImportProcessingRulesTest {
                 assertTrue(existing.getUpdatedAt().isAfter(originalUpdatedAt));
                 assertEquals(1, result.updatedRows());
                 assertEquals(DeviceImportMode.UPDATE_EXISTING, currentImport.getImportMode());
-                verify(deviceImportContextService).resolveImportContext(currentImport);
+                verify(deviceImportContextService).resolveImportContext(
+                                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID);
         }
 
         @Test
@@ -233,12 +235,6 @@ class DeviceImportProcessingRulesTest {
                 assertEquals("database unavailable", exception.getMessage());
         }
 
-        private void stubContextIds() {
-                when(context.organization().getId()).thenReturn(ORGANIZATION_ID);
-                when(context.template().getId()).thenReturn(TEMPLATE_ID);
-                when(context.hierarchyNode().getId()).thenReturn(HIERARCHY_NODE_ID);
-        }
-
         private DeviceImportProcessingResult process(DeviceImportMode mode, String... rows) {
                 String csv = "name,manufacturer,model,serialnumber,firmwareversion,status\n"
                                 + String.join("\n", rows)
@@ -251,7 +247,8 @@ class DeviceImportProcessingRulesTest {
                                 mode,
                                 Instant.now());
                 when(deviceImportRepository.findById(currentImport.getId())).thenReturn(Optional.of(currentImport));
-                when(deviceImportContextService.resolveImportContext(currentImport))
+                when(deviceImportContextService.resolveImportContext(
+                                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID))
                                 .thenReturn(context.deviceImportContext());
                 DeviceImportMessage message = new DeviceImportMessage(
                                 currentImport.getId(),

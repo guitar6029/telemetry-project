@@ -3,10 +3,8 @@ package com.joshsoll.telemetry.platform.device.importer.service;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
-import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.devicetemplate.entity.DeviceTemplate;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateNotFoundException;
 import com.joshsoll.telemetry.platform.devicetemplate.exception.DeviceTemplateOrganizationMismatchException;
@@ -63,13 +61,5 @@ public class DeviceImportContextService {
                 organization,
                 deviceTemplate,
                 hierarchyNode);
-    }
-
-    @Transactional(readOnly = true)
-    public DeviceImportContext resolveImportContext(DeviceImport deviceImport) {
-        return resolveImportContext(
-                deviceImport.getOrganization().getId(),
-                deviceImport.getDeviceTemplate().getId(),
-                deviceImport.getHierarchyNode().getId());
     }
 }

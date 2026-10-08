@@ -68,7 +68,10 @@ public class DeviceImportProcessingService {
         deviceImportRepository.save(deviceImport);
 
         try {
-            DeviceImportContext context = deviceImportContextService.resolveImportContext(deviceImport);
+            DeviceImportContext context = deviceImportContextService.resolveImportContext(
+                    deviceImport.getOrganization().getId(),
+                    deviceImport.getDeviceTemplate().getId(),
+                    deviceImport.getHierarchyNode().getId());
 
             InputStream inputStream = new ByteArrayInputStream(message.csvData());
             DeviceImportParseResult parsedResults = parseCSVFile(inputStream);
