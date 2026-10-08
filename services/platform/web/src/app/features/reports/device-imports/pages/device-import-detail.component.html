@@ -1,0 +1,54 @@
+<telemetry-page>
+    <div class="flex items-center justify-between gap-4">
+        <h1>Device Import Details</h1>
+        <telemetry-button text="Back to Device Imports" [routerLink]="['/app/reports/device-imports']" />
+    </div>
+
+    @if (loading()) {
+    <div class="flex items-center gap-2">
+        <telemetry-loading-spinner />
+        <span>Loading device import...</span>
+    </div>
+    } @else if (error()) {
+    <telemetry-error [text]="error() ?? 'Unable to load device import.'" />
+    } @else if (deviceImport(); as item) {
+    <div class="card border border-base-300 bg-base-100">
+        <div class="card-body">
+            <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <dt class="font-semibold">Filename</dt>
+                    <dd>{{ item.filename }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">Import Mode</dt>
+                    <dd>{{ item.importMode }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">Status</dt>
+                    <dd>{{ item.status }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">Submitted At</dt>
+                    <dd>{{ formatDateTime(item.submittedAt) }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">Started At</dt>
+                    <dd>{{ formatDateTime(item.startedAt) }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">Completed At</dt>
+                    <dd>{{ formatDateTime(item.completedAt) }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">Template ID</dt>
+                    <dd>{{ item.templateId }}</dd>
+                </div>
+                <div>
+                    <dt class="font-semibold">Hierarchy Node ID</dt>
+                    <dd>{{ item.hierarchyNodeId }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+    }
+</telemetry-page>
