@@ -8,6 +8,6 @@ public enum DeviceImportStatus {
     FAILED;
 
     public boolean isTerminal() {
-        return this == COMPLETED || this == COMPLETED_WITH_ERRORS || this == FAILED;
+        return this == COMPLETED || this == COMPLETED_WITH_ERRORS;
     }
 }

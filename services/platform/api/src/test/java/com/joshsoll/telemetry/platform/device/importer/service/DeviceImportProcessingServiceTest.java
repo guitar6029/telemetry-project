@@ -48,7 +48,7 @@ class DeviceImportProcessingServiceTest {
     private static final UUID TEMPLATE_ID = UUID.randomUUID();
     private static final UUID HIERARCHY_NODE_ID = UUID.randomUUID();
     private static final String VALID_CSV = "name,manufacturer,model,serialnumber,firmwareversion,status\n"
-            + "Temperature Sensor,Acme,TS-1000,TS1000001,1.0,ACTIVE\n";
+            + "Temperature Sensor,Acme,TS-1000,TS1000001,1.0,ONLINE\n";
 
     @Mock
     private DeviceRepository deviceRepository;
@@ -119,6 +119,48 @@ class DeviceImportProcessingServiceTest {
         assertNotNull(deviceImport.getCompletedAt());
         assertEquals(List.of(DeviceImportStatus.PROCESSING, DeviceImportStatus.FAILED), savedStatuses);
         verify(resultPersistenceService, never()).persist(any(), any());
+    }
+
+    @Test
+    void shouldRetryFailedImportWhenRabbitRedeliversMessage() {
+        DeviceImportContext context = validContext();
+        DeviceImport deviceImport = prepareImport(context);
+        List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
+        RuntimeException originalException = new IllegalStateException("temporary context lookup failure");
+        when(deviceImportContextService.resolveImportContext(
+                ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID))
+                .thenThrow(originalException)
+                .thenReturn(context);
+        when(deviceRepository.findByOrganizationAndSerialNumber(context.organization(), "TS1000001"))
+                .thenReturn(Optional.empty());
+        org.mockito.Mockito.doAnswer(invocation -> {
+            DeviceImportProcessingResult result = invocation.getArgument(1);
+            deviceImport.setProcessingResults(
+                    result.totalRows(), result.createdRows(), result.updatedRows(),
+                    result.skippedRows(), result.failedRows());
+            deviceImport.markCompleted(Instant.now());
+            deviceImportRepository.save(deviceImport);
+            return null;
+        }).when(resultPersistenceService).persist(any(), any());
+        DeviceImportMessage message = messageWithCsv(deviceImport, VALID_CSV);
+
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> deviceImportProcessingService.processImport(message));
+        assertSame(originalException, thrown);
+        assertEquals(DeviceImportStatus.FAILED, deviceImport.getStatus());
+
+        DeviceImportProcessingResult result = deviceImportProcessingService.processImport(message);
+
+        assertEquals(1, result.createdRows());
+        assertEquals(DeviceImportStatus.COMPLETED, deviceImport.getStatus());
+        assertNotNull(deviceImport.getCompletedAt());
+        assertEquals(List.of(
+                DeviceImportStatus.PROCESSING,
+                DeviceImportStatus.FAILED,
+                DeviceImportStatus.PROCESSING,
+                DeviceImportStatus.COMPLETED), savedStatuses);
+        verify(deviceRepository).save(any());
     }
 
     @Test
