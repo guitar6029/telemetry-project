@@ -7,6 +7,7 @@ public final class DeviceImportConstants {
     public static final long EXPIRATION_MINUTES = 20;
     public static final long MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
     public static final long MAX_ROW_COUNT = 10_000;
+    public static final String ROW_NUMBER_PROPERTY = "rowNumber";
     public static final Set<String> REQUIRED_HEADERS = Set.of(
             "name",
             "manufacturer",

@@ -12,12 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.joshsoll.telemetry.platform.auth.entity.User;
 import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.common.response.PagedApiResponse;
-import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportHistoryResponse;
+import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportErrorResponse;
+import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportHistoryResponse;
 import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportNotFoundException;
-import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportErrorRepository;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
 @Service
@@ -72,7 +73,8 @@ public class DeviceImportHistoryService {
         Organization organization = authorizationService.requireOrganizationAccess(user, organizationId);
         deviceImportRepository.findByIdAndOrganization_Id(importId, organization.getId())
                 .orElseThrow(() -> new DeviceImportNotFoundException(importId));
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("rowNumber")));
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Order.asc(DeviceImportConstants.ROW_NUMBER_PROPERTY)));
         Page<DeviceImportErrorResponse> errorPage = deviceImportErrorRepository
                 .findByDeviceImport_Id(importId, pageable)
                 .map(error -> new DeviceImportErrorResponse(error.getRowNumber(), error.getMessages()));
