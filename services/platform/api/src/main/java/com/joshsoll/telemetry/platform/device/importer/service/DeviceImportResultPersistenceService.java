@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportProcessingResult;
 import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.entity.PersistedDeviceImportError;
-import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
 import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportErrorRepository;
 import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 

@@ -79,7 +79,8 @@ class OrganizationControllerTest {
                                 eq(id)))
                                 .thenReturn(response);
 
-                mockMvc.perform(get("/api/v1/organizations/{id}", id))
+                mockMvc.perform(get("/api/v1/organizations/{id}", id)
+                                .with(authentication(authentication)))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.data.name").value(response.name()))
                                 .andExpect(jsonPath("$.data.slug").value(response.slug()));
@@ -114,7 +115,8 @@ class OrganizationControllerTest {
 
                 final ObjectMapper mapper = new ObjectMapper();
 
-                mockMvc.perform(post("/api/v1/organizations").contentType(MediaType.APPLICATION_JSON)
+                mockMvc.perform(post("/api/v1/organizations").with(authentication(authentication))
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(request))).andExpect(status().isCreated())
                                 .andDo(print())
                                 .andExpect(jsonPath("$.data.name").value(response.name()))
