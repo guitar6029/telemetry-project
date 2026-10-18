@@ -2,10 +2,16 @@
 
 Read this file before beginning any task in this repository.
 
-## Before modifying code, inspect the current branch and working-tree status.
 
 ## Git workflow
 
+- Before modifying files, verify the current branch, worktree, and `git status`.
+- Use dedicated branches or worktrees for isolated tasks.
+- After a PR is merged, identify obsolete task branches and worktrees.
+- Only remove a worktree after confirming its changes are committed, preserved, and merged or otherwise safely transferred.
+- Never delete worktrees, branches, or uncommitted changes without explicit user approval.
+- Prefer `git worktree remove` for cleanup; never manually delete a Git-managed worktree directory.
+- Run `git worktree prune` only when stale worktree metadata needs cleanup.
 - Never develop directly on `main`; use a dedicated branch or worktree.
 - Keep changes scoped to the assigned task and preserve unrelated changes.
 - Do not commit, push, merge, or create a pull request unless explicitly requested.
