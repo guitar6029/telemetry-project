@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +27,10 @@ import com.joshsoll.telemetry.platform.organization.entity.Organization;
 
 @ExtendWith(MockitoExtension.class)
 class DeviceImportResultPersistenceServiceTest {
-    @Mock private DeviceImportRepository imports;
-    @Mock private DeviceImportErrorRepository errors;
+    @Mock
+    private DeviceImportRepository imports;
+    @Mock
+    private DeviceImportErrorRepository errors;
 
     @Test
     void persistsSummaryAndOneErrorRecordForFailedRowWithSeveralMessages() {

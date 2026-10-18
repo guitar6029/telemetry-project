@@ -16,6 +16,18 @@ Read this file before beginning any task in this repository.
 - Keep changes scoped to the assigned task and preserve unrelated changes.
 - Do not commit, push, merge, or create a pull request unless explicitly requested.
 
+## Task scope
+
+- Each implementation task must have one clearly defined objective.
+- Prefer small, independently testable changes.
+- Do not combine unrelated features, refactors, or fixes into one PR.
+- Do not expand scope without explicit user approval.
+- If a task becomes significantly larger than anticipated,
+  stop and report the findings before continuing.
+- Keep refactoring separate from feature development unless
+  strictly necessary for the assigned task.
+- Prefer incremental delivery over large implementations.
+
 ## Architecture
 
 - Respect the existing Angular frontend and Spring Boot modular-monolith conventions.

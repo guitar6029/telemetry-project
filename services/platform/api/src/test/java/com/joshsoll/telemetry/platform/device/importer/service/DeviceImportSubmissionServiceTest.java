@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,77 +41,77 @@ import tools.jackson.databind.ObjectMapper;
 @ExtendWith(MockitoExtension.class)
 class DeviceImportSubmissionServiceTest {
 
-    @Mock
-    private DeviceImportRepository deviceImportRepository;
+        @Mock
+        private DeviceImportRepository deviceImportRepository;
 
-    @Mock
-    private OutboxMessageRepository outboxMessageRepository;
+        @Mock
+        private OutboxMessageRepository outboxMessageRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private DeviceImportSubmissionService submissionService;
+        private DeviceImportSubmissionService submissionService;
 
-    private Organization organization;
-    private DeviceTemplate template;
-    private HierarchyNode hierarchyNode;
-    private DeviceImportContext context;
+        private Organization organization;
+        private DeviceTemplate template;
+        private HierarchyNode hierarchyNode;
+        private DeviceImportContext context;
 
-    @BeforeEach
-    void setUp() {
-        organization = mock(Organization.class);
-        template = mock(DeviceTemplate.class);
-        hierarchyNode = mock(HierarchyNode.class);
-        context = new DeviceImportContext(organization, template, hierarchyNode);
-        submissionService = new DeviceImportSubmissionService(
-                deviceImportRepository, outboxMessageRepository, objectMapper);
-    }
+        @BeforeEach
+        void setUp() {
+                organization = mock(Organization.class);
+                template = mock(DeviceTemplate.class);
+                hierarchyNode = mock(HierarchyNode.class);
+                context = new DeviceImportContext(organization, template, hierarchyNode);
+                submissionService = new DeviceImportSubmissionService(
+                                deviceImportRepository, outboxMessageRepository, objectMapper);
+        }
 
-    @Test
-    void persistsImportAndOutboxTogetherWithMessagePayload() throws Exception {
-        byte[] csvData = "a,b,c".getBytes(StandardCharsets.UTF_8);
-        DeviceImport deviceImport = submissionService.createImportAndOutboxMessage(
-                context, "devices.csv", DeviceImportMode.UPDATE_EXISTING, csvData);
+        @Test
+        void persistsImportAndOutboxTogetherWithMessagePayload() throws Exception {
+                byte[] csvData = "a,b,c".getBytes(StandardCharsets.UTF_8);
+                DeviceImport deviceImport = submissionService.createImportAndOutboxMessage(
+                                context, "devices.csv", DeviceImportMode.UPDATE_EXISTING, csvData);
 
-        ArgumentCaptor<DeviceImport> importCaptor = ArgumentCaptor.forClass(DeviceImport.class);
-        ArgumentCaptor<OutboxMessage> outboxCaptor = ArgumentCaptor.forClass(OutboxMessage.class);
-        InOrder order = inOrder(deviceImportRepository, outboxMessageRepository);
-        order.verify(deviceImportRepository).save(importCaptor.capture());
-        order.verify(outboxMessageRepository).save(outboxCaptor.capture());
+                ArgumentCaptor<DeviceImport> importCaptor = ArgumentCaptor.forClass(DeviceImport.class);
+                ArgumentCaptor<OutboxMessage> outboxCaptor = ArgumentCaptor.forClass(OutboxMessage.class);
+                InOrder order = inOrder(deviceImportRepository, outboxMessageRepository);
+                order.verify(deviceImportRepository).save(importCaptor.capture());
+                order.verify(outboxMessageRepository).save(outboxCaptor.capture());
 
-        DeviceImport savedImport = importCaptor.getValue();
-        OutboxMessage outboxMessage = outboxCaptor.getValue();
-        DeviceImportMessage payload = objectMapper.readValue(
-                outboxMessage.getPayload(), DeviceImportMessage.class);
+                DeviceImport savedImport = importCaptor.getValue();
+                OutboxMessage outboxMessage = outboxCaptor.getValue();
+                DeviceImportMessage payload = objectMapper.readValue(
+                                outboxMessage.getPayload(), DeviceImportMessage.class);
 
-        assertEquals(deviceImport.getId(), savedImport.getId());
-        assertEquals(DeviceImportStatus.QUEUED, savedImport.getStatus());
-        assertNotNull(savedImport.getSubmittedAt());
-        assertEquals(DeviceImportConstants.DEVICE_IMPORT_OUTBOX_EVENT_TYPE, outboxMessage.getEventType());
-        assertEquals(savedImport.getId(), outboxMessage.getAggregateId());
-        assertEquals(savedImport.getId(), payload.importId());
-        assertArrayEquals(csvData, payload.csvData());
-        assertEquals(2, objectMapper.readTree(outboxMessage.getPayload()).size());
-        assertEquals(0, outboxMessage.getCreatedAt().compareTo(savedImport.getSubmittedAt()));
-        assertNull(outboxMessage.getPublishedAt());
-        assertNotEquals(savedImport.getId(), outboxMessage.getId());
-        assertNotNull(DeviceImportSubmissionService.class
-                .getMethod("createImportAndOutboxMessage", DeviceImportContext.class, String.class,
-                        DeviceImportMode.class, byte[].class)
-                .getAnnotation(Transactional.class));
-    }
+                assertEquals(deviceImport.getId(), savedImport.getId());
+                assertEquals(DeviceImportStatus.QUEUED, savedImport.getStatus());
+                assertNotNull(savedImport.getSubmittedAt());
+                assertEquals(DeviceImportConstants.DEVICE_IMPORT_OUTBOX_EVENT_TYPE, outboxMessage.getEventType());
+                assertEquals(savedImport.getId(), outboxMessage.getAggregateId());
+                assertEquals(savedImport.getId(), payload.importId());
+                assertArrayEquals(csvData, payload.csvData());
+                assertEquals(2, objectMapper.readTree(outboxMessage.getPayload()).size());
+                assertEquals(0, outboxMessage.getCreatedAt().compareTo(savedImport.getSubmittedAt()));
+                assertNull(outboxMessage.getPublishedAt());
+                assertNotEquals(savedImport.getId(), outboxMessage.getId());
+                assertNotNull(DeviceImportSubmissionService.class
+                                .getMethod("createImportAndOutboxMessage", DeviceImportContext.class, String.class,
+                                                DeviceImportMode.class, byte[].class)
+                                .getAnnotation(Transactional.class));
+        }
 
-    @Test
-    void rollsBackImportWhenOutboxPersistenceFails() {
-        when(outboxMessageRepository.save(any(OutboxMessage.class)))
-                .thenThrow(new IllegalStateException("outbox write failed"));
+        @Test
+        void rollsBackImportWhenOutboxPersistenceFails() {
+                when(outboxMessageRepository.save(any(OutboxMessage.class)))
+                                .thenThrow(new IllegalStateException("outbox write failed"));
 
-        assertThrows(IllegalStateException.class, () -> submissionService.createImportAndOutboxMessage(
-                context,
-                "devices.csv",
-                DeviceImportMode.SKIP_EXISTING,
-                new byte[] { 1, 2, 3 }));
+                assertThrows(IllegalStateException.class, () -> submissionService.createImportAndOutboxMessage(
+                                context,
+                                "devices.csv",
+                                DeviceImportMode.SKIP_EXISTING,
+                                new byte[] { 1, 2, 3 }));
 
-        verify(deviceImportRepository).save(any(DeviceImport.class));
-        verify(outboxMessageRepository).save(any(OutboxMessage.class));
-    }
+                verify(deviceImportRepository).save(any(DeviceImport.class));
+                verify(outboxMessageRepository).save(any(OutboxMessage.class));
+        }
 }
