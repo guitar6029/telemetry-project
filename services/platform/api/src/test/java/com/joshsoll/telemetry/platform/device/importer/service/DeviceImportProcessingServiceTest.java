@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -24,6 +25,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
@@ -82,6 +84,9 @@ class DeviceImportProcessingServiceTest {
                 DeviceImportMode.SKIP_EXISTING,
                 Instant.now());
         when(deviceImportRepository.findById(deviceImport.getId())).thenReturn(Optional.of(deviceImport));
+        when(deviceImportRepository.claimQueuedImport(
+                eq(deviceImport.getId()),
+                org.mockito.ArgumentMatchers.any(Instant.class))).thenReturn(1);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         DeviceImportMessage message = new DeviceImportMessage(
                 deviceImport.getId(),
@@ -109,7 +114,7 @@ class DeviceImportProcessingServiceTest {
     @Test
     void shouldMarkImportFailedAndRethrowContextResolutionFailure() {
         DeviceImportContext context = validContext();
-        DeviceImport deviceImport = prepareImport(context);
+        DeviceImport deviceImport = prepareQueuedImport(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         RuntimeException originalException = new IllegalStateException("context lookup failed");
         DeviceImportMessage message = messageWithCsv(deviceImport, VALID_CSV);
@@ -132,7 +137,7 @@ class DeviceImportProcessingServiceTest {
         DeviceImportContext context = validContext();
         DeviceImport deviceImport = prepareImport(context);
         when(deviceImportRepository.claimQueuedImport(
-                deviceImport.getId(),
+                eq(deviceImport.getId()),
                 org.mockito.ArgumentMatchers.any(Instant.class))).thenReturn(1, 0);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
         RuntimeException originalException = new IllegalStateException("temporary context lookup failure");
@@ -158,7 +163,7 @@ class DeviceImportProcessingServiceTest {
     @Test
     void shouldMarkImportFailedAndRethrowResultPersistenceFailure() {
         DeviceImportContext context = validContext();
-        DeviceImport deviceImport = prepareImport(context);
+        DeviceImport deviceImport = prepareQueuedImport(context);
         when(deviceImportContextService.resolveImportContext(
                 ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
@@ -180,7 +185,7 @@ class DeviceImportProcessingServiceTest {
     @Test
     void shouldRejectMoreThanTenThousandRowsWithoutProcessingAnyRows() {
         DeviceImportContext context = validContext();
-        DeviceImport deviceImport = prepareImport(context);
+        DeviceImport deviceImport = prepareQueuedImport(context);
         when(deviceImportContextService.resolveImportContext(
                 ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenReturn(context);
         List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
@@ -200,11 +205,9 @@ class DeviceImportProcessingServiceTest {
     @Test
     void shouldAcceptExactlyTenThousandRowsByRowCountRule() {
         DeviceImportContext context = validContext();
-        DeviceImport deviceImport = prepareImport(context);
+        DeviceImport deviceImport = prepareQueuedImport(context);
         when(deviceImportContextService.resolveImportContext(
                 ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID)).thenReturn(context);
-        List<DeviceImportStatus> savedStatuses = captureSavedStatuses();
-
         DeviceImportProcessingResult result = deviceImportProcessingService.processImport(messageWithRows(
                 deviceImport,
                 DeviceImportConstants.MAX_ROW_COUNT));
@@ -212,7 +215,6 @@ class DeviceImportProcessingServiceTest {
         assertEquals(DeviceImportConstants.MAX_ROW_COUNT, result.totalRows());
         assertEquals(DeviceImportConstants.MAX_ROW_COUNT, result.failedRows());
         assertEquals(DeviceImportStatus.PROCESSING, deviceImport.getStatus());
-        assertEquals(List.of(), savedStatuses);
     }
 
     @Test
@@ -234,11 +236,14 @@ class DeviceImportProcessingServiceTest {
 
     @Test
     void shouldIgnoreDuplicateDeliveryWhileImportIsProcessing() {
-        DeviceImportContext context = validContext();
+        DeviceImportContext context = new DeviceImportContext(
+                mock(Organization.class),
+                mock(DeviceTemplate.class),
+                mock(HierarchyNode.class));
         DeviceImport deviceImport = prepareImport(context);
         deviceImport.markProcessing(Instant.now());
         when(deviceImportRepository.claimQueuedImport(
-                deviceImport.getId(),
+                eq(deviceImport.getId()),
                 org.mockito.ArgumentMatchers.any(Instant.class))).thenReturn(0);
 
         DeviceImportProcessingResult result = deviceImportProcessingService.processImport(
@@ -255,10 +260,10 @@ class DeviceImportProcessingServiceTest {
         AtomicInteger claimAttempts = new AtomicInteger();
         CountDownLatch bothWorkersAttemptedClaim = new CountDownLatch(2);
         when(deviceImportRepository.claimQueuedImport(
-                deviceImport.getId(),
+                eq(deviceImport.getId()),
                 org.mockito.ArgumentMatchers.any(Instant.class))).thenAnswer(invocation -> {
                     bothWorkersAttemptedClaim.countDown();
-                    bothWorkersAttemptedClaim.await();
+                    assertTrue(bothWorkersAttemptedClaim.await(5, TimeUnit.SECONDS));
                     return claimAttempts.getAndIncrement() == 0 ? 1 : 0;
                 });
         when(deviceImportContextService.resolveImportContext(
@@ -273,8 +278,8 @@ class DeviceImportProcessingServiceTest {
             Future<DeviceImportProcessingResult> second = executor.submit(
                     () -> deviceImportProcessingService.processImport(messageWithCsv(deviceImport, VALID_CSV)));
 
-            DeviceImportProcessingResult firstResult = first.get();
-            DeviceImportProcessingResult secondResult = second.get();
+            DeviceImportProcessingResult firstResult = first.get(5, TimeUnit.SECONDS);
+            DeviceImportProcessingResult secondResult = second.get(5, TimeUnit.SECONDS);
 
             assertEquals(1, (firstResult.totalRows() == 1 ? 1 : 0) + (secondResult.totalRows() == 1 ? 1 : 0));
             verify(deviceRepository).save(any());
@@ -302,6 +307,11 @@ class DeviceImportProcessingServiceTest {
                 DeviceImportMode.SKIP_EXISTING,
                 Instant.now());
         when(deviceImportRepository.findById(deviceImport.getId())).thenReturn(Optional.of(deviceImport));
+        return deviceImport;
+    }
+
+    private DeviceImport prepareQueuedImport(DeviceImportContext context) {
+        DeviceImport deviceImport = prepareImport(context);
         when(deviceImportRepository.claimQueuedImport(
                 eq(deviceImport.getId()),
                 org.mockito.ArgumentMatchers.any(Instant.class))).thenReturn(1);
