@@ -3,6 +3,25 @@
 Read this file before beginning any task in this repository.
 
 
+## Node.js and npm environment
+
+- Before running npm commands, check the project's required
+  Node.js version.
+- Use the version specified by `.nvmrc`, `.node-version`,
+  `package.json`, or the project's CI configuration.
+- If `node` or `npm` is unavailable, check whether nvm
+  is installed.
+- If nvm is available, run `nvm use` with the project's
+  required Node.js version.
+- Verify `node --version` and `npm --version` before
+  running npm commands.
+- Never assume the Node.js version used by another
+  repository applies to this project.
+- Do not install or change system-level dependencies
+  without authorization.
+- If the required toolchain remains unavailable,
+  report the blocker and skipped verification.
+
 ## Git workflow
 
 - Before modifying files, verify the current branch, worktree, and `git status`.
