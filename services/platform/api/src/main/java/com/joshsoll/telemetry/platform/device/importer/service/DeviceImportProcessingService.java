@@ -33,7 +33,9 @@ import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportParseResult;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportProcessingResult;
 import com.joshsoll.telemetry.platform.device.importer.dto.PreparedDeviceImportRow;
+import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
+import com.joshsoll.telemetry.platform.device.importer.repository.DeviceImportRepository;
 import com.joshsoll.telemetry.platform.device.repository.DeviceRepository;
 
 @Service
@@ -41,37 +43,60 @@ public class DeviceImportProcessingService {
 
     private final DeviceRepository deviceRepository;
     private final DeviceImportContextService deviceImportContextService;
+    private final DeviceImportRepository deviceImportRepository;
+    private final DeviceImportResultPersistenceService resultPersistenceService;
 
     public DeviceImportProcessingService(
             DeviceRepository deviceRepository,
-            DeviceImportContextService deviceImportContextService) {
+            DeviceImportContextService deviceImportContextService,
+            DeviceImportRepository deviceImportRepository,
+            DeviceImportResultPersistenceService resultPersistenceService) {
         this.deviceRepository = deviceRepository;
         this.deviceImportContextService = deviceImportContextService;
+        this.deviceImportRepository = deviceImportRepository;
+        this.resultPersistenceService = resultPersistenceService;
     }
 
     public DeviceImportProcessingResult processImport(DeviceImportMessage message) {
-        DeviceImportContext context = deviceImportContextService.resolveImportContext(
-                message.organizationId(),
-                message.templateId(),
-                message.hierarchyNodeId());
+        DeviceImport deviceImport = deviceImportRepository.findById(message.importId())
+                .orElseThrow(() -> new IllegalStateException(
+                        "Device import not found: " + message.importId()));
+        if (deviceImport.getStatus().isTerminal()) {
+            return new DeviceImportProcessingResult(0, 0, 0, 0, 0, List.of());
+        }
+        deviceImport.markProcessing(Instant.now());
+        deviceImportRepository.save(deviceImport);
 
-        InputStream inputStream = new ByteArrayInputStream(message.csvData());
-
-        DeviceImportParseResult parsedResults;
         try {
-            parsedResults = parseCSVFile(inputStream, context);
+            DeviceImportContext context = deviceImportContextService.resolveImportContext(
+                    deviceImport.getOrganization().getId(),
+                    deviceImport.getDeviceTemplate().getId(),
+                    deviceImport.getHierarchyNode().getId());
+
+            InputStream inputStream = new ByteArrayInputStream(message.csvData());
+            DeviceImportParseResult parsedResults = parseCSVFile(inputStream);
+
+            DeviceImportProcessingResult result = processRows(parsedResults, context, deviceImport.getImportMode());
+            resultPersistenceService.persist(deviceImport.getId(), result);
+            return result;
         } catch (DeviceImportInvalidException exception) {
+            deviceImport.markFailed(Instant.now());
+            deviceImportRepository.save(deviceImport);
             throw new AmqpRejectAndDontRequeueException(
                     "Device import contains an invalid CSV",
                     exception);
+        } catch (RuntimeException exception) {
+            try {
+                deviceImport.markFailed(Instant.now());
+                deviceImportRepository.save(deviceImport);
+            } catch (RuntimeException failureStateException) {
+                exception.addSuppressed(failureStateException);
+            }
+            throw exception;
         }
-
-        return processRows(parsedResults, context, message.importMode());
     }
 
-    private DeviceImportParseResult parseCSVFile(
-            InputStream inputStream,
-            DeviceImportContext deviceContext) {
+    private DeviceImportParseResult parseCSVFile(InputStream inputStream) {
 
         CSVFormat format = CSVFormat.DEFAULT.builder()
                 .setHeader()
@@ -108,6 +133,11 @@ public class DeviceImportProcessingService {
         Map<String, List<Integer>> rowsBySerialNumber = new HashMap<>();
 
         for (CSVRecord record : parser) {
+            if (rows.size() >= DeviceImportConstants.MAX_ROW_COUNT) {
+                throw new DeviceImportInvalidException(
+                        "Import file must not contain more than 10,000 rows.");
+            }
+
             PreparedDeviceImportRow row = new PreparedDeviceImportRow(
                     record.getRecordNumber(),
                     normalize(record.get("name")),

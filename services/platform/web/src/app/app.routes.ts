@@ -38,6 +38,10 @@ export const routes: Routes = [
                 loadChildren: () => import('./features/device-template/device-templates.routes').then(m => m.DEVICE_TEMPLATES_ROUTES)
             },
             {
+                path: 'reports',
+                loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORTS_ROUTES)
+            },
+            {
                 path: 'manage',
                 children: [
                     {
