@@ -1,15 +1,8 @@
 package com.joshsoll.telemetry.platform.device.importer.service;
 
 import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,8 +11,8 @@ import com.joshsoll.telemetry.platform.auth.service.AuthorizationService;
 import com.joshsoll.telemetry.platform.device.exception.DeviceImportInvalidException;
 import com.joshsoll.telemetry.platform.device.importer.constants.DeviceImportConstants;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportContext;
-import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportMessage;
 import com.joshsoll.telemetry.platform.device.importer.dto.DeviceImportResponse;
+import com.joshsoll.telemetry.platform.device.importer.entity.DeviceImport;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportMode;
 import com.joshsoll.telemetry.platform.device.importer.enums.DeviceImportStatus;
 import com.joshsoll.telemetry.platform.device.importer.exception.DeviceImportFileReadException;
@@ -30,16 +23,16 @@ public class DeviceImportService {
 
     private final AuthorizationService authorizationService;
 
-    private final RabbitTemplate rabbitTemplate;
     private final DeviceImportContextService deviceImportContextService;
+    private final DeviceImportSubmissionService deviceImportSubmissionService;
 
     public DeviceImportService(
             AuthorizationService authorizationService,
-            RabbitTemplate rabbitTemplate,
-            DeviceImportContextService deviceImportContextService) {
+            DeviceImportContextService deviceImportContextService,
+            DeviceImportSubmissionService deviceImportSubmissionService) {
         this.authorizationService = authorizationService;
-        this.rabbitTemplate = rabbitTemplate;
         this.deviceImportContextService = deviceImportContextService;
+        this.deviceImportSubmissionService = deviceImportSubmissionService;
     }
 
     public DeviceImportContext validateImportContext(
@@ -67,8 +60,6 @@ public class DeviceImportService {
             throw new DeviceImportInvalidException("Import file must be a CSV.");
         }
 
-        validateRowCount(file);
-
         return deviceImportContextService.resolveImportContext(
                 organization.getId(),
                 templateId,
@@ -84,6 +75,10 @@ public class DeviceImportService {
             MultipartFile file,
             DeviceImportMode importMode) {
 
+        if (importMode == null) {
+            throw new DeviceImportInvalidException("Import mode is required.");
+        }
+
         DeviceImportContext context = validateImportContext(
                 authenticatedUser,
                 organizationId,
@@ -92,43 +87,17 @@ public class DeviceImportService {
                 file);
 
         try {
-            DeviceImportMessage message = new DeviceImportMessage(
-                    context.organization().getId(),
-                    context.deviceTemplate().getId(),
-                    context.hierarchyNode().getId(),
+            byte[] csvData = file.getBytes();
+            DeviceImport importOperation = deviceImportSubmissionService.createImportAndOutboxMessage(
+                    context,
+                    file.getOriginalFilename(),
                     importMode,
-                    file.getBytes());
-
-            rabbitTemplate.convertAndSend(
-                    DeviceImportConstants.DEVICE_IMPORT_QUEUE_NAME,
-                    message);
+                    csvData);
 
             return new DeviceImportResponse(
+                    importOperation.getId(),
                     "Import job accepted",
                     DeviceImportStatus.QUEUED);
-        } catch (IOException exception) {
-            throw new DeviceImportFileReadException(
-                    "Unable to read import file",
-                    exception);
-        }
-    }
-
-    private void validateRowCount(MultipartFile file) {
-        try {
-            byte[] csvData = file.getBytes();
-            CSVFormat format = CSVFormat.DEFAULT.builder()
-                    .setHeader()
-                    .setSkipHeaderRecord(true)
-                    .get();
-
-            try (CSVParser parser = format.parse(new InputStreamReader(
-                    new ByteArrayInputStream(csvData),
-                    StandardCharsets.UTF_8))) {
-                if (parser.getRecords().size() > DeviceImportConstants.MAX_ROW_COUNT) {
-                    throw new DeviceImportInvalidException(
-                            "Import file must not contain more than 10,000 rows.");
-                }
-            }
         } catch (IOException exception) {
             throw new DeviceImportFileReadException(
                     "Unable to read import file",

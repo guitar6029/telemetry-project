@@ -144,6 +144,7 @@ export class DevicesImportComponent {
         this.deviceImportService.importDevices(request).subscribe({
             next: () => {
                 this.notificationService.success("Device import queued successfully.");
+                this.router.navigate(['/app/devices']);
             },
             error: () => {
                 this.notificationService.error("Failed to queue device import.");

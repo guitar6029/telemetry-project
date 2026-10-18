@@ -1,12 +1,13 @@
 package com.joshsoll.telemetry.platform.device.importer.enums;
 
 public enum DeviceImportStatus {
-    PREVIEW,
     QUEUED,
     PROCESSING,
     COMPLETED,
     COMPLETED_WITH_ERRORS,
-    FAILED,
-    CANCELLED,
-    EXPIRED
+    FAILED;
+
+    public boolean isTerminal() {
+        return this == COMPLETED || this == COMPLETED_WITH_ERRORS;
+    }
 }
