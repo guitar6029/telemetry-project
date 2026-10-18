@@ -247,6 +247,8 @@ class DeviceImportProcessingRulesTest {
                                 mode,
                                 Instant.now());
                 when(deviceImportRepository.findById(currentImport.getId())).thenReturn(Optional.of(currentImport));
+                when(deviceImportRepository.claimQueuedImport(
+                                eq(currentImport.getId()), any(Instant.class))).thenReturn(1);
                 when(deviceImportContextService.resolveImportContext(
                                 ORGANIZATION_ID, TEMPLATE_ID, HIERARCHY_NODE_ID))
                                 .thenReturn(context.deviceImportContext());
