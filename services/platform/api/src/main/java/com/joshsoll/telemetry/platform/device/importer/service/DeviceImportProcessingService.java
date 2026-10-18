@@ -64,8 +64,15 @@ public class DeviceImportProcessingService {
         if (deviceImport.getStatus().isTerminal()) {
             return new DeviceImportProcessingResult(0, 0, 0, 0, 0, List.of());
         }
-        deviceImport.markProcessing(Instant.now());
-        deviceImportRepository.save(deviceImport);
+
+        Instant startedAt = Instant.now();
+        int claimed = deviceImportRepository.claimQueuedImport(
+                deviceImport.getId(),
+                startedAt);
+        if (claimed != 1) {
+            return new DeviceImportProcessingResult(0, 0, 0, 0, 0, List.of());
+        }
+        deviceImport.markProcessing(startedAt);
 
         try {
             DeviceImportContext context = deviceImportContextService.resolveImportContext(
